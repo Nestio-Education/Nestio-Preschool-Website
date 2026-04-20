@@ -1,0 +1,2134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nestio Preschool — Nurturing Early Learners | Pune</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --teal:       #0b5454;
+  --teal2:      #0e7070;
+  --teal3:      #1a9090;
+  --teal-light: #e0f4f4;
+  --gold:       #e8960a;
+  --gold2:      #f5b030;
+  --gold-light: #fff4d8;
+  --cream:      #fdf7ef;
+  --warm:       #faf3e8;
+  --dark:       #0a1c1c;
+  --text:       #1a2e2e;
+  --muted:      #567070;
+  --white:      #ffffff;
+  --r:          20px;
+  --r2:         30px;
+  --shadow:     0 20px 60px rgba(11,84,84,.13);
+  --shadow2:    0 8px 32px rgba(11,84,84,.09);
+}
+ 
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--cream);
+  color:var(--text);
+  overflow-x:hidden;
+  cursor:none;
+}
+a{text-decoration:none;color:inherit}
+img{display:block;width:100%;height:100%;object-fit:cover}
+ul{list-style:none}
+button{cursor:none;font-family:'DM Sans',sans-serif;border:none;outline:none}
+ 
+/* ═══════════════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════════════ */
+#cursor{
+  position:fixed;width:12px;height:12px;background:var(--gold);
+  border-radius:50%;pointer-events:none;z-index:99999;
+  transform:translate(-50%,-50%);transition:transform .15s,background .2s,width .2s,height .2s;
+  mix-blend-mode:multiply;
+}
+#cursor-ring{
+  position:fixed;width:36px;height:36px;border:1.5px solid var(--teal);
+  border-radius:50%;pointer-events:none;z-index:99998;
+  transform:translate(-50%,-50%);transition:transform .35s cubic-bezier(.23,1,.32,1),width .3s,height .3s,opacity .3s;
+}
+body:hover #cursor-ring{opacity:1}
+.hover-target:hover ~ #cursor,
+a:hover ~ #cursor{ width:20px;height:20px; }
+ 
+/* ═══════════════════════════════════════════════
+   SCROLL ANIMATIONS
+═══════════════════════════════════════════════ */
+.reveal{
+  opacity:0;
+  transform:translateY(40px);
+  transition:opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1);
+}
+.reveal.left{transform:translateX(-50px)}
+.reveal.right{transform:translateX(50px)}
+.reveal.scale{transform:scale(.92) translateY(20px)}
+.revealed{opacity:1 !important;transform:none !important}
+.stagger-1{transition-delay:.1s}
+.stagger-2{transition-delay:.2s}
+.stagger-3{transition-delay:.3s}
+.stagger-4{transition-delay:.4s}
+.stagger-5{transition-delay:.5s}
+.stagger-6{transition-delay:.6s}
+ 
+/* ═══════════════════════════════════════════════
+   FLOATING WhatsApp
+═══════════════════════════════════════════════ */
+.wa-float{
+  position:fixed;bottom:28px;right:28px;z-index:999;
+  width:58px;height:58px;border-radius:50%;
+  background:linear-gradient(135deg,#25d366,#128c7e);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 30px rgba(37,211,102,.5);
+  animation:waBounce 2s ease-in-out infinite;
+  transition:transform .2s;
+}
+.wa-float:hover{transform:scale(1.12)}
+.wa-float svg{width:28px;height:28px;fill:white}
+@keyframes waBounce{0%,100%{box-shadow:0 6px 30px rgba(37,211,102,.5)} 50%{box-shadow:0 6px 50px rgba(37,211,102,.8)}}
+ 
+/* ═══════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════ */
+nav{
+  position:fixed;top:0;width:100%;z-index:1000;
+  padding:0 5vw;height:72px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(253,247,239,.92);
+  backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid rgba(11,84,84,.08);
+  transition:all .3s;
+}
+nav.scrolled{
+  height:62px;
+  box-shadow:0 4px 30px rgba(11,84,84,.1);
+}
+.nav-logo{display:flex;align-items:center;gap:12px}
+.nav-logo-emblem{
+  width:44px;height:44px;border-radius:14px;
+  background:linear-gradient(135deg,var(--teal),var(--teal2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;
+  box-shadow:0 4px 16px rgba(11,84,84,.3);
+}
+.nav-logo-words{display:flex;flex-direction:column}
+.nav-logo-name{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:700;font-size:1.15rem;
+  color:var(--teal);line-height:1;
+}
+.nav-logo-tagline{
+  font-size:.62rem;font-weight:600;
+  letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--gold);line-height:1;margin-top:3px;
+}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-links a{
+  font-size:.78rem;font-weight:600;
+  padding:7px 13px;border-radius:10px;
+  color:var(--text);letter-spacing:.3px;
+  transition:all .2s;
+}
+.nav-links a:hover{color:var(--teal);background:var(--teal-light)}
+.nav-cta{
+  background:linear-gradient(135deg,var(--gold),var(--gold2)) !important;
+  color:white !important;
+  border-radius:12px !important;
+  padding:9px 20px !important;
+  box-shadow:0 4px 18px rgba(232,150,10,.35);
+  font-weight:700 !important;
+  transition:all .2s !important;
+}
+.nav-cta:hover{transform:translateY(-2px) !important;box-shadow:0 8px 28px rgba(232,150,10,.45) !important}
+ 
+/* ═══════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════ */
+#home{
+  min-height:100vh;
+  background:var(--dark);
+  position:relative;overflow:hidden;
+  display:grid;grid-template-columns:1fr 1fr;
+  align-items:center;
+  padding:90px 6vw 60px;
+  gap:40px;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 80% at 60% 50%, rgba(14,112,112,.35) 0%, transparent 70%),
+             radial-gradient(ellipse 50% 70% at 90% 20%, rgba(232,150,10,.15) 0%, transparent 60%),
+             var(--dark);
+}
+.hero-orb{
+  position:absolute;border-radius:50%;
+  filter:blur(80px);animation:orbFloat 8s ease-in-out infinite;
+}
+.hero-orb-1{
+  width:500px;height:500px;
+  background:radial-gradient(circle,rgba(14,112,112,.4),transparent);
+  top:-10%;right:-5%;animation-delay:0s;
+}
+.hero-orb-2{
+  width:300px;height:300px;
+  background:radial-gradient(circle,rgba(232,150,10,.3),transparent);
+  bottom:10%;left:20%;animation-delay:-3s;
+}
+.hero-orb-3{
+  width:200px;height:200px;
+  background:radial-gradient(circle,rgba(26,144,144,.3),transparent);
+  top:30%;left:5%;animation-delay:-6s;
+}
+@keyframes orbFloat{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-30px) scale(1.05)}
+}
+.hero-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.particle{
+  position:absolute;border-radius:50%;
+  animation:particleDrift linear infinite;
+  opacity:.4;
+}
+@keyframes particleDrift{
+  0%{transform:translateY(100vh) rotate(0deg)}
+  100%{transform:translateY(-100px) rotate(360deg)}
+}
+.hero-left{position:relative;z-index:2}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
+  color:rgba(255,255,255,.85);
+  padding:7px 18px;border-radius:50px;
+  font-size:.72rem;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:28px;
+  backdrop-filter:blur(10px);
+}
+.hero-badge span{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--gold2);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,176,48,.4)} 50%{box-shadow:0 0 0 8px rgba(245,176,48,0)}}
+.hero-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(3rem,5.5vw,5.2rem);
+  font-weight:700;line-height:1.0;
+  color:white;margin-bottom:8px;
+}
+.hero-title em{color:var(--gold2);font-style:italic}
+.hero-title .line{
+  display:block;overflow:hidden;
+}
+.hero-title .line span{
+  display:inline-block;
+  animation:lineReveal .9s cubic-bezier(.22,1,.36,1) both;
+}
+.hero-title .line:nth-child(1) span{animation-delay:.2s}
+.hero-title .line:nth-child(2) span{animation-delay:.35s}
+.hero-title .line:nth-child(3) span{animation-delay:.5s}
+@keyframes lineReveal{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.hero-sub{
+  font-size:1rem;color:rgba(255,255,255,.7);
+  line-height:1.8;margin:24px 0 36px;max-width:460px;
+  font-weight:400;
+  animation:fadeIn 1s ease .8s both;
+}
+.hero-sub strong{color:var(--gold2);font-weight:600}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;animation:fadeIn 1s ease 1s both}
+.btn-glow{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:white;padding:15px 32px;border-radius:14px;
+  font-weight:700;font-size:.9rem;
+  display:inline-flex;align-items:center;gap:8px;
+  box-shadow:0 6px 30px rgba(232,150,10,.5);
+  transition:all .3s;position:relative;overflow:hidden;
+}
+.btn-glow::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  opacity:0;transition:opacity .3s;
+}
+.btn-glow:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(232,150,10,.6)}
+.btn-glow:hover::before{opacity:1}
+.btn-glow span{position:relative;z-index:1}
+.btn-ghost{
+  background:rgba(255,255,255,.08);
+  border:1.5px solid rgba(255,255,255,.25);
+  color:white;padding:15px 32px;border-radius:14px;
+  font-weight:600;font-size:.9rem;
+  backdrop-filter:blur(10px);transition:all .3s;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn-ghost:hover{background:rgba(255,255,255,.15);transform:translateY(-2px)}
+.hero-stats{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:14px;margin-top:44px;max-width:400px;
+  animation:fadeIn 1s ease 1.1s both;
+}
+.stat-pill{
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;padding:18px 20px;
+  backdrop-filter:blur(12px);
+  display:flex;align-items:center;gap:14px;
+  transition:all .3s;
+}
+.stat-pill:hover{background:rgba(255,255,255,.12);transform:scale(1.03)}
+.stat-num{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.2rem;font-weight:700;color:var(--gold2);line-height:1;
+}
+.stat-lbl{font-size:.72rem;color:rgba(255,255,255,.65);font-weight:600;line-height:1.3}
+ 
+/* HERO RIGHT IMAGE */
+.hero-right{position:relative;z-index:2;height:580px}
+.hero-img-main{
+  position:absolute;top:0;right:0;
+  width:90%;height:82%;
+  border-radius:30px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);
+}
+.hero-img-main img{animation:zoomPan 20s ease-in-out infinite alternate}
+@keyframes zoomPan{from{transform:scale(1.05) translate(0,0)}to{transform:scale(1.1) translate(-2%,-2%)}}
+.hero-img-float{
+  position:absolute;bottom:0;left:0;
+  width:52%;height:48%;
+  border-radius:24px;overflow:hidden;
+  box-shadow:0 20px 50px rgba(0,0,0,.4);
+  border:4px solid rgba(255,255,255,.15);
+}
+.hero-card-float{
+  position:absolute;top:28%;right:-5%;
+  background:rgba(255,255,255,.12);
+  backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:20px;padding:18px 22px;
+  color:white;min-width:170px;
+  animation:floatCard 4s ease-in-out infinite;
+}
+@keyframes floatCard{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.hero-card-float .icon{font-size:1.6rem;margin-bottom:8px}
+.hero-card-float .val{font-size:1.5rem;font-weight:700;color:var(--gold2);line-height:1}
+.hero-card-float .desc{font-size:.72rem;color:rgba(255,255,255,.7);margin-top:3px}
+ 
+/* ═══════════════════════════════════════════════
+   MARQUEE STRIP
+═══════════════════════════════════════════════ */
+.marquee-strip{
+  background:linear-gradient(90deg,var(--teal),var(--teal2),var(--teal3));
+  padding:14px 0;overflow:hidden;
+  display:flex;gap:0;
+}
+.marquee-inner{
+  display:flex;gap:0;white-space:nowrap;
+  animation:marqueeScroll 30s linear infinite;
+}
+.marquee-inner span{
+  font-size:.78rem;font-weight:700;
+  color:rgba(255,255,255,.85);
+  letter-spacing:1.5px;text-transform:uppercase;
+  padding:0 30px;
+}
+.marquee-inner span.dot{color:var(--gold2);font-size:1rem}
+@keyframes marqueeScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+ 
+/* ═══════════════════════════════════════════════
+   SECTION UTILITIES
+═══════════════════════════════════════════════ */
+.section{padding:100px 7vw}
+.section-inner{max-width:1280px;margin:0 auto}
+.label{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.7rem;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;
+  color:var(--teal2);margin-bottom:14px;
+}
+.label::before{content:'';width:24px;height:2px;background:var(--gold);border-radius:2px}
+.display{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.2rem,4vw,3.4rem);
+  font-weight:700;line-height:1.15;color:var(--dark);
+}
+.display em{color:var(--teal);font-style:italic}
+.display .gold{color:var(--gold)}
+.sub{
+  color:var(--muted);font-size:.95rem;
+  line-height:1.8;margin-top:16px;max-width:520px;
+  font-weight:400;
+}
+.btn-teal{
+  background:linear-gradient(135deg,var(--teal),var(--teal2));
+  color:white;padding:13px 28px;border-radius:12px;
+  font-weight:700;font-size:.85rem;
+  display:inline-flex;align-items:center;gap:8px;
+  transition:all .3s;box-shadow:0 6px 20px rgba(11,84,84,.3);
+}
+.btn-teal:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(11,84,84,.4)}
+.btn-gold{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:white;padding:13px 28px;border-radius:12px;
+  font-weight:700;font-size:.85rem;
+  display:inline-flex;align-items:center;gap:8px;
+  transition:all .3s;box-shadow:0 6px 20px rgba(232,150,10,.3);
+}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(232,150,10,.45)}
+ 
+/* ═══════════════════════════════════════════════
+   ABOUT
+═══════════════════════════════════════════════ */
+#about{background:var(--white)}
+.about-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:80px;align-items:center;margin-top:0;
+}
+.about-imgs{position:relative;height:520px}
+.about-img-big{
+  position:absolute;top:0;left:0;
+  width:72%;height:80%;border-radius:26px;overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.about-img-sm{
+  position:absolute;bottom:0;right:0;
+  width:52%;height:55%;border-radius:20px;overflow:hidden;
+  box-shadow:var(--shadow);
+  border:5px solid var(--white);
+}
+.about-badge{
+  position:absolute;top:50%;left:56%;
+  transform:translate(-50%,-50%);
+  background:var(--gold);
+  border-radius:50%;width:110px;height:110px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:0 10px 40px rgba(232,150,10,.4);
+  z-index:3;
+  animation:spin 30s linear infinite;
+}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.about-badge span:first-child{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.8rem;font-weight:700;color:white;line-height:1;
+}
+.about-badge span:last-child{font-size:.6rem;color:rgba(255,255,255,.85);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.about-text-wrap{padding:10px 0}
+.about-text-wrap p{
+  color:var(--muted);line-height:1.85;font-size:.94rem;margin-bottom:18px;
+}
+.about-text-wrap p strong{color:var(--teal);font-weight:600}
+.vm-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:32px 0 36px}
+.vm-card{
+  background:var(--warm);border-radius:var(--r);
+  padding:24px;border-left:3px solid var(--teal);
+  transition:all .3s;
+}
+.vm-card:hover{transform:translateY(-4px);box-shadow:var(--shadow2);background:var(--white)}
+.vm-card h4{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.2rem;font-weight:700;color:var(--dark);margin-bottom:8px;
+}
+.vm-card p{font-size:.83rem;color:var(--muted);line-height:1.6;margin:0}
+ 
+/* WHY US CARDS */
+.why-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:20px;margin-top:70px;
+}
+.why-card{
+  background:var(--white);border-radius:var(--r2);
+  padding:34px 28px;
+  box-shadow:var(--shadow2);border:1px solid rgba(11,84,84,.07);
+  position:relative;overflow:hidden;transition:all .4s;
+}
+.why-card::before{
+  content:'';position:absolute;bottom:-40px;right:-40px;
+  width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle,rgba(11,84,84,.06),transparent);
+  transition:all .4s;
+}
+.why-card:hover{transform:translateY(-8px);box-shadow:var(--shadow)}
+.why-card:hover::before{transform:scale(1.5)}
+.why-icon-wrap{
+  width:56px;height:56px;border-radius:16px;
+  background:var(--teal-light);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;margin-bottom:18px;transition:all .3s;
+}
+.why-card:hover .why-icon-wrap{background:var(--teal);transform:rotate(-5deg) scale(1.1)}
+.why-card h4{font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:8px}
+.why-card p{font-size:.83rem;color:var(--muted);line-height:1.65}
+ 
+/* ═══════════════════════════════════════════════
+   PROGRAMS
+═══════════════════════════════════════════════ */
+#programs{
+  background:var(--dark);
+  position:relative;overflow:hidden;
+}
+.programs-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 60% at 80% 50%,rgba(14,112,112,.25),transparent),
+             radial-gradient(ellipse 40% 40% at 10% 80%,rgba(232,150,10,.12),transparent);
+}
+#programs .label{color:rgba(255,255,255,.6)}
+#programs .label::before{background:var(--gold2)}
+#programs .display{color:white}
+.programs-scroll{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:24px;margin-top:60px;
+}
+.prog-card{
+  border-radius:26px;overflow:hidden;
+  position:relative;transition:all .4s;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+}
+.prog-card:hover{transform:translateY(-10px);border-color:rgba(255,255,255,.2)}
+.prog-img{height:200px;position:relative;overflow:hidden}
+.prog-img img{transition:transform .6s}
+.prog-card:hover .prog-img img{transform:scale(1.08)}
+.prog-img-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,transparent 30%,rgba(0,0,0,.6));
+}
+.prog-tag{
+  position:absolute;top:16px;left:16px;
+  background:var(--gold);color:white;
+  font-size:.68rem;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;
+  padding:5px 12px;border-radius:30px;
+}
+.prog-body{padding:28px 26px}
+.prog-age{
+  font-size:.72rem;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  color:var(--gold2);margin-bottom:8px;
+}
+.prog-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.9rem;font-weight:700;color:white;line-height:1.1;margin-bottom:16px;
+}
+.prog-features{margin-bottom:24px}
+.prog-features li{
+  font-size:.84rem;color:rgba(255,255,255,.7);
+  padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;gap:10px;
+}
+.prog-features li::before{
+  content:'';width:5px;height:5px;border-radius:50%;
+  background:var(--gold2);flex-shrink:0;
+}
+.prog-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:20px;border-top:1px solid rgba(255,255,255,.08);
+}
+.prog-price{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.8rem;font-weight:700;color:var(--gold2);
+}
+.prog-price span{font-size:.78rem;color:rgba(255,255,255,.5);font-family:'DM Sans',sans-serif;font-weight:400}
+ 
+/* ═══════════════════════════════════════════════
+   CURRICULUM
+═══════════════════════════════════════════════ */
+#curriculum{background:var(--cream)}
+.curric-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:80px;align-items:start;margin-top:60px}
+.stations{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.station{
+  background:var(--white);border-radius:var(--r2);
+  padding:30px 24px;
+  box-shadow:var(--shadow2);
+  border-top:4px solid var(--teal);
+  transition:all .35s;position:relative;overflow:hidden;
+}
+.station::after{
+  content:'';position:absolute;
+  bottom:-30px;right:-30px;
+  width:100px;height:100px;border-radius:50%;
+  background:radial-gradient(circle,rgba(11,84,84,.06),transparent);
+  transition:.4s;
+}
+.station:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.station:hover::after{transform:scale(2)}
+.station:nth-child(2){border-top-color:var(--gold)}
+.station:nth-child(3){border-top-color:#1a9090}
+.station:nth-child(4){border-top-color:#7c4dba}
+.station-icon{font-size:2.4rem;margin-bottom:16px}
+.station h4{font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:8px}
+.station p{font-size:.82rem;color:var(--muted);line-height:1.65}
+ 
+.schedule-side{position:sticky;top:100px}
+.schedule-label{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.7rem;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;
+  color:var(--teal2);margin-bottom:14px;
+}
+.schedule-label::before{content:'';width:24px;height:2px;background:var(--gold);border-radius:2px}
+.schedule-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;font-weight:700;color:var(--dark);margin-bottom:28px;
+}
+.timeline{position:relative;padding-left:24px}
+.timeline::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  width:2px;background:linear-gradient(to bottom,var(--teal),var(--gold),var(--teal));
+}
+.tl-item{
+  position:relative;margin-bottom:20px;
+  background:var(--white);border-radius:16px;padding:18px 20px;
+  box-shadow:var(--shadow2);margin-left:20px;
+  transition:all .3s;
+}
+.tl-item:hover{transform:translateX(6px);box-shadow:var(--shadow)}
+.tl-dot{
+  position:absolute;left:-30px;top:50%;transform:translateY(-50%);
+  width:10px;height:10px;border-radius:50%;
+  background:var(--teal);border:2px solid var(--white);
+  box-shadow:0 0 0 3px var(--teal-light);
+}
+.tl-item.gold-time .tl-dot{background:var(--gold);box-shadow:0 0 0 3px var(--gold-light)}
+.tl-time{
+  font-size:.72rem;font-weight:700;color:var(--teal);
+  letter-spacing:.5px;margin-bottom:4px;
+}
+.tl-item.gold-time .tl-time{color:var(--gold)}
+.tl-item h5{font-size:.9rem;font-weight:700;color:var(--dark);margin-bottom:3px}
+.tl-item p{font-size:.78rem;color:var(--muted);line-height:1.5;margin:0}
+ 
+/* ═══════════════════════════════════════════════
+   SPORTS & ARTS
+═══════════════════════════════════════════════ */
+#sports{background:var(--white)}
+.sports-intro{
+  display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-top:60px;
+}
+.sports-img-wrap{
+  position:relative;height:480px;
+}
+.sports-img-bg{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--teal-light),var(--gold-light));
+  border-radius:30px;
+}
+.sports-img-main{
+  position:absolute;top:5%;left:5%;right:5%;bottom:5%;
+  border-radius:24px;overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.sports-badge{
+  position:absolute;bottom:20px;right:-20px;
+  background:white;border-radius:18px;padding:16px 20px;
+  box-shadow:var(--shadow);z-index:3;
+  display:flex;align-items:center;gap:12px;
+  animation:floatCard 4s ease-in-out infinite;
+}
+.sports-badge .icon{font-size:1.8rem}
+.sports-badge strong{font-size:1.2rem;color:var(--teal);display:block;line-height:1}
+.sports-badge small{font-size:.7rem;color:var(--muted);font-weight:600}
+.sports-content h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.4rem;font-weight:700;color:var(--dark);margin-bottom:14px;
+}
+.sports-content h3 em{color:var(--teal);font-style:italic}
+.sports-content p{color:var(--muted);font-size:.94rem;line-height:1.8;margin-bottom:24px}
+.sports-tags{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:32px}
+.sport-tag{
+  background:var(--teal-light);color:var(--teal);
+  font-size:.78rem;font-weight:700;
+  padding:8px 16px;border-radius:30px;
+  border:1px solid rgba(11,84,84,.12);
+  transition:all .2s;
+}
+.sport-tag:hover{background:var(--teal);color:white}
+.sports-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:60px;
+}
+.sport-card{
+  position:relative;height:220px;border-radius:22px;overflow:hidden;
+  box-shadow:var(--shadow2);cursor:pointer;
+}
+.sport-card img{transition:transform .5s}
+.sport-card:hover img{transform:scale(1.1)}
+.sport-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(11,40,40,.85) 0%,rgba(11,40,40,.1) 60%);
+  transition:all .3s;
+}
+.sport-card:hover .sport-overlay{background:linear-gradient(to top,rgba(11,84,84,.9) 0%,rgba(11,84,84,.3) 60%)}
+.sport-info{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:20px;color:white;
+}
+.sport-info h4{font-size:1rem;font-weight:700;margin-bottom:4px}
+.sport-info p{font-size:.75rem;color:rgba(255,255,255,.75);line-height:1.4}
+.arts-strip{
+  margin-top:70px;
+  background:linear-gradient(135deg,var(--dark) 0%,#0a3030 100%);
+  border-radius:30px;padding:60px;
+  display:grid;grid-template-columns:1.2fr 1fr;gap:60px;align-items:center;
+  position:relative;overflow:hidden;
+}
+.arts-strip::before{
+  content:'';position:absolute;top:-80px;right:-80px;
+  width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(232,150,10,.2),transparent);
+}
+.arts-left .label{color:rgba(255,255,255,.6)}
+.arts-left .label::before{background:var(--gold)}
+.arts-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.5rem;font-weight:700;color:white;line-height:1.1;margin-bottom:16px;
+}
+.arts-title em{color:var(--gold2);font-style:italic}
+.arts-desc{color:rgba(255,255,255,.7);font-size:.9rem;line-height:1.8;margin-bottom:28px}
+.arts-list li{
+  color:rgba(255,255,255,.8);font-size:.88rem;
+  padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;gap:12px;align-items:flex-start;
+}
+.arts-list li .dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--gold2);flex-shrink:0;margin-top:6px;
+}
+.arts-list li strong{color:white;display:block;margin-bottom:2px;font-size:.9rem}
+.arts-icons{
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;
+}
+.arts-icon-card{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:20px;padding:28px 24px;text-align:center;
+  transition:all .3s;
+}
+.arts-icon-card:hover{background:rgba(255,255,255,.14);transform:translateY(-4px)}
+.arts-icon-card .i{font-size:2.2rem;margin-bottom:10px}
+.arts-icon-card h5{color:var(--gold2);font-weight:700;font-size:.9rem;margin-bottom:4px}
+.arts-icon-card p{color:rgba(255,255,255,.55);font-size:.75rem}
+ 
+/* ═══════════════════════════════════════════════
+   FEES
+═══════════════════════════════════════════════ */
+#fees{background:var(--cream)}
+.fees-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:24px;margin-top:60px;
+}
+.fee-card{
+  background:var(--white);border-radius:var(--r2);
+  overflow:hidden;box-shadow:var(--shadow2);
+  border:1px solid rgba(11,84,84,.08);
+  transition:all .4s;position:relative;
+}
+.fee-card:hover{transform:translateY(-10px);box-shadow:var(--shadow)}
+.fee-card-top{
+  padding:34px 30px;
+  background:linear-gradient(135deg,var(--teal),var(--teal2));
+}
+.fee-card:nth-child(2) .fee-card-top{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+}
+.fee-card:nth-child(3) .fee-card-top{
+  background:linear-gradient(135deg,#1a6060,var(--teal3));
+}
+.fee-card.popular::before{
+  content:'Most Popular';
+  position:absolute;top:18px;right:-32px;
+  background:var(--gold2);color:white;
+  font-size:.65rem;font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;padding:4px 44px;
+  transform:rotate(45deg);
+}
+.fee-age{
+  font-size:.7rem;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:6px;
+}
+.fee-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;font-weight:700;color:white;margin-bottom:12px;
+}
+.fee-price{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.8rem;font-weight:700;color:white;line-height:1;
+}
+.fee-price span{font-size:.85rem;font-family:'DM Sans',sans-serif;font-weight:400;opacity:.8}
+.fee-body{padding:28px 30px}
+.fee-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid rgba(11,84,84,.07);
+  font-size:.85rem;
+}
+.fee-item .key{color:var(--muted);font-weight:500}
+.fee-item .val{font-weight:700;color:var(--dark)}
+.fee-total{
+  background:var(--teal-light);border-radius:12px;
+  padding:16px 20px;margin-top:20px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.fee-total .key{font-weight:700;color:var(--teal);font-size:.85rem}
+.fee-total .val{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--teal)}
+.fees-table-wrap{
+  margin-top:60px;background:var(--white);
+  border-radius:var(--r2);overflow:hidden;
+  box-shadow:var(--shadow2);
+}
+.fees-table-title{
+  background:linear-gradient(90deg,var(--teal),var(--teal3));
+  padding:24px 32px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.4rem;font-weight:700;color:white;
+}
+table{width:100%;border-collapse:collapse}
+thead th{
+  background:var(--teal-light);color:var(--teal);
+  padding:16px 24px;font-size:.82rem;font-weight:700;
+  text-align:left;letter-spacing:.5px;text-transform:uppercase;
+}
+tbody td{
+  padding:15px 24px;font-size:.88rem;color:var(--text);
+  border-bottom:1px solid rgba(11,84,84,.06);font-weight:500;
+}
+tbody tr:last-child td{border:none;font-weight:700;background:var(--gold-light);color:var(--dark)}
+.check{color:var(--teal);font-size:1rem}
+.fees-note{
+  margin-top:28px;background:var(--white);border-radius:18px;
+  padding:26px 30px;display:flex;gap:18px;align-items:flex-start;
+  box-shadow:var(--shadow2);border-left:4px solid var(--gold);
+}
+.fees-note p{font-size:.86rem;color:var(--muted);line-height:1.7}
+.fees-note p strong{color:var(--dark)}
+ 
+/* ═══════════════════════════════════════════════
+   GALLERY
+═══════════════════════════════════════════════ */
+#gallery{background:var(--dark);position:relative;overflow:hidden}
+#gallery::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 70% at 50% 0%,rgba(14,112,112,.2),transparent);
+}
+#gallery .label{color:rgba(255,255,255,.6)}
+#gallery .label::before{background:var(--gold2)}
+#gallery .display{color:white}
+.gallery-masonry{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  grid-auto-rows:180px;
+  gap:14px;margin-top:60px;
+}
+.g-item{border-radius:18px;overflow:hidden;position:relative;cursor:pointer}
+.g-item.tall{grid-row:span 2}
+.g-item.wide{grid-column:span 2}
+.g-item.big{grid-column:span 2;grid-row:span 2}
+.g-item img{transition:transform .6s cubic-bezier(.22,1,.36,1);height:100%;width:100%;object-fit:cover}
+.g-item:hover img{transform:scale(1.08)}
+.g-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(11,40,40,.85),transparent);
+  opacity:0;transition:opacity .3s;
+  display:flex;align-items:flex-end;padding:18px;
+}
+.g-item:hover .g-overlay{opacity:1}
+.g-overlay span{color:white;font-weight:700;font-size:.85rem}
+ 
+.gallery-carousel-wrap{margin-top:60px;display:flex;flex-direction:column;gap:16px;overflow:hidden}
+.gallery-row{display:flex;gap:14px;will-change:transform;}
+.g-item{border-radius:18px;overflow:hidden;position:relative;cursor:pointer;flex-shrink:0;}
+.g-item img,.g-item video{display:block;height:220px;width:auto;object-fit:cover;transition:transform .6s;}
+.g-item:hover img,.g-item:hover video{transform:scale(1.06)}
+.g-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(11,40,40,.85),transparent);opacity:0;transition:opacity .3s;display:flex;align-items:flex-end;padding:18px;}
+.g-item:hover .g-overlay{opacity:1}
+.g-overlay span{color:white;font-weight:700;font-size:.85rem}
+
+/* ═══════════════════════════════════════════════
+   TESTIMONIALS
+═══════════════════════════════════════════════ */
+#reviews{background:var(--cream)}
+.reviews-top{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:60px;align-items:end;margin-bottom:60px;
+}
+.reviews-right{text-align:right}
+.reviews-img{
+  width:200px;height:200px;border-radius:50%;overflow:hidden;
+  margin-left:auto;border:5px solid var(--teal-light);
+  box-shadow:var(--shadow);
+}
+.reviews-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:24px;
+}
+.t-card{
+  background:var(--white);border-radius:var(--r2);
+  padding:34px;box-shadow:var(--shadow2);
+  border:1px solid rgba(11,84,84,.07);
+  transition:all .4s;position:relative;
+}
+.t-card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.t-card::before{
+  content:'"';
+  font-family:'Cormorant Garamond',serif;
+  font-size:8rem;font-weight:700;
+  color:var(--teal-light);
+  position:absolute;top:-10px;right:24px;
+  line-height:1;
+}
+.stars{color:var(--gold);font-size:1rem;letter-spacing:3px;margin-bottom:16px}
+.t-text{
+  font-size:.92rem;color:var(--muted);
+  line-height:1.8;margin-bottom:24px;font-style:italic;
+  position:relative;z-index:1;
+}
+.t-author{display:flex;align-items:center;gap:14px}
+.t-avatar{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,var(--teal),var(--teal2));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:white;font-size:.95rem;flex-shrink:0;
+}
+.t-name{font-weight:700;color:var(--dark);font-size:.9rem}
+.t-role{font-size:.76rem;color:var(--muted);margin-top:2px}
+ 
+/* ═══════════════════════════════════════════════
+   FRANCHISE
+═══════════════════════════════════════════════ */
+#franchise{
+  background:linear-gradient(135deg,var(--teal) 0%,#0a3030 100%);
+  position:relative;overflow:hidden;
+}
+#franchise::before{
+  content:'';position:absolute;
+  top:-100px;right:-100px;width:400px;height:400px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(232,150,10,.2),transparent);
+}
+#franchise .label{color:rgba(255,255,255,.6)}
+#franchise .label::before{background:var(--gold2)}
+#franchise .display{color:white}
+.franchise-grid{
+  display:grid;grid-template-columns:1fr 1.1fr;
+  gap:70px;align-items:start;margin-top:60px;
+}
+.fb-cards{display:grid;gap:16px}
+.fb-card{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;padding:22px 24px;
+  display:flex;gap:16px;align-items:flex-start;
+  backdrop-filter:blur(8px);transition:all .3s;
+}
+.fb-card:hover{background:rgba(255,255,255,.14);transform:translateX(8px)}
+.fb-card .fb-icon{
+  width:46px;height:46px;border-radius:14px;
+  background:rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;flex-shrink:0;
+}
+.fb-card h5{font-size:.9rem;font-weight:700;color:white;margin-bottom:4px}
+.fb-card p{font-size:.8rem;color:rgba(255,255,255,.65);line-height:1.55}
+.enq-form{
+  background:var(--white);border-radius:26px;
+  padding:42px;box-shadow:0 20px 80px rgba(0,0,0,.3);
+}
+.enq-form h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.7rem;font-weight:700;color:var(--dark);margin-bottom:4px;
+}
+.enq-form > p{font-size:.84rem;color:var(--muted);margin-bottom:28px}
+.fgroup{margin-bottom:18px}
+.fgroup label{
+  display:block;font-size:.78rem;font-weight:700;
+  color:var(--text);margin-bottom:6px;letter-spacing:.3px;
+}
+.fgroup input,.fgroup select,.fgroup textarea{
+  width:100%;padding:13px 16px;
+  border:1.5px solid #e0ecec;border-radius:12px;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;
+  color:var(--text);background:var(--white);
+  transition:border .2s,box-shadow .2s;outline:none;
+}
+.fgroup input:focus,.fgroup select:focus,.fgroup textarea:focus{
+  border-color:var(--teal);box-shadow:0 0 0 3px rgba(11,84,84,.08);
+}
+.fgroup textarea{height:88px;resize:none}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.submit-btn{
+  width:100%;padding:15px;
+  background:linear-gradient(135deg,var(--teal),var(--teal2));
+  color:white;border:none;border-radius:14px;
+  font-family:'DM Sans',sans-serif;font-weight:700;font-size:.95rem;
+  cursor:pointer;transition:all .3s;letter-spacing:.3px;
+}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(11,84,84,.45)}
+ 
+/* ═══════════════════════════════════════════════
+   CTA BAND
+═══════════════════════════════════════════════ */
+.cta-band{
+  background:linear-gradient(135deg,var(--gold),var(--gold2) 50%,#f0a020);
+  padding:80px 7vw;text-align:center;
+  position:relative;overflow:hidden;
+}
+.cta-band::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='0.05'%3E%3Ccircle cx='20' cy='20' r='3'/%3E%3C/g%3E%3C/svg%3E");
+}
+.cta-band h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,4vw,3.2rem);
+  font-weight:700;color:white;margin-bottom:12px;
+  position:relative;
+}
+.cta-band p{color:rgba(255,255,255,.9);font-size:1rem;margin-bottom:32px;position:relative}
+.btn-cta-white{
+  background:white;color:var(--gold);
+  padding:16px 40px;border-radius:16px;
+  font-weight:800;font-size:1rem;
+  display:inline-flex;align-items:center;gap:10px;
+  box-shadow:0 8px 30px rgba(0,0,0,.15);
+  transition:all .3s;position:relative;
+}
+.btn-cta-white:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,0,0,.2)}
+ 
+/* ═══════════════════════════════════════════════
+   CONTACT
+═══════════════════════════════════════════════ */
+#contact{background:var(--white)}
+.contact-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:70px;align-items:start;margin-top:60px;
+}
+.contact-info{display:grid;gap:16px}
+.ci{
+  background:var(--warm);border-radius:18px;
+  padding:22px 24px;display:flex;gap:16px;align-items:center;
+  transition:all .3s;
+}
+.ci:hover{transform:translateX(8px);background:var(--teal-light)}
+.ci-icon{
+  width:50px;height:50px;border-radius:14px;
+  background:var(--teal-light);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;flex-shrink:0;transition:.3s;
+}
+.ci:hover .ci-icon{background:var(--teal);font-size:1.3rem}
+.ci-label{font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.ci-val{font-weight:700;color:var(--dark);font-size:.95rem;margin-top:3px}
+.ci-val a{color:var(--teal)}
+.map-embed{
+  margin-top:24px;border-radius:20px;overflow:hidden;
+  height:200px;background:var(--teal-light);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--teal);font-weight:700;font-size:.9rem;
+}
+.visit-form{
+  background:var(--warm);border-radius:26px;padding:42px;
+}
+.visit-form h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.7rem;font-weight:700;color:var(--dark);margin-bottom:4px;
+}
+.visit-form > p{font-size:.84rem;color:var(--muted);margin-bottom:28px}
+ 
+/* ═══════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════ */
+.modal-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(10,28,28,.8);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s;padding:20px;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:white;border-radius:28px;
+  max-width:560px;width:100%;
+  padding:48px;
+  transform:translateY(30px) scale(.97);
+  transition:transform .3s;
+  position:relative;max-height:90vh;overflow-y:auto;
+}
+.modal-overlay.open .modal{transform:none}
+.modal-close{
+  position:absolute;top:18px;right:18px;
+  width:36px;height:36px;border-radius:50%;
+  background:var(--warm);border:none;
+  font-size:1.2rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.modal-close:hover{background:var(--teal);color:white}
+.modal h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;font-weight:700;color:var(--dark);margin-bottom:4px;
+}
+.modal > p{color:var(--muted);font-size:.85rem;margin-bottom:28px}
+ 
+/* ═══════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════ */
+footer{background:var(--dark);color:rgba(255,255,255,.6);padding:70px 7vw 30px}
+.footer-grid{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;
+  gap:50px;margin-bottom:50px;
+}
+.footer-brand{max-width:280px}
+.footer-brand .nav-logo-name{color:white;font-size:1.4rem}
+.footer-brand p{font-size:.83rem;line-height:1.75;margin-top:14px;color:rgba(255,255,255,.5)}
+.footer-brand .socials{display:flex;gap:10px;margin-top:22px}
+.social-btn{
+  width:38px;height:38px;border-radius:10px;
+  background:rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;transition:all .2s;
+}
+.social-btn:hover{background:var(--teal);transform:translateY(-2px)}
+.footer-col h4{color:white;font-weight:700;font-size:.88rem;margin-bottom:18px;letter-spacing:.3px}
+.footer-col a{
+  display:block;color:rgba(255,255,255,.5);
+  font-size:.82rem;margin-bottom:10px;transition:color .2s;
+}
+.footer-col a:hover{color:var(--gold2)}
+.footer-bottom{
+  border-top:1px solid rgba(255,255,255,.08);
+  padding-top:26px;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:10px;
+}
+.footer-bottom p{font-size:.78rem;color:rgba(255,255,255,.4)}
+.footer-bottom .gold{color:var(--gold2)}
+ 
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media(max-width:1024px){
+  .about-grid,.about-grid-rev,.sports-intro,
+  .franchise-grid,.contact-grid,.curric-grid{grid-template-columns:1fr}
+  .hero-right{display:none}
+  #home{grid-template-columns:1fr}
+  .programs-scroll,.sports-grid,.fees-grid,
+  .why-grid{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .gallery-masonry{grid-template-columns:repeat(2,1fr)}
+  .g-item.big{grid-column:span 2}
+  .arts-strip{grid-template-columns:1fr;padding:36px}
+  .hero-stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:640px){
+  .nav-links{display:none}
+  .programs-scroll,.sports-grid,.fees-grid,
+  .why-grid,.reviews-grid,.stations{grid-template-columns:1fr}
+  .gallery-masonry{grid-template-columns:1fr 1fr}
+  .frow{grid-template-columns:1fr}
+  .section{padding:70px 5vw}
+  .footer-grid{grid-template-columns:1fr}
+  .footer-brand{max-width:100%}
+  #cursor,#cursor-ring{display:none}
+  body{cursor:auto}
+}
+
+</style>
+</head>
+<body>
+ 
+<!-- CUSTOM CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+ 
+<!-- WHATSAPP FLOAT -->
+<a class="wa-float" href="https://wa.me/919096305648?text=Hi%20Nestio%20Preschool%2C%20I%20would%20like%20to%20enquire%20about%20admission%20for%20my%20child." target="_blank" title="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+ 
+<!-- ENQUIRY MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal" style="text-align:center;padding:50px 40px">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div style="font-size:3rem;margin-bottom:16px">📅</div>
+    <h3>Book a Free Visit</h3>
+    <p style="margin:12px 0 28px">Click the button below to fill in your details. Our team will call you within 24 hours!</p>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdUJ2k7BSumxs9RZD1BKa9d6CD9nhM8ejRCyUxNNqTSVzrzVw/viewform?usp=preview" target="_blank" class="submit-btn" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;width:auto;padding:16px 36px;margin-bottom:20px">📅 Open Booking Form →</a>
+    <p style="font-size:.75rem;color:var(--muted);">
+      Or call us directly: <a href="tel:9096305648" style="color:var(--teal);font-weight:700">90963 05648</a>
+    </p>
+  </div>
+</div>
+ 
+<!-- ──────────────────────── NAV ──────────────────────── -->
+<nav id="navbar">
+  <a href="#home" class="nav-logo">
+   <img src="images/logo.jpg" style="height:40px;width:auto;">
+    <div class="nav-logo-words">
+      <span class="nav-logo-name">Nestio</span>
+      <span class="nav-logo-tagline">Preschool · Pune</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#programs">Programs</a></li>
+    <li><a href="#curriculum">Curriculum</a></li>
+    <li><a href="#sports">Sports &amp; Arts</a></li>
+    <li><a href="#fees">Fees</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#franchise">Franchise</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="https://docs.google.com/forms/d/e/1FAIpQLSdUJ2k7BSumxs9RZD1BKa9d6CD9nhM8ejRCyUxNNqTSVzrzVw/viewform?usp=preview" target="_blank" class="nav-cta" id="openModal">Book Free Visit</a></li>
+  </ul>
+</nav>
+ 
+<!-- ──────────────────────── HERO ──────────────────────── -->
+<section id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="hero-particles" id="particles"></div>
+ 
+  <div class="hero-left">
+    <div class="hero-badge"><span></span> An Initiative by SpacECE · Pune</div>
+    <h1 class="hero-title">
+      <div class="line"><span>Nurturing</span></div>
+      <div class="line"><span><em>Early</em></span></div>
+      <div class="line"><span>Learners</span></div>
+    </h1>
+    <p class="hero-sub">
+      An innovative early childhood program by <strong>SpacECE's 17+ year experts</strong> — built to go beyond traditional preschool learning through station-based exploration.
+    </p>
+    <div class="hero-btns">
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdUJ2k7BSumxs9RZD1BKa9d6CD9nhM8ejRCyUxNNqTSVzrzVw/viewform?usp=preview" target="_blank" class="btn-glow" id="heroModal"><span>📅</span><span>Book Free Visit</span></a>
+      <a href="#programs" class="btn-ghost">Explore Programs →</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-pill"><div class="stat-num counter" data-target="17">0</div><div class="stat-lbl">Years of ECE Expertise</div></div>
+      <div class="stat-pill"><div class="stat-num counter" data-target="4">0</div><div class="stat-lbl">Learning Stations</div></div>
+      <div class="stat-pill"><div class="stat-num counter" data-target="8">0</div><div class="stat-lbl">Sports Activities</div></div>
+      <div class="stat-pill"><div class="stat-num counter" data-target="50">0</div><div class="stat-lbl">Happy Families</div></div>
+    </div>
+  </div>
+ 
+  <div class="hero-right">
+    <div class="hero-img-main">
+      <img src="images/3.jpeg" alt="Children learning at Nestio">
+    </div>
+    <div class="hero-img-float">
+      <img src="images/11.jpeg" alt="Happy preschool children">
+    </div>
+    <div class="hero-card-float">
+      <div class="icon">🏆</div>
+      <div class="val">50+</div>
+      <div class="desc">Happy Families</div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ──────────────────────── MARQUEE ──────────────────────── -->
+<div class="marquee-strip">
+  <div class="marquee-inner">
+    <span>Station-Based Learning</span><span class="dot">✦</span>
+    <span>Expert Educators</span><span class="dot">✦</span>
+    <span>Research-Led Curriculum</span><span class="dot">✦</span>
+    <span>Performing Arts</span><span class="dot">✦</span>
+    <span>8+ Sports</span><span class="dot">✦</span>
+    <span>Safe &amp; Nurturing Campus</span><span class="dot">✦</span>
+    <span>SpacECE Initiative</span><span class="dot">✦</span>
+    <span>Dhayari, Pune</span><span class="dot">✦</span>
+    <span>Station-Based Learning</span><span class="dot">✦</span>
+    <span>Expert Educators</span><span class="dot">✦</span>
+    <span>Research-Led Curriculum</span><span class="dot">✦</span>
+    <span>Performing Arts</span><span class="dot">✦</span>
+    <span>8+ Sports</span><span class="dot">✦</span>
+    <span>Safe &amp; Nurturing Campus</span><span class="dot">✦</span>
+    <span>SpacECE Initiative</span><span class="dot">✦</span>
+    <span>Dhayari, Pune</span><span class="dot">✦</span>
+  </div>
+</div>
+ 
+<!-- ──────────────────────── ABOUT ──────────────────────── -->
+<section class="section" id="about">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div class="about-imgs reveal left">
+      <div class="about-img-big" style="position:absolute;top:0;left:0;width:72%;height:80%;overflow:hidden;border-radius:26px;">
+      <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+  <source src="images/video1.mp4" type="video/mp4">
+</video>
+        </div>
+        <div class="about-img-sm">
+          <img src="images/5.jpeg" alt="Arts and crafts">
+        </div>
+        <div class="about-badge">
+          <span>17+</span>
+          <span>Years ECE</span>
+        </div>
+      </div>
+      <div class="about-text-wrap reveal right">
+        <div class="label">Building Bright Foundations</div>
+        <h2 class="display">Welcome to <em>Nestio</em></h2>
+        <p class="sub">An innovative early childhood program that goes beyond traditional preschool learning.</p>
+        <div style="margin-top:28px">
+          <p>Nestio Preschool is an <strong>innovative early childhood program by SpacECE</strong>, led by experienced Early Childhood Education experts — designed to go beyond traditional preschool learning through structured, station-based exploration.</p>
+          <p>We believe every child is born curious. At Nestio, we nurture that curiosity where specialist educators lead children through Sensory, Literacy, Numeracy, and Arts experiences every single day.</p>
+        </div>
+        <div class="vm-grid">
+          <div class="vm-card">
+            <h4>🎯 Our Vision</h4>
+            <p>To be the most trusted early childhood brand, building bright foundations for every learner.</p>
+          </div>
+          <div class="vm-card">
+            <h4>🚀 Our Mission</h4>
+            <p>Deliver joyful, research-led, station-based education through expert educators.</p>
+          </div>
+        </div>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdUJ2k7BSumxs9RZD1BKa9d6CD9nhM8ejRCyUxNNqTSVzrzVw/viewform?usp=preview" target="_blank" class="btn-teal" id="aboutModal">📅 Book a Free Visit</a>
+      </div>
+    </div>
+ 
+    <!-- WHY CARDS -->
+    <div style="margin-top:90px;text-align:center">
+      <div class="label reveal" style="justify-content:center">Our Promise</div>
+      <h2 class="display reveal">Why Parents <em>Choose</em> Nestio</h2>
+    </div>
+    <div class="why-grid" style="margin-top:50px">
+      <div class="why-card reveal stagger-1">
+        <div class="why-icon-wrap">🧭</div>
+        <h4>Station Based Learning</h4>
+        <p>Children rotate through Sensory, Literacy, Numeracy and Arts stations led by specialist educators for enriched daily experiences.</p>
+      </div>
+      <div class="why-card reveal stagger-2">
+        <div class="why-icon-wrap">👩‍🏫</div>
+        <h4>Expert Educators</h4>
+        <p>Each station is led by a domain expert, not a generalist teacher. Deep expertise means richer learning and deeper engagement.</p>
+      </div>
+      <div class="why-card reveal stagger-3">
+        <div class="why-icon-wrap">📚</div>
+        <h4>Research Led Curriculum</h4>
+        <p>Built on the latest ECE research by specialists with 17+ years of domain mastery at SpacECE — designed for real outcomes.</p>
+      </div>
+      <div class="why-card reveal stagger-4">
+        <div class="why-icon-wrap">🎨</div>
+        <h4>Performing Arts</h4>
+        <p>Theatre, music, dance and expressive movement arts build creativity, confidence and communication in every child.</p>
+      </div>
+      <div class="why-card reveal stagger-5">
+        <div class="why-icon-wrap">⚽</div>
+        <h4>Structured Sports</h4>
+        <p>8+ sports including Yoga, Basketball, Martial Arts and Swimming — conducted by trained female coaches weekly.</p>
+      </div>
+      <div class="why-card reveal stagger-6">
+        <div class="why-icon-wrap">🔒</div>
+        <h4>Safe &amp; Nurturing</h4>
+        <p>Fully secure campus with CCTV, careful supervision, and a warm environment where every child feels loved and valued.</p>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ──────────────────────── PROGRAMS ──────────────────────── -->
+<section class="section" id="programs" style="position:relative">
+  <div class="programs-bg"></div>
+  <div class="section-inner" style="position:relative;z-index:1">
+    <div style="text-align:center">
+      <div class="label reveal" style="justify-content:center">Nestio Offerings</div>
+      <h2 class="display reveal" style="color:white">Our <em style="color:var(--gold2)">Programs</em></h2>
+      <p class="sub reveal" style="margin:14px auto 0;color:rgba(255,255,255,.65)">Age-appropriate programs thoughtfully designed for each stage of early childhood.</p>
+    </div>
+    <div class="programs-scroll">
+      <div class="prog-card reveal stagger-1">
+        <div class="prog-img">
+          <img src="images/PTP.png" alt="Parent Toddler Program">
+          <div class="prog-img-overlay"></div>
+          <div class="prog-tag">1 – 2 Years</div>
+        </div>
+        <div class="prog-body">
+          <div class="prog-age">Parent-Toddler</div>
+          <div class="prog-name">Tiny Explorers</div>
+          <ul class="prog-features">
+            <li>Nurturing early bonds through guided play</li>
+            <li>Parent-guided exploration sessions</li>
+            <li>Rhymes, movement &amp; sensory play</li>
+            <li>Social bonding experiences</li>
+          </ul>
+          <div class="prog-footer">
+            <div class="prog-price">₹3,000 <span>/ month</span></div>
+             <a href="https://docs.google.com/forms/d/e/1FAIpQLSf-pkC8so710CqAbHkBnxkTKMRd_S1DsnvwWpfEwDKmJ3vHQw/viewform?usp=preview" target="_blank" class="btn-gold open-modal">Enquire Now</a>
+          </div>
+        </div>
+      </div>
+      <div class="prog-card reveal stagger-2">
+        <div class="prog-img">
+          <img src="images/playgroup.png" alt="Play Group">
+          <div class="prog-img-overlay"></div>
+          <div class="prog-tag">2 – 3 Years</div>
+        </div>
+        <div class="prog-body">
+          <div class="prog-age">Play Group</div>
+          <div class="prog-name">Curious Minds</div>
+          <ul class="prog-features">
+            <li>Social learning through play &amp; exploration</li>
+            <li>Creative stations &amp; early numeracy</li>
+            <li>Literacy foundation activities</li>
+            <li>Movement &amp; sports introduction</li>
+          </ul>
+          <div class="prog-footer">
+            <div class="prog-price">₹3,040 <span>/ month</span></div>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSf-pkC8so710CqAbHkBnxkTKMRd_S1DsnvwWpfEwDKmJ3vHQw/viewform?usp=preview" target="_blank" class="btn-gold open-modal">Enquire Now</a>
+          </div>
+        </div>
+      </div>
+      <div class="prog-card reveal stagger-3">
+        <div class="prog-img">
+          <img src="images/nursery.png" alt="Nursery Program">
+          <div class="prog-img-overlay"></div>
+          <div class="prog-tag">3 – 4 Years</div>
+        </div>
+        <div class="prog-body">
+          <div class="prog-age">Nursery</div>
+          <div class="prog-name">Growing Stars</div>
+          <ul class="prog-features">
+            <li>Strong foundations in learning &amp; confidence</li>
+            <li>School readiness program</li>
+            <li>Performing arts &amp; sports curriculum</li>
+            <li>Nature exploration</li>
+          </ul>
+          <div class="prog-footer">
+            <div class="prog-price">₹3,425 <span>/ month</span></div>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSf-pkC8so710CqAbHkBnxkTKMRd_S1DsnvwWpfEwDKmJ3vHQw/viewform?usp=preview" target="_blank" class="btn-gold open-modal">Enquire Now</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ──────────────────────── CURRICULUM ──────────────────────── -->
+<section class="section" id="curriculum">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:60px">
+      <div class="label reveal" style="justify-content:center">Specialized Teaching, Structured Exploration</div>
+      <h2 class="display reveal">How Learning Happens <em>at Nestio</em></h2>
+      <p class="sub reveal" style="margin:14px auto">Educators lead their area of expertise as children move across stations for enriched learning experiences.</p>
+    </div>
+    <div class="curric-grid">
+      <div class="stations">
+        <div class="station reveal stagger-1">
+          <div class="station-icon">🖐️</div>
+          <h4>Sensory Station</h4>
+          <p>Hands-on experiences sparking thinking and creativity. Children explore textures, sounds, smells, and materials in a rich sensory environment.</p>
+        </div>
+        <div class="station reveal stagger-2">
+          <div class="station-icon">📖</div>
+          <h4>Literacy Station</h4>
+          <p>Building language, reading readiness, and communication through storytelling, phonics, and vocabulary-rich activities.</p>
+        </div>
+        <div class="station reveal stagger-3">
+          <div class="station-icon">🔢</div>
+          <h4>Numeracy Station</h4>
+          <p>Early maths through patterns, counting, shapes, and problem-solving. Making numbers fun and meaningful for young minds.</p>
+        </div>
+        <div class="station reveal stagger-4">
+          <div class="station-icon">🎨</div>
+          <h4>Arts Station</h4>
+          <p>Creative expression through drawing, painting, craft and collage. Building fine motor skills and artistic confidence daily.</p>
+        </div>
+      </div>
+      <div class="schedule-side reveal right">
+        <div class="schedule-label">A Day at Nestio</div>
+        <div class="schedule-title">Our 3-Hour Daily Schedule</div>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-time">0:00 – 0:30</div>
+            <h5>Welcome &amp; Circle Time</h5>
+            <p>Greetings, rhymes, storytelling, and social interaction to start the day with joy!</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-time">0:30 – 2:00</div>
+            <h5>⭐ Station-Based Learning (Rotation)</h5>
+            <p>Art | Numeracy | Literacy | Sensory — Expert-led stations, children rotate through each.</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-time">2:00 – 2:20</div>
+            <h5>Snack &amp; Social Time</h5>
+            <p>Healthy eating habits and peer bonding in a warm, caring environment.</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-time">2:20 – 2:50</div>
+            <h5>Free Play / Outdoor Time</h5>
+            <p>Exploration, movement, and informal learning through play and discovery.</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-time">2:50 – 3:00</div>
+            <h5>Wind-Up &amp; Reflection</h5>
+            <p>Calm closure, recap, and readiness to go home feeling happy and fulfilled.</p>
+          </div>
+          <div class="tl-item gold-time">
+            <div class="tl-dot"></div>
+            <div class="tl-time">Once a Week</div>
+            <h5>🏆 Sports Session (Coach-led)</h5>
+            <p>Dedicated weekly sports session by trained female coaches in a safe, open play area.</p>
+          </div>
+          <div class="tl-item gold-time">
+            <div class="tl-dot"></div>
+            <div class="tl-time">Once a Week</div>
+            <h5>🎭 Performing Arts</h5>
+            <p>Music, Dance &amp; Drama — building creativity, language, and confidence through joyful expression.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ──────────────────────── SPORTS & ARTS ──────────────────────── -->
+<section class="section" id="sports">
+  <div class="section-inner">
+    <div class="sports-intro">
+      <div class="sports-img-wrap reveal left">
+        <div class="sports-img-bg"></div>
+        <div class="sports-img-main">
+          <img src="images/children_Playing.png" alt="Sports at Nestio">
+        </div>
+        <div class="sports-badge">
+          <span class="icon">⚽</span>
+          <div><strong>8+</strong><small>Sports Curriculum</small></div>
+        </div>
+      </div>
+      <div class="sports-content reveal right">
+        <div class="label">Active Learning</div>
+        <h2 class="display">Structured <em>Sports</em> Program</h2>
+        <p class="sub">Age-appropriate sports conducted by trained female coaches in a safe, open play area. Building coordination, teamwork, and confidence.</p>
+        <div class="sports-tags">
+          <span class="sport-tag">✓ Female Coaches</span>
+          <span class="sport-tag">✓ Weekly Sessions</span>
+          <span class="sport-tag">✓ Safe Play Area</span>
+          <span class="sport-tag">✓ Age-Appropriate</span>
+          <span class="sport-tag">✓ Inclusive Activities</span>
+          <span class="sport-tag">✓ 8+ Sports Curriculum</span>
+        </div>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSf-pkC8so710CqAbHkBnxkTKMRd_S1DsnvwWpfEwDKmJ3vHQw/viewform?usp=preview" target="_blank" class="btn-teal open-modal">Enquire About Sports Program</a>
+      </div>
+    </div>
+ 
+    <div class="sports-grid">
+      <div class="sport-card reveal stagger-1">
+        <img src="images/Yoga.png" alt="Yoga">
+        <div class="sport-overlay"></div>
+        <div class="sport-info"><h4>🧘 Yoga</h4><p>Mindfulness, balance &amp; body awareness</p></div>
+      </div>
+      <div class="sport-card reveal stagger-2">
+        <img src="images/rope-yoga.png" alt="Rope Yoga">
+        <div class="sport-overlay"></div>
+        <div class="sport-info"><h4>🪢 Rope Yoga</h4><p>Strength, flexibility &amp; coordination</p></div>
+      </div>
+      <div class="sport-card reveal stagger-3">
+        <img src="images/athletics.png" alt="Athletics">
+        <div class="sport-overlay"></div>
+        <div class="sport-info"><h4>🏃 Athletics</h4><p>Running, jumping &amp; motor skills</p></div>
+      </div>
+      <div class="sport-card reveal stagger-4">
+        <img src="images/basketball.png" alt="Basketball">
+        <div class="sport-overlay"></div>
+        <div class="sport-info"><h4>🏀 Basketball</h4><p>Ball skills, coordination &amp; teamwork</p></div>
+      </div>
+      <div class="sport-card reveal stagger-5">
+        <img src="images/martialart.png" alt="Martial Arts">
+        <div class="sport-overlay"></div>
+        <div class="sport-info"><h4>🥋 Martial Arts / Lathi Kathi</h4><p>Discipline, confidence &amp; self-defence</p></div>
+      </div>
+      <div class="sport-card reveal stagger-6">
+        <img src="images/football.png" alt="Football">
+        <div class="sport-overlay"></div>
+        <div class="sport-info"><h4>⚽ Football</h4><p>Coordination, teamwork &amp; fitness</p></div>
+      </div>
+      <div class="sport-card reveal stagger-1">
+        <img src="images/Swimming.png" alt="Swimming">
+        <div class="sport-overlay"></div>
+        <div class="sport-info"><h4>🏊 Swimming</h4><p>Water safety &amp; introductory skills</p></div>
+      </div>
+      <div class="sport-card reveal stagger-2">
+        <img src="images/archery.png" alt="Archery">
+        <div class="sport-overlay"></div>
+        <div class="sport-info"><h4>🏹 Archery</h4><p>Focus, patience &amp; fine motor skills</p></div>
+      </div>
+    </div>
+ 
+    <!-- ARTS SECTION -->
+    <div class="arts-strip reveal scale" style="margin-top:60px">
+      <div class="arts-left">
+        <div class="label" style="color:rgba(255,255,255,.55)">Express. Create. Shine.</div>
+        <div class="arts-title">Performing <em>Arts</em><br>Program</div>
+        <p class="arts-desc">Performing arts nurture creativity, language, and confidence in young children through joyful, play-based learning.</p>
+        <ul class="arts-list">
+          <li><div class="dot"></div><div><strong>Introductory Arts Learning</strong>Gentle introduction to music, movement, and creative expression for young children.</div></li>
+          <li><div class="dot"></div><div><strong>Theatre &amp; Roleplay</strong>Imaginative play through drama, storytelling, and character exploration.</div></li>
+          <li><div class="dot"></div><div><strong>Expressive Movement Arts</strong>Dance and movement to express emotions, ideas, and creativity freely.</div></li>
+          <li><div class="dot"></div><div><strong>Confidence Building</strong>Every child gets to perform, express, and shine — building lifelong confidence.</div></li>
+        </ul>
+      </div>
+      <div class="arts-icons">
+        <div class="arts-icon-card"><div class="i">🎵</div><h5>Music</h5><p>Rhythm, melody &amp; sound</p></div>
+        <div class="arts-icon-card"><div class="i">💃</div><h5>Dance</h5><p>Movement &amp; expression</p></div>
+        <div class="arts-icon-card"><div class="i">🎭</div><h5>Drama</h5><p>Storytelling &amp; roleplay</p></div>
+        <div class="arts-icon-card"><div class="i">🎤</div><h5>Performance</h5><p>Stage presence &amp; confidence</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ──────────────────────── FEES ──────────────────────── -->
+<section class="section" id="fees">
+  <div class="section-inner">
+    <div style="text-align:center">
+      <div class="label reveal" style="justify-content:center">Transparent Pricing</div>
+      <h2 class="display reveal">Simple &amp; <em>Honest</em> Fees</h2>
+      <p class="sub reveal" style="margin:14px auto">Clear, transparent pricing with no hidden charges. Invest in your child's bright future.</p>
+    </div>
+ 
+    <div class="fees-grid">
+      <div class="fee-card reveal stagger-1">
+        <div class="fee-card-top">
+          <div class="fee-age">Parent-Toddler · 1–2 Years</div>
+          <div class="fee-name">Tiny Explorers</div>
+          <div class="fee-price">₹3,000 <span>/ month</span></div>
+        </div>
+        <div class="fee-body">
+          <div class="fee-item"><span class="key">Monthly Tuition</span><span class="val">₹3,000</span></div>
+          <div class="fee-item"><span class="key">Annual Tuition Fee</span><span class="val">₹36,000</span></div>
+          <div class="fee-item"><span class="key">Admission Fee (One-Time)</span><span class="val">₹500</span></div>
+          <div class="fee-item"><span class="key">Program Fee</span><span class="val">—</span></div>
+          <div class="fee-item"><span class="key">App Access</span><span class="val check">✓</span></div>
+          <div class="fee-item"><span class="key">PTM &amp; Activities</span><span class="val check">✓</span></div>
+          <div class="fee-item"><span class="key">Student Insurance</span><span class="val check">✓</span></div>
+          <div class="fee-total"><span class="key">Total (Joining)</span><span class="val">₹1,200*</span></div>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSf-pkC8so710CqAbHkBnxkTKMRd_S1DsnvwWpfEwDKmJ3vHQw/viewform?usp=preview" target="_blank" class="btn-teal open-modal" style="margin-top:20px;display:block;text-align:center">Enquire Now</a>
+        </div>
+      </div>
+      <div class="fee-card popular reveal stagger-2">
+        <div class="fee-card-top">
+          <div class="fee-age">Play Group · 2–3 Years</div>
+          <div class="fee-name">Curious Minds</div>
+          <div class="fee-price">₹3,040 <span>/ month</span></div>
+        </div>
+        <div class="fee-body">
+          <div class="fee-item"><span class="key">Monthly Tuition</span><span class="val">₹3,040</span></div>
+          <div class="fee-item"><span class="key">Annual Tuition Fee</span><span class="val">₹30,400</span></div>
+          <div class="fee-item"><span class="key">Admission Fee (One-Time)</span><span class="val">₹5,000</span></div>
+          <div class="fee-item"><span class="key">Program Fee (One-Time)</span><span class="val">₹8,000</span></div>
+          <div class="fee-item"><span class="key">App Access</span><span class="val check">✓</span></div>
+          <div class="fee-item"><span class="key">School Kit (Bag, Uniform, ID)</span><span class="val check">✓</span></div>
+          <div class="fee-item"><span class="key">Books (Discounted)</span><span class="val check">✓</span></div>
+          <div class="fee-item"><span class="key">PTM &amp; Activities</span><span class="val check">✓</span></div>
+          <div class="fee-item"><span class="key">Student Insurance</span><span class="val check">✓</span></div>
+          <div class="fee-total"><span class="key">Total (Joining)</span><span class="val">₹5,100*</span></div>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSf-pkC8so710CqAbHkBnxkTKMRd_S1DsnvwWpfEwDKmJ3vHQw/viewform?usp=preview" target="_blank" class="btn-gold open-modal" style="margin-top:20px;display:block;text-align:center">Enquire Now</a>
+        </div>
+      </div>
+      <div class="fee-card reveal stagger-3">
+        <div class="fee-card-top">
+          <div class="fee-age">Nursery · 3–4 Years</div>
+          <div class="fee-name">Growing Stars</div>
+          <div class="fee-price">₹3,425 <span>/ month</span></div>
+        </div>
+        <div class="fee-body">
+          <div class="fee-item"><span class="key">Monthly Tuition</span><span class="val">₹3,425</span></div>
+          <div class="fee-item"><span class="key">Annual Tuition Fee</span><span class="val">₹34,250</span></div>
+          <div class="fee-item"><span class="key">Admission Fee (One-Time)</span><span class="val">₹5,000</span></div>
+          <div class="fee-item"><span class="key">Program Fee (One-Time)</span><span class="val">₹8,000</span></div>
+          <div class="fee-item"><span class="key">App Access</span><span class="val check">✓</span></div>
+          <div class="fee-item"><span class="key">School Kit (Bag, Uniform, ID)</span><span class="val check">✓</span></div>
+          <div class="fee-item"><span class="key">Books (Discounted)</span><span class="val check">✓</span></div>
+          <div class="fee-item"><span class="key">PTM &amp; Activities</span><span class="val check">✓</span></div>
+          <div class="fee-item"><span class="key">Student Insurance</span><span class="val check">✓</span></div>
+          <div class="fee-total"><span class="key">Total (Joining)</span><span class="val">₹6,000*</span></div>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSf-pkC8so710CqAbHkBnxkTKMRd_S1DsnvwWpfEwDKmJ3vHQw/viewform?usp=preview" target="_blank" class="btn-teal open-modal" style="margin-top:20px;display:block;text-align:center">Enquire Now</a>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="fees-note reveal">
+      <span style="font-size:1.8rem">🤝</span>
+      <p><strong>A Part of Every Fee Goes Towards a Good Cause.</strong> A portion of fees collected is contributed to our foundation supporting underprivileged children — ensuring every child gets access to quality early childhood education, regardless of background.</p>
+    </div>
+  </div>
+</section>
+ 
+<!-- ──────────────────────── GALLERY ──────────────────────── -->
+<!-- <section class="section" id="gallery">
+  <div class="section-inner" style="position:relative;z-index:1">
+    <div style="text-align:center">
+      <div class="label reveal" style="justify-content:center">Life at Nestio</div>
+      <h2 class="display reveal" style="color:white">Our <em style="color:var(--gold2)">Gallery</em></h2>
+      <p class="sub reveal" style="margin:14px auto;color:rgba(255,255,255,.6)">Glimpses of joyful learning, creative exploration, and happy children at Nestio.</p>
+    </div>
+    <div class="gallery-masonry reveal scale">
+      <div class="g-item big">
+        <img src="images/Teacher_Teaching.png" alt="Children learning">
+        <div class="g-overlay"></div>
+        <div class="g-item big" style="overflow:hidden;border-radius:16px;position:relative;">
+  <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;display:block;">
+    <source src="images/video2.mp4" type="video/mp4">
+  </video>
+  <div class="g-overlay"><span>Joyful Learning</span></div>
+</div>
+      </div>
+      <div class="g-item tall">
+        <img src="images/arts.png" alt="Arts and crafts">
+        <div class="g-overlay"></div>
+      </div>
+      <div class="g-item">
+        <img src="images/Gemini_Generated_Image_nxuey0nxuey0nxue.png" alt="Kids playing">
+        <div class="g-overlay"></div>
+      </div>
+      <div class="g-item">
+        <img src="images/children_Playing.png" alt="Sports">
+        <div class="g-overlay"></div>
+      </div>
+      <div class="g-item">
+        <img src="images/Teacher_and_Student.png" alt="Classroom">
+        <div class="g-overlay"></div>
+      </div>
+      <div class="g-item">
+        <img src="images/drawing.png" alt="Painting">
+        <div class="g-overlay"></div>
+      </div>
+      <div class="g-item">
+        <img src="images/activities.png" alt="Colorful classroom">
+        <div class="g-overlay"></div>
+      </div>
+      <div class="g-item">
+        <img src="images/playgroup.png" alt="Stories">
+        <div class="g-overlay"></div>
+         <div class="g-item">
+        <img src="images/playgroup.png" alt="Stories">
+        <div class="g-overlay"></div>
+
+      </div>
+    </div>
+  </div>
+</section> -->
+
+<section class="section" id="gallery">
+  <div style="position:relative;z-index:1">
+    <div style="text-align:center;padding:0 7vw">
+      <div class="label reveal" style="justify-content:center">Life at Nestio</div>
+      <h2 class="display reveal" style="color:white">Our <em style="color:var(--gold2)">Gallery</em></h2>
+      <p class="sub reveal" style="margin:14px auto;color:rgba(255,255,255,.6)">Glimpses of joyful learning, creative exploration, and happy children at Nestio.</p>
+    </div>
+
+    <div class="gallery-carousel-wrap">
+
+      <!-- ROW 1 — moves LEFT -->
+      <div class="gallery-row" id="row1">
+        <div class="g-item"><video autoplay muted loop playsinline><source src="images/video2.mp4" type="video/mp4"></video><div class="g-overlay"><span>Our Kids</span></div></div>
+        <div class="g-item"><img src="images/1.jpeg" alt="Kids"><div class="g-overlay"><span>Joyful Moments</span></div></div>
+        <div class="g-item"><img src="images/2.jpeg" alt="Kids"><div class="g-overlay"><span>Happy Kids</span></div></div>
+        <div class="g-item"><img src="images/3.jpeg" alt="Kids"><div class="g-overlay"><span>Learning</span></div></div>
+        <div class="g-item"><img src="images/4.jpeg" alt="Kids"><div class="g-overlay"><span>Together</span></div></div>
+        <div class="g-item"><img src="images/5.jpeg" alt="Kids"><div class="g-overlay"><span>Fun Time</span></div></div>
+        <div class="g-item"><img src="images/6.jpeg" alt="Kids"><div class="g-overlay"><span>Explore</span></div></div>
+        <div class="g-item"><img src="images/7.jpeg" alt="Kids"><div class="g-overlay"><span>Creativity</span></div></div>
+        <div class="g-item"><img src="images/8.jpeg" alt="Kids"><div class="g-overlay"><span>Play</span></div></div>
+        <div class="g-item"><img src="images/9.jpeg" alt="Kids"><div class="g-overlay"><span>Grow</span></div></div>
+        <div class="g-item"><img src="images/10.jpeg" alt="Kids"><div class="g-overlay"><span>Discover</span></div></div>
+        <div class="g-item"><img src="images/11.jpeg" alt="Kids"><div class="g-overlay"><span>Shine</span></div></div>
+        <div class="g-item"><img src="images/12.jpeg" alt="Kids"><div class="g-overlay"><span>Thrive</span></div></div>
+        <div class="g-item"><img src="images/13.jpeg" alt="Kids"><div class="g-overlay"><span>Dream</span></div></div>
+        <div class="g-item"><img src="images/activities.png" alt="Activities"><div class="g-overlay"><span>Activities</span></div></div>
+        <div class="g-item"><img src="images/archery.png" alt="Archery"><div class="g-overlay"><span>Archery</span></div></div>
+        <div class="g-item"><img src="images/arts.png" alt="Arts"><div class="g-overlay"><span>Arts & Crafts</span></div></div>
+        <div class="g-item"><img src="images/athletics.png" alt="Athletics"><div class="g-overlay"><span>Athletics</span></div></div>
+        <div class="g-item"><img src="images/children_dancing.png" alt="Dancing"><div class="g-overlay"><span>Dancing</span></div></div>
+        <div class="g-item"><img src="images/children_Playing.png" alt="Playing"><div class="g-overlay"><span>Outdoor Play</span></div></div>
+      </div>
+
+      <!-- ROW 2 — moves RIGHT -->
+      <div class="gallery-row" id="row2">
+        <div class="g-item"><video autoplay muted loop playsinline><source src="images/video1.mp4" type="video/mp4"></video><div class="g-overlay"><span>School Life</span></div></div>
+        <div class="g-item"><img src="images/14.jpeg" alt="Kids"><div class="g-overlay"><span>Explore</span></div></div>
+        <div class="g-item"><img src="images/15.jpeg" alt="Kids"><div class="g-overlay"><span>Wonder</span></div></div>
+        <div class="g-item"><img src="images/creativity.png" alt="Creativity"><div class="g-overlay"><span>Creativity</span></div></div>
+        <div class="g-item"><img src="images/drawing.png" alt="Drawing"><div class="g-overlay"><span>Drawing</span></div></div>
+        <div class="g-item"><img src="images/events.png" alt="Events"><div class="g-overlay"><span>Events</span></div></div>
+        <div class="g-item"><img src="images/football.png" alt="Football"><div class="g-overlay"><span>Football</span></div></div>
+        <div class="g-item"><img src="images/lathi.png" alt="Lathi"><div class="g-overlay"><span>Lathi</span></div></div>
+        <div class="g-item"><img src="images/literacy.png" alt="Literacy"><div class="g-overlay"><span>Literacy</span></div></div>
+        <div class="g-item"><img src="images/martialart.png" alt="Martial Art"><div class="g-overlay"><span>Martial Arts</span></div></div>
+        <div class="g-item"><img src="images/numeracy.png" alt="Numeracy"><div class="g-overlay"><span>Numeracy</span></div></div>
+        <div class="g-item"><img src="images/nursery.png" alt="Nursery"><div class="g-overlay"><span>Nursery</span></div></div>
+        <div class="g-item"><img src="images/performingarts.png" alt="Performing Arts"><div class="g-overlay"><span>Performing Arts</span></div></div>
+        <div class="g-item"><img src="images/playgroup.png" alt="Play Group"><div class="g-overlay"><span>Play Group</span></div></div>
+        <div class="g-item"><img src="images/PTP.png" alt="PTP"><div class="g-overlay"><span>Parent Toddler</span></div></div>
+        <div class="g-item"><img src="images/rope-yoga.png" alt="Rope Yoga"><div class="g-overlay"><span>Rope Yoga</span></div></div>
+        <div class="g-item"><img src="images/sensory.png" alt="Sensory"><div class="g-overlay"><span>Sensory Play</span></div></div>
+        <div class="g-item"><img src="images/Swimming.png" alt="Swimming"><div class="g-overlay"><span>Swimming</span></div></div>
+        <div class="g-item"><img src="images/Teacher_and_Student.png" alt="Teacher"><div class="g-overlay"><span>One on One</span></div></div>
+        <div class="g-item"><img src="images/Teacher_Teaching.png" alt="Teaching"><div class="g-overlay"><span>Teaching</span></div></div>
+        <div class="g-item"><img src="images/Yoga.png" alt="Yoga"><div class="g-overlay"><span>Yoga</span></div></div>
+        <div class="g-item"><img src="images/basketball.png" alt="Basketball"><div class="g-overlay"><span>Basketball</span></div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+<!-- ──────────────────────── TESTIMONIALS ──────────────────────── -->
+<section class="section" id="reviews">
+  <div class="section-inner">
+    <div class="reviews-top">
+      <div>
+        <div class="label reveal">Testimonials</div>
+        <h2 class="display reveal">What Parents <em>Say</em></h2>
+        <p class="sub reveal">Real words from real families who chose Nestio for their little ones.</p>
+      </div>
+      <div class="reviews-right reveal right">
+        <div class="reviews-img">
+          <img src="images/children_dancing.png" alt="Happy children">
+        </div>
+      </div>
+    </div>
+    <div class="reviews-grid">
+      <div class="t-card reveal stagger-1">
+        <div class="stars">★★★★★</div>
+        <p class="t-text">"Nestio is truly different from any other preschool. My daughter loves going every morning! The station-based learning keeps her so engaged — she comes home talking about what she learnt."</p>
+        <div class="t-author"><div class="t-avatar">P</div><div><div class="t-name">Priya Sharma</div><div class="t-role">Mother of Ananya · Play Group</div></div></div>
+      </div>
+      <div class="t-card reveal stagger-2">
+        <div class="stars">★★★★★</div>
+        <p class="t-text">"The sports program is incredible. My son started Yoga and Football and his coordination has improved tremendously. The female coaches are very encouraging and professional."</p>
+        <div class="t-author"><div class="t-avatar">R</div><div><div class="t-name">Rahul Patil</div><div class="t-role">Father of Aryan · Nursery</div></div></div>
+      </div>
+      <div class="t-card reveal stagger-3">
+        <div class="stars">★★★★★</div>
+        <p class="t-text">"I appreciate how research-backed the curriculum is. My daughter's vocabulary and confidence have grown tremendously in just three months. Best decision we made!"</p>
+        <div class="t-author"><div class="t-avatar">S</div><div><div class="t-name">Sneha Joshi</div><div class="t-role">Mother of Riya · Nursery</div></div></div>
+      </div>
+      <div class="t-card reveal stagger-4">
+        <div class="stars">★★★★★</div>
+        <p class="t-text">"The Parent-Toddler Program helped both of us transition smoothly. The educators are warm, patient and genuinely love what they do. Our son is thriving!"</p>
+        <div class="t-author"><div class="t-avatar">V</div><div><div class="t-name">Vivek Kulkarni</div><div class="t-role">Father of Dhruv · Toddler Program</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ──────────────────────── FRANCHISE ──────────────────────── -->
+<section class="section" id="franchise">
+  <div class="section-inner" style="position:relative;z-index:1">
+    <div style="text-align:center;margin-bottom:0">
+      <div class="label reveal" style="justify-content:center">Business Opportunity</div>
+      <h2 class="display reveal" style="color:white">Join the Nestio <em style="color:var(--gold2)">Franchise</em></h2>
+      <p class="sub reveal" style="margin:14px auto;color:rgba(255,255,255,.65)">Be part of an innovative, research-led preschool brand backed by SpacECE's 17+ years of ECE expertise.</p>
+    </div>
+    <div class="franchise-grid">
+      <div class="fb-cards reveal left">
+        <div class="fb-card"><div class="fb-icon">📋</div><div><h5>Proven Curriculum</h5><p>Station-based, research-led curriculum developed by 17+ year ECE experts at SpacECE.</p></div></div>
+        <div class="fb-card"><div class="fb-icon">🎓</div><div><h5>Complete Training</h5><p>Comprehensive training for you and your educators on the full Nestio methodology.</p></div></div>
+        <div class="fb-card"><div class="fb-icon">📣</div><div><h5>Marketing Support</h5><p>Brand assets, digital marketing support and local promotion assistance included.</p></div></div>
+        <div class="fb-card"><div class="fb-icon">🤝</div><div><h5>Ongoing Support</h5><p>Dedicated support team for operations, admissions planning, and growth strategies.</p></div></div>
+        <div class="fb-card"><div class="fb-icon">✅</div><div><h5>Trusted Brand</h5><p>Leverage the SpacECE legacy and Nestio's growing reputation as a premium preschool brand.</p></div></div>
+      </div>
+      <div class="enq-form reveal right" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:24px">
+        <div style="font-size:3rem">🤝</div>
+        <h3 style="color:white">Interested in a Franchise?</h3>
+        <p style="color:rgba(255,255,255,.7)">Click below to fill in your franchise enquiry. Our team will get back to you within 24 hours.</p>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdRXcg87Zn9PxrI3VHWwbOtDp9yTZyeQSmjcITi9uf-NPg3kQ/viewform?usp=preview" target="_blank" class="submit-btn" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;width:auto;padding:16px 36px">📋 Submit Franchise Enquiry →</a>
+        <p style="font-size:.74rem;color:rgba(255,255,255,.5)">
+          Or WhatsApp: <a href="https://wa.me/919096305648?text=Hi%2C%20I%27m%20interested%20in%20the%20Nestio%20Franchise" style="color:var(--gold2);font-weight:700" target="_blank">90963 05648</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ──────────────────────── CTA ──────────────────────── -->
+<div class="cta-band">
+  <h2>Ready to Give Your Child the Best Start?</h2>
+  <p>Book a free visit today and experience the Nestio difference for yourself.</p>
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSdUJ2k7BSumxs9RZD1BKa9d6CD9nhM8ejRCyUxNNqTSVzrzVw/viewform?usp=preview" target="_blank" class="btn-cta-white open-modal">📅 Book a Free Visit Today</a>
+</div>
+ 
+<!-- ──────────────────────── CONTACT ──────────────────────── -->
+<section class="section" id="contact">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:0">
+      <div class="label reveal" style="justify-content:center">Get In Touch</div>
+      <h2 class="display reveal">Contact <em>Us</em></h2>
+      <p class="sub reveal" style="margin:14px auto">We'd love to hear from you. Schedule a visit or send an enquiry.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="reveal left">
+        <div class="contact-info">
+          <div class="ci">
+            <div class="ci-icon">📍</div>
+            <div><div class="ci-label">Address</div><div class="ci-val">Nestio Preschool, Dhayari, Pune, Maharashtra – 411041</div></div>
+          </div>
+          <div class="ci">
+            <div class="ci-icon">📞</div>
+            <div><div class="ci-label">Phone</div><div class="ci-val"><a href="tel:9096305648">90963 05648</a></div></div>
+          </div>
+          <div class="ci">
+            <div class="ci-icon">✉️</div>
+            <div><div class="ci-label">Email</div><div class="ci-val"><a href="mailto:prajaktachinawalkar@gmail.com">prajaktachinawalkar@gmail.com</a></div></div>
+          </div>
+          <div class="ci">
+            <div class="ci-icon">🌐</div>
+            <div><div class="ci-label">Website</div><div class="ci-val"><a href="http://www.nestiopreschools.com" target="_blank">www.nestiopreschools.com</a></div></div>
+          </div>
+          <div class="ci">
+            <div class="ci-icon">🕐</div>
+            <div><div class="ci-label">School Hours</div><div class="ci-val">Mon – Sat: 8:00 AM – 1:00 PM</div></div>
+          </div>
+        </div>
+        <div class="map-embed">
+          <div style="text-align:center">
+            <div style="font-size:2rem;margin-bottom:8px">📍</div>
+            <div>Dhayari, Pune – 411041</div>
+            <a href="https://maps.google.com?q=Dhayari+Pune+411041" target="_blank" style="color:var(--teal);font-size:.8rem;font-weight:700;display:block;margin-top:8px">Open in Google Maps →</a>
+          </div>
+        </div>
+      </div>
+      <div class="visit-form reveal right" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:24px">
+        <div style="font-size:3rem">📅</div>
+        <h3>Book a Free Visit</h3>
+        <p>Talk to our team today and explore what makes Nestio special.</p>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdUJ2k7BSumxs9RZD1BKa9d6CD9nhM8ejRCyUxNNqTSVzrzVw/viewform?usp=preview" target="_blank" class="submit-btn" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;width:auto;padding:16px 36px">📅 Book My Free Visit →</a>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+          <a href="tel:9096305648" class="btn-teal" style="flex:1;justify-content:center">📞 Call Us</a>
+          <a href="https://wa.me/919096305648?text=Hi%20Nestio%20Preschool%2C%20I%27d%20like%20to%20book%20a%20free%20visit!" target="_blank" class="btn-gold" style="flex:1;justify-content:center">💬 WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ──────────────────────── FOOTER ──────────────────────── -->
+<footer>
+  <div class="section-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#home" class="nav-logo" style="display:flex;gap:10px;align-items:center">
+          <img src="images/logo.jpg" style="height:40px;width:auto;">
+          <div class="nav-logo-words">
+            <span class="nav-logo-name">Nestio</span>
+            <span class="nav-logo-tagline" style="color:var(--gold2)">Preschool · Pune</span>
+          </div>
+        </a>
+        <p>An innovative early childhood program by SpacECE — nurturing curious minds through station-based, research-led learning every single day.</p>
+        <div class="socials">
+          <a href="https://wa.me/919096305648" target="_blank" class="social-btn" title="WhatsApp">💬</a>
+          <a href="mailto:prajaktachinawalkar@gmail.com" class="social-btn" title="Email">✉️</a>
+          <a href="http://www.nestiopreschools.com" target="_blank" class="social-btn" title="Website">🌐</a>
+          <a href="tel:9096305648" class="social-btn" title="Call">📞</a>
+          <a href="https://www.youtube.com/@SpacECE" target="_blank" class="social-btn" title="YouTube @SpacECE">▶️</a>
+          <a href="https://www.linkedin.com/company/spacecein" target="_blank" class="social-btn" title="LinkedIn @spacecein">💼</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <a href="#about">About Us</a>
+        <a href="#programs">Our Programs</a>
+        <a href="#curriculum">Curriculum</a>
+        <a href="#sports">Sports &amp; Arts</a>
+      </div>
+      <div class="footer-col">
+        <h4>Information</h4>
+        <a href="#fees">Fee Structure</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#reviews">Testimonials</a>
+        <a href="#franchise">Franchise</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <a href="tel:9096305648">📞 90963 05648</a>
+        <a href="mailto:prajaktachinawalkar@gmail.com">✉️ Email Us</a>
+        <a href="https://wa.me/919096305648" target="_blank">💬 WhatsApp</a>
+        <a href="https://maps.google.com?q=Dhayari+Pune+411041" target="_blank">📍 Dhayari, Pune</a>
+        <a href="http://www.nestiopreschools.com" target="_blank">🌐 Website</a>
+        <a href="https://www.youtube.com/@SpacECE" target="_blank">▶️ YouTube @SpacECE</a>
+        <a href="https://www.linkedin.com/company/spacecein" target="_blank">💼 LinkedIn @spacecein</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2024 <span class="gold">Nestio Preschool</span>. An initiative by <span class="gold">SpacECE</span>. All rights reserved.</p>
+      <p>Dhayari, Pune, Maharashtra – 411041</p>
+    </div>
+  </div>
+</footer>
+ 
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════ -->
+<script>
+// ── CURSOR ──
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+function animRing(){
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+document.querySelectorAll('a,button,.prog-card,.why-card,.t-card,.sport-card').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.transform = 'translate(-50%,-50%) scale(2)';
+    cursor.style.background = 'var(--teal)';
+    ring.style.width = '60px'; ring.style.height = '60px';
+    ring.style.borderColor = 'var(--gold)';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+    cursor.style.background = 'var(--gold)';
+    ring.style.width = '36px'; ring.style.height = '36px';
+    ring.style.borderColor = 'var(--teal)';
+  });
+});
+ 
+// ── SCROLL REVEAL ──
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('revealed'); });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+reveals.forEach(r => observer.observe(r));
+ 
+// ── NAVBAR SCROLL ──
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+});
+ 
+// ── COUNTER ANIMATION ──
+const counters = document.querySelectorAll('.counter');
+const counterObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      const el = e.target;
+      const target = +el.dataset.target;
+      const dur = 1800;
+      const start = performance.now();
+      const tick = (now) => {
+        const p = Math.min((now - start) / dur, 1);
+        const ease = 1 - Math.pow(1 - p, 4);
+        el.textContent = Math.round(ease * target) + '+';
+        if(p < 1) requestAnimationFrame(tick);
+        else el.textContent = target + '+';
+      };
+      requestAnimationFrame(tick);
+      counterObs.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+counters.forEach(c => counterObs.observe(c));
+ 
+// ── PARTICLES ──
+const pContainer = document.getElementById('particles');
+for(let i = 0; i < 18; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  const size = Math.random() * 6 + 3;
+  p.style.cssText = `
+    width:${size}px;height:${size}px;
+    left:${Math.random() * 100}%;
+    bottom:-20px;
+    background:${Math.random() > 0.5 ? 'rgba(232,150,10,0.4)' : 'rgba(14,112,112,0.4)'};
+    animation-duration:${Math.random() * 10 + 8}s;
+    animation-delay:${Math.random() * 10}s;
+  `;
+  pContainer.appendChild(p);
+}
+ 
+// ── MODAL ──
+const modal = document.getElementById('modal');
+const openModal = () => modal.classList.add('open');
+const closeModal = () => modal.classList.remove('open');
+ 
+document.getElementById('modalClose').addEventListener('click', closeModal);
+modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+ 
+// ── SMOOTH ACTIVE NAV ──
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if(window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.style.color = '';
+    a.style.background = '';
+    if(a.getAttribute('href') === '#' + current) {
+      a.style.color = 'var(--teal)';
+      a.style.background = 'var(--teal-light)';
+    }
+  });
+});
+
+function infiniteCarousel(rowId, speed, direction) {
+  const row = document.getElementById(rowId);
+  if (!row) return;
+  let pos = 0;
+  let paused = false;
+
+  if (direction === 'right') {
+    // start from negative so it scrolls into view from left
+    const totalW = Array.from(row.children).reduce((s,el)=>s+el.offsetWidth+14,0);
+    pos = -totalW / 2;
+  }
+
+  row.addEventListener('mouseenter', () => paused = true);
+  row.addEventListener('mouseleave', () => paused = false);
+
+  function step() {
+    if (!paused) {
+      if (direction === 'left') {
+        pos -= speed;
+        const first = row.children[0];
+        if (first && -pos >= first.offsetWidth + 14) {
+          pos += first.offsetWidth + 14;
+          row.appendChild(first);
+        }
+      } else {
+        pos += speed;
+        const last = row.children[row.children.length - 1];
+        if (last && pos >= 0) {
+          pos -= last.offsetWidth + 14;
+          row.insertBefore(last, row.firstChild);
+        }
+      }
+      row.style.transform = `translateX(${pos}px)`;
+    }
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+window.addEventListener('load', () => {
+  infiniteCarousel('row1', 0.7, 'left');
+  infiniteCarousel('row2', 0.7, 'right');
+});
+
+</script>
+</body>
+</html>
