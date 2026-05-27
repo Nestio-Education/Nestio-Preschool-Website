@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpacECE India Foundation — Teacher Training Portal</title>
+  <meta name="description" content="Professional Teacher Training Programs in Early Childhood Education. 6-month training, multilingual curriculum, lesson planning, and field work support. NEP 2020 aligned.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============================================================
+     NAVBAR
+     ============================================================ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <img class="site-logo" src="" alt="SpacECE India Foundation">
+    </div>
+
+    <ul class="nav-links">
+      <li><button data-page="home"       onclick="navigate('home')">Home</button></li>
+      <li><button data-page="about"      onclick="navigate('about')">About</button></li>
+      <li><button data-page="courses"    onclick="navigate('courses')">Courses</button></li>
+      <li><button data-page="training"   onclick="navigate('training')">6-Month Plan</button></li>
+      <li><button data-page="weekly"     onclick="navigate('weekly')">Weekly Schedule</button></li>
+      <li><button data-page="planning"   onclick="navigate('planning')">Lesson Planning</button></li>
+      <li><button data-page="curriculum" onclick="navigate('curriculum')">Curriculum</button></li>
+      <li><button data-page="fieldwork"  onclick="navigate('fieldwork')">Field Work</button></li>
+      <li><button data-page="handbook"   onclick="navigate('handbook')">Handbook</button></li>
+      <li><button data-page="resources"  onclick="navigate('resources')">Resources</button></li>
+      <li><button data-page="contact"    onclick="navigate('contact')">Contact</button></li>
+    </ul>
+
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="nav-mobile" id="nav-mobile">
+    <button data-page="home"       onclick="navigate('home')">Home</button>
+    <button data-page="about"      onclick="navigate('about')">About</button>
+    <button data-page="courses"    onclick="navigate('courses')">Courses</button>
+    <button data-page="training"   onclick="navigate('training')">6-Month Plan</button>
+    <button data-page="weekly"     onclick="navigate('weekly')">Weekly Schedule</button>
+    <button data-page="planning"   onclick="navigate('planning')">Lesson Planning</button>
+    <button data-page="curriculum" onclick="navigate('curriculum')">Curriculum</button>
+    <button data-page="fieldwork"  onclick="navigate('fieldwork')">Field Work</button>
+    <button data-page="handbook"   onclick="navigate('handbook')">Handbook</button>
+    <button data-page="resources"  onclick="navigate('resources')">Resources</button>
+    <button data-page="contact"    onclick="navigate('contact')">Contact</button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     PAGE: HOME
+     ============================================================ -->
+<div id="page-home" class="page">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-text">
+          <div class="hero-badge"><i class="fas fa-circle-check"></i> Admissions Open 2025–26</div>
+          <h1 class="hero-title">
+            Empowering Teachers for<br>
+            <span>Holistic Early Learning</span>
+          </h1>
+          <p class="hero-desc">
+            Professional Teacher Training Programs in Early Childhood Education — practical, multilingual, and fully aligned with NEP 2020. Join thousands of educators making a difference across India.
+          </p>
+          <div class="hero-actions">
+            <button class="btn btn-primary btn-lg" onclick="navigate('courses')">
+              <i class="fas fa-graduation-cap"></i> Explore Courses
+            </button>
+            <button class="btn btn-secondary btn-lg" onclick="navigate('curriculum')">
+              <i class="fas fa-book-open"></i> View Curriculum
+            </button>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <span class="num" data-count="5000" data-suffix="+">0+</span>
+              <span class="lbl">Teachers Trained</span>
+            </div>
+            <div class="hero-stat">
+              <span class="num" data-count="4" data-suffix="">0</span>
+              <span class="lbl">Languages</span>
+            </div>
+            <div class="hero-stat">
+              <span class="num" data-count="24" data-suffix=" wks">0 wks</span>
+              <span class="lbl">Structured Training</span>
+            </div>
+            <div class="hero-stat">
+              <span class="num" data-count="100" data-suffix="%">0%</span>
+              <span class="lbl">NEP 2020 Aligned</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-img-wrap">
+            <img id="hero-img" src="" alt="SpacECE Teacher Training">
+          </div>
+          <div class="hero-float hero-float-1">
+            <div class="hero-float-icon orange"><i class="fas fa-certificate"></i></div>
+            <div class="hero-float-text">
+              <strong>Certified Program</strong>
+              <span>Govt. Recognised</span>
+            </div>
+          </div>
+          <div class="hero-float hero-float-2">
+            <div class="hero-float-icon yellow"><i class="fas fa-star"></i></div>
+            <div class="hero-float-text">
+              <strong>NEP 2020</strong>
+              <span>Aligned Curriculum</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature Strip -->
+  <div class="features-strip">
+    <div class="container">
+      <div class="features-grid">
+        <div class="feature-item fade-in">
+          <i class="fas fa-calendar-check"></i>
+          <h4>6-Month Training</h4>
+          <p>Theory + Practicum</p>
+        </div>
+        <div class="feature-item fade-in">
+          <i class="fas fa-language"></i>
+          <h4>4 Languages</h4>
+          <p>EN · HI · MR · GJ</p>
+        </div>
+        <div class="feature-item fade-in">
+          <i class="fas fa-child"></i>
+          <h4>Child-Centered</h4>
+          <p>Play-based pedagogy</p>
+        </div>
+        <div class="feature-item fade-in">
+          <i class="fas fa-clipboard-list"></i>
+          <h4>Lesson Plans</h4>
+          <p>Ready-to-use templates</p>
+        </div>
+        <div class="feature-item fade-in">
+          <i class="fas fa-school"></i>
+          <h4>Field Practicum</h4>
+          <p>Real school experience</p>
+        </div>
+        <div class="feature-item fade-in">
+          <i class="fas fa-award"></i>
+          <h4>Certification</h4>
+          <p>Industry recognised</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Why Choose Us -->
+  <section class="section" style="background:var(--white);">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-label">Why SpacECE</span>
+        <h2 class="section-title">Comprehensive Training Features</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Everything you need to become a confident, skilled, and compassionate early childhood educator.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card fade-in" style="padding:32px;">
+          <div style="width:52px;height:52px;background:var(--orange-bg);color:var(--orange);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-seedling"></i></div>
+          <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Foundational Depth</h3>
+          <p style="color:var(--muted);font-size:14px;">Grounded in Piaget, Vygotsky, Montessori and Reggio Emilia — theory meets practice every week.</p>
+        </div>
+        <div class="card fade-in" style="padding:32px;">
+          <div style="width:52px;height:52px;background:#FFF8E0;color:var(--yellow);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-map-marked-alt"></i></div>
+          <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Weekly Structured Plan</h3>
+          <p style="color:var(--muted);font-size:14px;">24 weeks of detailed daily schedules — topic, activity, and learning objectives every single day.</p>
+        </div>
+        <div class="card fade-in" style="padding:32px;">
+          <div style="width:52px;height:52px;background:#ECFDF5;color:var(--green);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-tasks"></i></div>
+          <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Field Work Trackers</h3>
+          <p style="color:var(--muted);font-size:14px;">Structured observation logs and practicum trackers for months 1–3 and 4–6.</p>
+        </div>
+        <div class="card fade-in" style="padding:32px;">
+          <div style="width:52px;height:52px;background:#EFF6FF;color:var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-book-reader"></i></div>
+          <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Multilingual Curriculum</h3>
+          <p style="color:var(--muted);font-size:14px;">Complete curriculum books, alphabet resources and lesson plans in English, Hindi, Marathi and Gujarati.</p>
+        </div>
+        <div class="card fade-in" style="padding:32px;">
+          <div style="width:52px;height:52px;background:var(--orange-bg);color:var(--orange);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-users"></i></div>
+          <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Family Engagement</h3>
+          <p style="color:var(--muted);font-size:14px;">Parent capacity-building materials and workshop resources to strengthen home–school connections.</p>
+        </div>
+        <div class="card fade-in" style="padding:32px;">
+          <div style="width:52px;height:52px;background:#FFF0F3;color:#E11D48;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-heartbeat"></i></div>
+          <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Health & Safety</h3>
+          <p style="color:var(--muted);font-size:14px;">Child protection, first aid, nutrition planning, and hygiene modules built into Month 5.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <div class="cta-banner">
+    <div class="container">
+      <h2>Ready to Transform Early Education?</h2>
+      <p>Join thousands of educators making a lasting difference in the lives of young learners across India.</p>
+      <button class="btn btn-secondary btn-lg" onclick="navigate('contact')">
+        <i class="fas fa-paper-plane"></i> Apply Now
+      </button>
+    </div>
+  </div>
+
+</div><!-- /page-home -->
+
+<!-- ============================================================
+     PAGE: ABOUT
+     ============================================================ -->
+<div id="page-about" class="page">
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Who We Are</span>
+        <h2 class="section-title">About SpacECE India Foundation</h2>
+        <div class="divider"></div>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-img-stack fade-in">
+          <div class="about-img-main">
+            <img id="about-main-img" src="" alt="Classroom Learning">
+          </div>
+          <div class="about-img-secondary">
+            <img id="about-small-img" src="" alt="Preschool Activity">
+          </div>
+          <span class="about-badge-pill">🏆 NEP 2020 Aligned</span>
+        </div>
+
+        <div class="about-cards fade-in">
+          <div class="about-card">
+            <h3>Our Vision</h3>
+            <p>To create a nurturing educational ecosystem where every teacher is equipped to foster holistic development in young children, building the foundation for India's future.</p>
+          </div>
+          <div class="about-card">
+            <h3>Our Mission</h3>
+            <p>Empowering educators through accessible, high-quality, multilingual training programs grounded in Indian educational values and modern evidence-based pedagogy.</p>
+          </div>
+          <div class="nep-card fade-in">
+            <h3 style="color:#3730A3;font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:8px;">NEP 2020 Aligned Curriculum</h3>
+            <p>Our curriculum emphasises experiential learning, critical thinking, multilingualism, and play-based approaches — fully aligned with the National Education Policy 2020 and NIPUN Bharat guidelines.</p>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="fade-in">
+            <div style="background:var(--orange-bg);border-radius:12px;padding:16px;text-align:center;">
+              <div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--orange);">4</div>
+              <div style="font-size:13px;color:var(--muted);">Languages</div>
+            </div>
+            <div style="background:var(--orange-bg);border-radius:12px;padding:16px;text-align:center;">
+              <div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--orange);">4</div>
+              <div style="font-size:13px;color:var(--muted);">Curriculum Levels</div>
+            </div>
+            <div style="background:#ECFDF5;border-radius:12px;padding:16px;text-align:center;">
+              <div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--green);">24</div>
+              <div style="font-size:13px;color:var(--muted);">Weeks Training</div>
+            </div>
+            <div style="background:#EFF6FF;border-radius:12px;padding:16px;text-align:center;">
+              <div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--blue);">6</div>
+              <div style="font-size:13px;color:var(--muted);">Core Modules</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================
+     PAGE: COURSES
+     ============================================================ -->
+<div id="page-courses" class="page">
+  <section class="section" style="background:var(--cream);">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-label">Learn &amp; Grow</span>
+        <h2 class="section-title">Our Training Programs</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Specialized programs designed to equip you with the skills, knowledge and confidence to excel as an early childhood educator.</p>
+      </div>
+      <div class="grid-3" id="courses-grid">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================
+     PAGE: 6-MONTH TRAINING TIMELINE
+     ============================================================ -->
+<div id="page-training" class="page">
+  <section class="section">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-label">Your Journey</span>
+        <h2 class="section-title">6-Month Training Programme</h2>
+        <div class="divider"></div>
+        <p class="section-desc">A carefully structured journey from foundational theory to real-world classroom practice — covering every domain of early childhood education.</p>
+      </div>
+      <div class="timeline-wrap" id="timeline-wrap">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================
+     PAGE: WEEKLY SCHEDULE
+     ============================================================ -->
+<div id="page-weekly" class="page">
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Detailed Schedule</span>
+        <h2 class="section-title">Weekly Training Plan</h2>
+        <div class="divider"></div>
+        <p class="section-desc">24 weeks of structured learning — select a month to view detailed week-by-week daily schedules with topics, activities and learning objectives.</p>
+      </div>
+
+      <div class="week-selector" id="month-tabs">
+        <!-- rendered by JS -->
+      </div>
+
+      <div class="weekly-grid" id="weekly-grid">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================
+     PAGE: LESSON PLANNING
+     ============================================================ -->
+<div id="page-planning" class="page">
+  <section class="section">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-label">Pedagogy</span>
+        <h2 class="section-title">Mastering Lesson Planning</h2>
+        <div class="divider"></div>
+      </div>
+
+      <div class="planning-grid">
+        <div class="planning-sidebar">
+          <div class="planning-card fade-in">
+            <h3><i class="fas fa-download" style="color:var(--orange);margin-right:8px;"></i>Download Lesson Plans</h3>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Access ready-to-use lesson plan templates in your preferred language.</p>
+            <div id="lesson-plan-langs">
+              <!-- rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="concept-grid">
+            <div class="concept-card fade-in">
+              <div class="concept-icon"><i class="fas fa-bullseye"></i></div>
+              <h4>Learning Objectives</h4>
+              <p>Defining clear, measurable goals for every lesson aligned with developmental milestones.</p>
+            </div>
+            <div class="concept-card fade-in">
+              <div class="concept-icon"><i class="fas fa-chart-line"></i></div>
+              <h4>SMART Objectives</h4>
+              <p>Specific, Measurable, Achievable, Relevant, and Time-bound goals for early learners.</p>
+            </div>
+            <div class="concept-card fade-in">
+              <div class="concept-icon"><i class="fas fa-sitemap"></i></div>
+              <h4>Bloom's Taxonomy</h4>
+              <p>Structuring questions and tasks from remembering to creating — for all ability levels.</p>
+            </div>
+            <div class="concept-card fade-in">
+              <div class="concept-icon"><i class="fas fa-dice"></i></div>
+              <h4>Teaching Methods</h4>
+              <p>Play-way, Montessori, inquiry-based, and project-based learning strategies.</p>
+            </div>
+            <div class="concept-card fade-in">
+              <div class="concept-icon"><i class="fas fa-hands"></i></div>
+              <h4>Interactive Learning</h4>
+              <p>Engaging children through hands-on, sensory, and collaborative activities.</p>
+            </div>
+            <div class="concept-card fade-in">
+              <div class="concept-icon"><i class="fas fa-clipboard-check"></i></div>
+              <h4>Assessment Techniques</h4>
+              <p>Formative and summative approaches: observation, portfolios, and checklists.</p>
+            </div>
+            <div class="concept-card fade-in">
+              <div class="concept-icon"><i class="fas fa-palette"></i></div>
+              <h4>Cross-Curricular Links</h4>
+              <p>Weaving literacy, numeracy, arts and STEM together through thematic planning.</p>
+            </div>
+            <div class="concept-card fade-in">
+              <div class="concept-icon"><i class="fas fa-sync-alt"></i></div>
+              <h4>Reflective Planning</h4>
+              <p>Reviewing and adapting plans based on children's responses and observations.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================
+     PAGE: CURRICULUM LIBRARY
+     ============================================================ -->
+<div id="page-curriculum" class="page">
+  <section class="section" style="background:var(--cream);">
+    <div class="container-lg">
+      <div class="section-header center">
+        <span class="section-label">Digital Resources</span>
+        <h2 class="section-title">Curriculum Library</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Access the complete SpacECE curriculum — books, alphabets, numbers, lesson plans and training essentials in all four languages via Google Drive.</p>
+      </div>
+      <div id="curriculum-wrap">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================
+     PAGE: FIELD WORK
+     ============================================================ -->
+<div id="page-fieldwork" class="page">
+  <section class="section">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-label">Practical Experience</span>
+        <h2 class="section-title">Field Work &amp; Practicum</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Hands-on classroom experience is at the heart of SpacECE training. Download trackers, complete observation visits, and receive expert mentor feedback.</p>
+      </div>
+
+      <h3 style="font-family:var(--font-display);font-size:22px;font-weight:700;margin-bottom:20px;">Download Field Work Trackers</h3>
+      <div class="tracker-cards" id="tracker-cards">
+        <!-- rendered by JS -->
+      </div>
+
+      <h3 style="font-family:var(--font-display);font-size:22px;font-weight:700;margin-bottom:20px;">Field Work Components</h3>
+      <div class="fieldwork-item fade-in">
+        <div class="fieldwork-icon"><i class="fas fa-clipboard-check"></i></div>
+        <div>
+          <h4>Practicum Guidelines</h4>
+          <p>Rules, expectations, and conduct guidelines for all school observation visits.</p>
+        </div>
+        <i class="fas fa-chevron-right chevron"></i>
+      </div>
+      <div class="fieldwork-item fade-in">
+        <div class="fieldwork-icon"><i class="fas fa-eye"></i></div>
+        <div>
+          <h4>Observation Reports</h4>
+          <p>Structured templates for observing and documenting classroom dynamics.</p>
+        </div>
+        <i class="fas fa-chevron-right chevron"></i>
+      </div>
+      <div class="fieldwork-item fade-in">
+        <div class="fieldwork-icon"><i class="fas fa-journal-whills"></i></div>
+        <div>
+          <h4>Reflection Journals</h4>
+          <p>Daily reflective prompts to support continuous professional growth.</p>
+        </div>
+        <i class="fas fa-chevron-right chevron"></i>
+      </div>
+      <div class="fieldwork-item fade-in">
+        <div class="fieldwork-icon"><i class="fas fa-school"></i></div>
+        <div>
+          <h4>Classroom Visits</h4>
+          <p>Scheduled visits to partner preschools — shadow, assist, and then lead teaching.</p>
+        </div>
+        <i class="fas fa-chevron-right chevron"></i>
+      </div>
+      <div class="fieldwork-item fade-in">
+        <div class="fieldwork-icon"><i class="fas fa-comments"></i></div>
+        <div>
+          <h4>Mentor Feedback Sessions</h4>
+          <p>Structured one-to-one feedback from experienced ECE mentors.</p>
+        </div>
+        <i class="fas fa-chevron-right chevron"></i>
+      </div>
+      <div class="fieldwork-item fade-in">
+        <div class="fieldwork-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <div>
+          <h4>Micro-Teaching Practice</h4>
+          <p>Practice teaching with peers in simulated classroom sessions before the real practicum.</p>
+        </div>
+        <i class="fas fa-chevron-right chevron"></i>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================
+     PAGE: HANDBOOK
+     ============================================================ -->
+<div id="page-handbook" class="page">
+  <section class="section">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-label">Study Material</span>
+        <h2 class="section-title">Teacher Training Handbook</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Your essential companion for the complete 6-month journey — comprehensive, practical, and available in all four languages.</p>
+      </div>
+
+      <div class="handbook-hero fade-in">
+        <div class="handbook-cover">
+          <div class="book-icon-large"><i class="fas fa-book"></i></div>
+          <h3>Complete Training Guide</h3>
+          <p>The essential companion for your 6-month learning journey.</p>
+          <div class="lang-btns" id="handbook-lang-btns">
+            <!-- rendered by JS -->
+          </div>
+        </div>
+        <div class="handbook-content">
+          <h3>Handbook Contents</h3>
+          <div class="chapters-grid">
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Child Development Fundamentals</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Learning Environment Design</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Literacy &amp; Numeracy Teaching</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Creative Arts Integration</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Inclusive Education Strategies</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Assessment &amp; Documentation</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Parent &amp; Community Engagement</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Health, Safety &amp; Nutrition</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Reflective Teaching Practice</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Capstone Project Guide</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================
+     PAGE: RESOURCES
+     ============================================================ -->
+<div id="page-resources" class="page">
+  <section class="section" style="background:var(--cream);">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-label">Downloads</span>
+        <h2 class="section-title">Teacher Resources</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Supplementary materials to support your classroom, your students, and the families you work with.</p>
+      </div>
+      <div class="grid-4" id="resources-grid">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================
+     PAGE: CONTACT
+     ============================================================ -->
+<div id="page-contact" class="page">
+  <section class="section">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-label">Get in Touch</span>
+        <h2 class="section-title">Contact Us</h2>
+        <div class="divider"></div>
+      </div>
+
+      <div class="contact-card fade-in">
+        <div class="contact-icon-wrap"><i class="fas fa-file-alt"></i></div>
+        <h3>We'd Love to Hear From You</h3>
+        <p>Fill in our Google Form to submit your enquiry about admissions, curriculum, or any other matter. Our team will get back to you within 24 hours.</p>
+        <a href="#" class="btn btn-primary btn-lg google-form-link" target="_blank" rel="noopener noreferrer" style="display:inline-flex;width:100%;justify-content:center;max-width:400px;margin:0 auto;">
+          <i class="fab fa-google"></i> Open Enquiry Form
+        </a>
+        <div class="divider"></div>
+        <p style="font-size:14px;color:var(--muted);">You can also connect with us on social media for updates, resources and tips.</p>
+        <div style="display:flex;justify-content:center;gap:12px;margin-top:16px;">
+          <a href="#" style="width:44px;height:44px;background:var(--cream);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .3s;" onmouseover="this.style.background='#1877F2';this.style.color='#fff'" onmouseout="this.style.background='var(--cream)';this.style.color='var(--muted)'"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" style="width:44px;height:44px;background:var(--cream);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .3s;" onmouseover="this.style.background='#E1306C';this.style.color='#fff'" onmouseout="this.style.background='var(--cream)';this.style.color='var(--muted)'"><i class="fab fa-instagram"></i></a>
+          <a href="#" style="width:44px;height:44px;background:var(--cream);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .3s;" onmouseover="this.style.background='#0077B5';this.style.color='#fff'" onmouseout="this.style.background='var(--cream)';this.style.color='var(--muted)'"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" style="width:44px;height:44px;background:var(--cream);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .3s;" onmouseover="this.style.background='#FF0000';this.style.color='#fff'" onmouseout="this.style.background='var(--cream)';this.style.color='var(--muted)'"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================
+     FOOTER (shown on all pages)
+     ============================================================ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img class="site-logo" src="" alt="SpacECE India Foundation">
+        <p>Empowering educators to build a strong foundation for India's future through professional teacher training and early childhood education resources.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><button data-page="home"       onclick="navigate('home')">Home</button></li>
+          <li><button data-page="about"      onclick="navigate('about')">About Us</button></li>
+          <li><button data-page="courses"    onclick="navigate('courses')">Courses</button></li>
+          <li><button data-page="training"   onclick="navigate('training')">6-Month Plan</button></li>
+          <li><button data-page="weekly"     onclick="navigate('weekly')">Weekly Schedule</button></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><button data-page="curriculum" onclick="navigate('curriculum')">Curriculum Library</button></li>
+          <li><button data-page="planning"   onclick="navigate('planning')">Lesson Planning</button></li>
+          <li><button data-page="fieldwork"  onclick="navigate('fieldwork')">Field Work</button></li>
+          <li><button data-page="handbook"   onclick="navigate('handbook')">Handbook</button></li>
+          <li><button data-page="resources"  onclick="navigate('resources')">Downloads</button></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><button data-page="contact" onclick="navigate('contact')">Enquiry Form</button></li>
+          <li><a href="#" class="google-form-link" target="_blank">Apply Now</a></li>
+        </ul>
+        <div style="margin-top:24px;">
+          <span style="font-size:12px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.1em;font-weight:700;">Follow Us</span>
+          <div class="footer-socials" style="margin-top:10px;">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2025 SpacECE India Foundation. All rights reserved.</p>
+      <p style="font-size:12px;">NEP 2020 Aligned &nbsp;·&nbsp; Early Childhood Education &nbsp;·&nbsp; India</p>
+    </div>
+  </div>
+</footer>
+
+<!-- JS -->
+<script src="app.js"></script>
+</body>
+</html>

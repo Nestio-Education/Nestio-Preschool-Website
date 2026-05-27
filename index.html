@@ -93,29 +93,33 @@ button{cursor:none;font-family:'DM Sans',sans-serif;border:none;outline:none}
 ═══════════════════════════════════════════════ */
 nav{
   position:fixed;top:0;width:100%;z-index:1000;
-  padding:0 5vw;height:72px;
+  padding:0 3vw;height:68px;
   display:flex;align-items:center;justify-content:space-between;
   background:rgba(253,247,239,.92);
   backdrop-filter:blur(20px) saturate(180%);
   border-bottom:1px solid rgba(11,84,84,.08);
   transition:all .3s;
+  gap:12px;
 }
-nav.scrolled{height:62px;box-shadow:0 4px 30px rgba(11,84,84,.1)}
-.nav-logo{display:flex;align-items:center;gap:12px}
+nav.scrolled{height:60px;box-shadow:0 4px 30px rgba(11,84,84,.1)}
+.nav-logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .nav-logo-words{display:flex;flex-direction:column}
-.nav-logo-name{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.15rem;color:var(--teal);line-height:1}
-.nav-logo-tagline{font-size:.62rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);line-height:1;margin-top:3px}
-.nav-links{display:flex;align-items:center;gap:4px}
+.nav-logo-name{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.1rem;color:var(--teal);line-height:1}
+.nav-logo-tagline{font-size:.58rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold);line-height:1;margin-top:3px}
+.nav-links{display:flex;align-items:center;gap:1px;flex-shrink:1}
 .nav-links > li{position:relative}
 .nav-links a{
-  font-size:.78rem;font-weight:600;padding:7px 13px;border-radius:10px;
-  color:var(--text);letter-spacing:.3px;transition:all .2s;display:flex;align-items:center;gap:5px;
+  font-size:.73rem;font-weight:600;padding:6px 9px;border-radius:10px;
+  color:var(--text);letter-spacing:.2px;transition:all .2s;
+  display:flex;align-items:center;gap:4px;white-space:nowrap;
 }
 .nav-links a:hover{color:var(--teal);background:var(--teal-light)}
 .nav-cta{
   background:linear-gradient(135deg,var(--gold),var(--gold2)) !important;
-  color:white !important;border-radius:12px !important;padding:9px 20px !important;
-  box-shadow:0 4px 18px rgba(232,150,10,.35);font-weight:700 !important;transition:all .2s !important;
+  color:white !important;border-radius:12px !important;
+  padding:8px 14px !important;white-space:nowrap !important;
+  box-shadow:0 4px 18px rgba(232,150,10,.35);font-weight:700 !important;
+  transition:all .2s !important;flex-shrink:0 !important;
 }
 .nav-cta:hover{transform:translateY(-2px) !important;box-shadow:0 8px 28px rgba(232,150,10,.45) !important}
  

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Umang Fellowship – SpacECE India Foundation</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --saffron: #F97316;
+    --deep-orange: #EA580C;
+    --gold: #F59E0B;
+    --cream: #FEF3C7;
+    --deep-green: #166534;
+    --mid-green: #16A34A;
+    --light-green: #D1FAE5;
+    --earth: #78350F;
+    --charcoal: #1C1917;
+    --warm-white: #FFFBF5;
+    --muted: #78716C;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--warm-white);
+    color: var(--charcoal);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: rgba(255,251,245,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 2px solid var(--gold);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.8rem 5%;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 0.6rem; }
+  .nav-logo-icon {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--saffron), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+  }
+  .nav-brand { font-family: 'Baloo 2', cursive; font-size: 1.3rem; font-weight: 800; color: var(--deep-orange); line-height: 1; }
+  .nav-sub { font-size: 0.65rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { text-decoration: none; font-size: 0.9rem; font-weight: 500; color: var(--charcoal); transition: color 0.2s; }
+  .nav-links a:hover { color: var(--saffron); }
+  .nav-cta {
+    background: var(--saffron); color: #fff; border: none;
+    padding: 0.55rem 1.4rem; border-radius: 50px; font-weight: 600;
+    font-size: 0.9rem; cursor: pointer; transition: background 0.2s;
+    text-decoration: none;
+  }
+  .nav-cta:hover { background: var(--deep-orange); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #1a0a00 0%, #3b1404 40%, #78350F 100%);
+    display: flex; align-items: center;
+    position: relative; overflow: hidden;
+    padding: 7rem 5% 4rem;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(249,115,22,0.25) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(245,158,11,0.15) 0%, transparent 50%);
+  }
+  .hero-dots {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(circle, rgba(245,158,11,0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: drift 20s linear infinite;
+  }
+  @keyframes drift { from { background-position: 0 0; } to { background-position: 40px 40px; } }
+
+  .hero-content { position: relative; z-index: 2; max-width: 680px; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(249,115,22,0.2); border: 1px solid rgba(249,115,22,0.4);
+    color: var(--gold); padding: 0.4rem 1rem; border-radius: 50px;
+    font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s ease forwards;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 900; line-height: 1.05;
+    color: #fff; margin-bottom: 1rem;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+  .hero h1 span { color: var(--gold); }
+  .hero-tagline {
+    font-size: 1.2rem; color: rgba(255,255,255,0.75);
+    line-height: 1.6; margin-bottom: 2.5rem; font-weight: 300;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; animation: fadeUp 0.7s 0.3s ease both; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--saffron), var(--gold));
+    color: #fff; padding: 0.9rem 2.2rem; border-radius: 50px;
+    font-weight: 700; font-size: 1rem; text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(249,115,22,0.4);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(249,115,22,0.5); }
+  .btn-outline {
+    border: 2px solid rgba(255,255,255,0.4); color: #fff;
+    padding: 0.9rem 2.2rem; border-radius: 50px;
+    font-weight: 600; font-size: 1rem; text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { background: rgba(255,255,255,0.1); }
+
+  .hero-stat-strip {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+    background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(249,115,22,0.3);
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 0;
+    animation: fadeUp 0.7s 0.4s ease both;
+  }
+  .stat-item {
+    padding: 1.2rem 3rem; text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.1);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num { font-family: 'Baloo 2', cursive; font-size: 2rem; font-weight: 800; color: var(--gold); }
+  .stat-label { font-size: 0.75rem; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION BASE ── */
+  section { padding: 5rem 5%; }
+  .section-tag {
+    display: inline-block; background: var(--cream);
+    color: var(--deep-orange); font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; padding: 0.3rem 0.9rem;
+    border-radius: 50px; border: 1px solid var(--gold); margin-bottom: 0.8rem;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem); font-weight: 900;
+    line-height: 1.15; margin-bottom: 1rem;
+  }
+  .section-sub { font-size: 1.05rem; color: var(--muted); line-height: 1.7; max-width: 600px; }
+
+  /* ── CRISIS ── */
+  .crisis {
+    background: var(--charcoal); color: #fff;
+    display: flex; align-items: center; gap: 5%; flex-wrap: wrap;
+  }
+  .crisis-left { flex: 1; min-width: 280px; }
+  .crisis-big {
+    font-family: 'Baloo 2', cursive;
+    font-size: clamp(4rem, 10vw, 8rem); font-weight: 800;
+    color: var(--saffron); line-height: 0.9;
+    text-shadow: 0 0 60px rgba(249,115,22,0.4);
+  }
+  .crisis-unit { font-size: clamp(1.5rem, 4vw, 2.5rem); color: var(--gold); }
+  .crisis-label { font-size: 1rem; color: rgba(255,255,255,0.6); margin-top: 0.5rem; }
+  .crisis-right { flex: 1; min-width: 280px; }
+  .crisis-right .section-title { color: #fff; }
+  .crisis-stat-list { list-style: none; margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  .crisis-stat-list li {
+    display: flex; align-items: center; gap: 1rem;
+    background: rgba(255,255,255,0.05); border-left: 3px solid var(--saffron);
+    padding: 0.9rem 1.2rem; border-radius: 0 8px 8px 0;
+    font-size: 0.95rem;
+  }
+  .crisis-stat-list li span { font-size: 1.6rem; }
+
+  /* ── VISION MISSION ── */
+  .vm { background: var(--cream); }
+  .vm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 3rem; }
+  .vm-card {
+    background: #fff; border-radius: 20px;
+    padding: 2.5rem; position: relative; overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    transition: transform 0.3s;
+  }
+  .vm-card:hover { transform: translateY(-6px); }
+  .vm-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+    background: linear-gradient(90deg, var(--saffron), var(--gold));
+  }
+  .vm-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+  .vm-card h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 0.8rem; }
+  .vm-card p { color: var(--muted); line-height: 1.7; }
+
+  /* ── APPROACH ── */
+  .approach { background: #fff; }
+  .approach-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+  .age-card {
+    border-radius: 20px; padding: 2.5rem;
+    position: relative; overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .age-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(0,0,0,0.12); }
+  .age-card.orange { background: linear-gradient(135deg, #fff7ed, #ffedd5); border: 2px solid #fed7aa; }
+  .age-card.yellow { background: linear-gradient(135deg, #fffbeb, #fef9c3); border: 2px solid #fde68a; }
+  .age-card.green  { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #bbf7d0; }
+  .age-range {
+    font-family: 'Baloo 2', cursive; font-size: 3rem; font-weight: 800;
+    line-height: 1; margin-bottom: 0.5rem;
+  }
+  .age-card.orange .age-range { color: var(--saffron); }
+  .age-card.yellow .age-range { color: #D97706; }
+  .age-card.green .age-range  { color: var(--mid-green); }
+  .age-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.8rem; }
+  .age-card p  { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+  .age-tag {
+    display: inline-block; margin-top: 1rem;
+    padding: 0.3rem 0.9rem; border-radius: 50px;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .age-card.orange .age-tag { background: #ffedd5; color: var(--deep-orange); }
+  .age-card.yellow .age-tag { background: #fef3c7; color: #92400e; }
+  .age-card.green  .age-tag { background: #dcfce7; color: var(--deep-green); }
+
+  /* ── IMPACT ── */
+  .impact { background: linear-gradient(160deg, #1a0a00, #3b1404); color: #fff; }
+  .impact .section-title { color: #fff; }
+  .impact .section-sub { color: rgba(255,255,255,0.65); }
+  .impact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+  .impact-card {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(249,115,22,0.25);
+    border-radius: 20px; padding: 2rem; text-align: center;
+    transition: transform 0.3s, background 0.3s;
+  }
+  .impact-card:hover { transform: translateY(-6px); background: rgba(249,115,22,0.1); }
+  .impact-emoji { font-size: 2.5rem; margin-bottom: 1rem; }
+  .impact-num { font-family: 'Baloo 2', cursive; font-size: 3rem; font-weight: 800; color: var(--gold); }
+  .impact-who { font-size: 0.75rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8rem; }
+  .impact-desc { font-size: 0.85rem; color: rgba(255,255,255,0.65); line-height: 1.6; }
+
+  /* ── YOUTH ── */
+  .youth { background: var(--warm-white); }
+  .youth-inner {
+    background: linear-gradient(135deg, var(--saffron) 0%, var(--gold) 100%);
+    border-radius: 28px; padding: 4rem 3rem;
+    display: flex; align-items: center; gap: 3rem; flex-wrap: wrap;
+    position: relative; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(249,115,22,0.35);
+  }
+  .youth-inner::after {
+    content: '✨'; position: absolute; right: 3rem; top: 2rem;
+    font-size: 5rem; opacity: 0.15;
+  }
+  .youth-text { flex: 1; min-width: 260px; }
+  .youth-text h2 { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 900; color: #fff; margin-bottom: 1rem; }
+  .youth-text p { color: rgba(255,255,255,0.85); font-size: 1.05rem; line-height: 1.7; }
+  .youth-perks { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1.5rem; }
+  .perk { display: flex; align-items: center; gap: 0.7rem; color: #fff; font-weight: 500; font-size: 0.95rem; }
+  .perk::before { content: '✓'; background: rgba(255,255,255,0.3); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; }
+  .youth-cta-box { flex-shrink: 0; }
+  .learn-earn-badge {
+    background: #fff; border-radius: 16px; padding: 2rem;
+    text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  }
+  .le-top { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+  .le-main { font-family: 'Baloo 2', cursive; font-size: 2rem; font-weight: 800; color: var(--saffron); line-height: 1; }
+  .le-sub { font-size: 0.85rem; color: var(--muted); margin: 0.5rem 0 1.2rem; }
+  .le-btn {
+    background: linear-gradient(135deg, var(--saffron), var(--deep-orange));
+    color: #fff; padding: 0.8rem 1.8rem; border-radius: 50px;
+    font-weight: 700; font-size: 0.95rem; text-decoration: none;
+    display: inline-block; transition: opacity 0.2s;
+  }
+  .le-btn:hover { opacity: 0.9; }
+
+  /* ── PARTNERS ── */
+  .partners { background: #fff; text-align: center; }
+  .partners-subtitle { color: var(--muted); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2.5rem; }
+  .partner-logos {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    align-items: center; gap: 1.5rem 2.5rem;
+  }
+  .partner-pill {
+    background: var(--cream); border: 1px solid #e7d9b0;
+    border-radius: 50px; padding: 0.6rem 1.4rem;
+    font-weight: 700; font-size: 0.9rem; color: var(--earth);
+    letter-spacing: 0.5px;
+  }
+
+  /* ── CONTACT ── */
+  .contact {
+    background: var(--charcoal); color: #fff;
+    display: flex; align-items: center; gap: 4rem; flex-wrap: wrap;
+  }
+  .contact-info { flex: 1; min-width: 260px; }
+  .contact-info .section-title { color: #fff; }
+  .contact-list { list-style: none; margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  .contact-list li { display: flex; align-items: flex-start; gap: 1rem; font-size: 0.95rem; color: rgba(255,255,255,0.75); }
+  .contact-list li span { font-size: 1.3rem; flex-shrink: 0; }
+  .contact-list a { color: var(--gold); text-decoration: none; }
+  .contact-list a:hover { text-decoration: underline; }
+  .contact-form { flex: 1; min-width: 280px; }
+  .contact-form h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 1.5rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .form-field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .form-field label { font-size: 0.8rem; color: rgba(255,255,255,0.6); letter-spacing: 0.5px; }
+  .form-field input, .form-field textarea {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px; padding: 0.75rem 1rem;
+    color: #fff; font-size: 0.9rem; font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .form-field input:focus, .form-field textarea:focus { outline: none; border-color: var(--saffron); }
+  .form-field.full { grid-column: 1 / -1; }
+  .form-field textarea { resize: vertical; min-height: 100px; }
+  .form-submit {
+    background: linear-gradient(135deg, var(--saffron), var(--gold));
+    color: #fff; border: none; padding: 0.9rem 2.5rem;
+    border-radius: 50px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: opacity 0.2s; margin-top: 0.5rem;
+  }
+  .form-submit:hover { opacity: 0.9; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #0f0700; color: rgba(255,255,255,0.4);
+    text-align: center; padding: 1.5rem 5%;
+    font-size: 0.8rem; border-top: 1px solid rgba(249,115,22,0.2);
+  }
+  footer strong { color: var(--gold); }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal { opacity: 0; transform: translateY(30px); transition: all 0.65s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .stat-item { padding: 1rem 1.5rem; }
+    .form-row { grid-template-columns: 1fr; }
+    .hero-btns { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">🏠</div>
+    <div>
+      <div class="nav-brand">SpacECE</div>
+      <div class="nav-sub">India Foundation</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#approach">Approach</a>
+    <a href="#impact">Impact</a>
+    <a href="#youth">For Youths</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <a href="#contact" class="nav-cta">Join Fellowship</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="about">
+  <div class="hero-dots"></div>
+  <div class="hero-content">
+    <div class="hero-badge">🌟 Umang Fellowship 2025</div>
+    <h1>Empower India's<br><span>Youngest Minds</span></h1>
+    <p class="hero-tagline">
+      A youth-led movement tackling developmental delays through early stimulation and responsive caregiving for children aged 1–9 years. Join us to build strong foundations for lifelong success.
+    </p>
+    <div class="hero-btns">
+      <a href="#youth" class="btn-primary">🚀 Apply as a Fellow</a>
+      <a href="#approach" class="btn-outline">Learn More ↓</a>
+    </div>
+  </div>
+  <div class="hero-stat-strip">
+    <div class="stat-item"><div class="stat-num">4,000+</div><div class="stat-label">Kids Impacted</div></div>
+    <div class="stat-item"><div class="stat-num">8,000+</div><div class="stat-label">Parents Engaged</div></div>
+    <div class="stat-item"><div class="stat-num">50+</div><div class="stat-label">Active Fellows</div></div>
+    <div class="stat-item"><div class="stat-num">15+</div><div class="stat-label">Communities</div></div>
+  </div>
+</section>
+
+<!-- CRISIS -->
+<section class="crisis reveal">
+  <div class="crisis-left">
+    <div class="crisis-big">158</div>
+    <div class="crisis-unit">MILLION</div>
+    <div class="crisis-label">India's children under 9 missing critical brain development opportunities</div>
+  </div>
+  <div class="crisis-right">
+    <div class="section-tag">The Crisis</div>
+    <h2 class="section-title" style="color:#fff;">Why Early Childhood Matters</h2>
+    <ul class="crisis-stat-list">
+      <li><span>🧠</span>85% of the brain develops by age 6 — the most critical window</li>
+      <li><span>🏘️</span>Only 1 in 4 children in rural India access early learning programs</li>
+      <li><span>📉</span>Early gaps lead to lasting educational & socio-economic consequences</li>
+      <li><span>🌱</span>Early intervention can change a child's life trajectory permanently</li>
+    </ul>
+  </div>
+</section>
+
+<!-- VISION MISSION -->
+<section class="vm reveal">
+  <div style="text-align:center;">
+    <div class="section-tag">Our Purpose</div>
+    <h2 class="section-title">Vision & Mission</h2>
+  </div>
+  <div class="vm-grid">
+    <div class="vm-card">
+      <div class="vm-icon">🌅</div>
+      <h3>Our Vision</h3>
+      <p>Every child thrives in a nurturing early learning environment that builds strong foundations for lifelong success — regardless of where they are born.</p>
+    </div>
+    <div class="vm-card">
+      <div class="vm-icon">🎯</div>
+      <h3>Our Mission</h3>
+      <p>To empower grassroots educators and communities to deliver inclusive, high-quality early childhood education that reaches the most underserved children.</p>
+    </div>
+    <div class="vm-card">
+      <div class="vm-icon">🤝</div>
+      <h3>Our Approach</h3>
+      <p>Training youth as Fellows who work directly with families, caregivers, and children in their own communities to deliver age-appropriate ECE interventions.</p>
+    </div>
+  </div>
+</section>
+
+<!-- APPROACH -->
+<section class="approach reveal" id="approach">
+  <div class="section-tag">What We Do</div>
+  <h2 class="section-title">Age-Appropriate Programs</h2>
+  <p class="section-sub">Our continuum of interventions spans from infancy to early primary school, ensuring every critical developmental stage is addressed.</p>
+  <div class="approach-grid">
+    <div class="age-card orange">
+      <div class="age-range">1–3</div>
+      <h3>Parent Toddler Program</h3>
+      <p>Early stimulation activities and responsive caregiving training for parents and caregivers of infants and toddlers. Building secure attachment and cognitive foundations.</p>
+      <span class="age-tag">Parent Engagement</span>
+    </div>
+    <div class="age-card yellow">
+      <div class="age-range">3–6</div>
+      <h3>School Readiness Program</h3>
+      <p>Structured play-based learning to develop language, numeracy, social-emotional skills, and fine motor abilities — preparing children for formal schooling.</p>
+      <span class="age-tag">School Readiness</span>
+    </div>
+    <div class="age-card green">
+      <div class="age-range">6–9</div>
+      <h3>FLN / Remedial Program</h3>
+      <p>Targeted support to ensure every child achieves grade-appropriate Foundational Literacy and Numeracy (FLN) skills through reading circles, storytelling, and learning games.</p>
+      <span class="age-tag">FLN Skills</span>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section class="impact reveal" id="impact">
+  <div style="text-align:center;">
+    <div class="section-tag" style="background:rgba(249,115,22,0.2);color:var(--gold);border-color:rgba(249,115,22,0.3);">Our Impact</div>
+    <h2 class="section-title">Transforming Lives at Scale</h2>
+    <p class="section-sub" style="margin:0 auto;">Every Fellow creates a ripple of impact — from children to parents, to entire communities.</p>
+  </div>
+  <div class="impact-grid" style="margin-top:3rem;">
+    <div class="impact-card">
+      <div class="impact-emoji">👶</div>
+      <div class="impact-num">4,000+</div>
+      <div class="impact-who">Kids</div>
+      <div class="impact-desc">Continuum of ECE interventions ensures developmental gains, school readiness, and mitigates early learning loss.</div>
+    </div>
+    <div class="impact-card">
+      <div class="impact-emoji">👨‍👩‍👧</div>
+      <div class="impact-num">8,000+</div>
+      <div class="impact-who">Parents</div>
+      <div class="impact-desc">Enhanced parental self-efficacy and responsive caregiving practices leading to enriched home learning environments.</div>
+    </div>
+    <div class="impact-card">
+      <div class="impact-emoji">🎓</div>
+      <div class="impact-num">50+</div>
+      <div class="impact-who">Fellows</div>
+      <div class="impact-desc">Transformed into Edupreneurs and Early Childhood Educators equipped to lead, innovate, and establish community-based ECE initiatives.</div>
+    </div>
+    <div class="impact-card">
+      <div class="impact-emoji">🏘️</div>
+      <div class="impact-num">15+</div>
+      <div class="impact-who">Communities</div>
+      <div class="impact-desc">Strengthened ecosystem for early childhood development through local capacity-building and sustainable community-led ECE practices.</div>
+    </div>
+  </div>
+</section>
+
+<!-- YOUTH CTA -->
+<section class="youth reveal" id="youth">
+  <div class="youth-inner">
+    <div class="youth-text">
+      <h2>For Ambitious Youths Like You</h2>
+      <p>Grow as a leader, build 21st-century skills, and unlock career pathways in education and social impact — while transforming young lives in your own community.</p>
+      <div class="youth-perks">
+        <div class="perk">Earn while you learn & lead</div>
+        <div class="perk">Build leadership & communication skills</div>
+        <div class="perk">Career pathways in education & social sector</div>
+        <div class="perk">Engage students with reading circles & storytelling</div>
+        <div class="perk">Become a certified Early Childhood Educator</div>
+      </div>
+    </div>
+    <div class="youth-cta-box">
+      <div class="learn-earn-badge">
+        <div class="le-top">Fellowship Offer</div>
+        <div class="le-main">LEARN<br>&amp; EARN</div>
+        <div class="le-sub">Stipend + Skills + Impact</div>
+        <a href="#contact" class="le-btn">Apply Now →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARTNERS -->
+<section class="partners reveal">
+  <div class="section-tag">Investors in Impact</div>
+  <h2 class="section-title">Our Trusted Partners</h2>
+  <p class="partners-subtitle" style="margin-top:0.5rem;">Supported by leading institutions and organizations</p>
+  <div class="partner-logos">
+    <div class="partner-pill">IIMB</div>
+    <div class="partner-pill">NSR CEL</div>
+    <div class="partner-pill">UnLtd India</div>
+    <div class="partner-pill">ATMA</div>
+    <div class="partner-pill">TFIx</div>
+    <div class="partner-pill">Lupin Foundation</div>
+    <div class="partner-pill">Cummins</div>
+    <div class="partner-pill">VIIT Pune</div>
+    <div class="partner-pill">UPES</div>
+    <div class="partner-pill">GlobalStep</div>
+    <div class="partner-pill">MicroLeaps</div>
+    <div class="partner-pill">Authentica</div>
+    <div class="partner-pill">JCB</div>
+    <div class="partner-pill">DSV</div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact reveal" id="contact">
+  <div class="contact-info">
+    <div class="section-tag" style="background:rgba(249,115,22,0.15);color:var(--gold);border-color:rgba(249,115,22,0.3);">Get In Touch</div>
+    <h2 class="section-title">Contact Us</h2>
+    <p style="color:rgba(255,255,255,0.65);margin-bottom:0.5rem;line-height:1.7;">Ready to join the Umang Fellowship or partner with us? We'd love to hear from you.</p>
+    <ul class="contact-list">
+      <li><span>🌐</span><div><div style="font-size:0.75rem;opacity:0.5;margin-bottom:2px;">Website</div><a href="http://www.spacece.in">www.spacece.in</a></div></li>
+      <li><span>📞</span><div><div style="font-size:0.75rem;opacity:0.5;margin-bottom:2px;">Phone</div><a href="tel:8069641311">8069641311</a></div></li>
+      <li><span>✉️</span><div><div style="font-size:0.75rem;opacity:0.5;margin-bottom:2px;">Email</div><a href="mailto:contactus@spacece.co">contactus@spacece.co</a></div></li>
+      <li><span>📍</span><div><div style="font-size:0.75rem;opacity:0.5;margin-bottom:2px;">Address</div>Udaan, SpacECE India Foundation, Bhagwat Bungalow, Railkar Nagar Dhayari, Pune</div></li>
+    </ul>
+  </div>
+  <div class="contact-form">
+    <h3>Send a Message</h3>
+    <div class="form-row">
+      <div class="form-field"><label>Full Name</label><input type="text" placeholder="Aapka naam"></div>
+      <div class="form-field"><label>Phone</label><input type="tel" placeholder="+91 XXXXX XXXXX"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Email</label><input type="email" placeholder="email@example.com"></div>
+      <div class="form-field"><label>City</label><input type="text" placeholder="Aapka shehar"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field full"><label>Message</label><textarea placeholder="Fellow banna chahte hain ya koi sawaal hai?"></textarea></div>
+    </div>
+    <button class="form-submit" onclick="this.textContent='✓ Sent! We will contact you soon.'">Send Message</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 <strong>SpacECE India Foundation</strong> · Umang Fellowship · Empowering Youth for Early Childhood Impact</p>
+  <p style="margin-top:0.4rem;">Udaan, Bhagwat Bungalow, Railkar Nagar Dhayari, Pune &nbsp;|&nbsp; <a href="tel:8069641311" style="color:var(--gold);">8069641311</a></p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
