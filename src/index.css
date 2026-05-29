@@ -1,0 +1,74 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-space-orange: #f4a300;
+  --color-space-black: #1e1e1e;
+  --color-space-cream: #fff9f2;
+  --color-space-beige: #f5efe6;
+  --color-space-green: #8cbf9f;
+  --color-space-secondary: #666666;
+  --font-heading: 'Poppins', 'DM Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(244, 163, 0, 0.14), transparent 30%),
+    radial-gradient(circle at 85% 15%, rgba(140, 191, 159, 0.12), transparent 35%),
+    #fff9f2;
+  color: #1e1e1e;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at 15% 10%, rgba(244, 163, 0, 0.18), transparent 30%),
+    radial-gradient(circle at 85% 15%, rgba(140, 191, 159, 0.12), transparent 35%),
+    #111111;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+section,
+footer,
+header,
+nav,
+main {
+  color: #1e1e1e;
+}
+
+section[id] {
+  scroll-margin-top: 140px;
+}
+
+a,
+button,
+input {
+  color: inherit;
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.swiper-pagination-bullet {
+  background: #1e1e1e;
+  opacity: 0.3;
+}
+
+.swiper-pagination-bullet-active {
+  background: #f4a300;
+  opacity: 1;
+}
