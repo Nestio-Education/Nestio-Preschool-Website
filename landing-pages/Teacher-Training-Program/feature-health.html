@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health & Safety — SpacECE India Foundation</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--orange:#F56A00;--orange-lt:#FF8C38;--orange-bg:#FFF4EC;--yellow:#FFB800;--cream:#FFFAF4;--dark:#1A1A2E;--mid:#3D3D5C;--muted:#7B7B9A;--white:#fff;--border:#EDE8E0;--green:#2ECC71;--blue:#3B82F6;--red:#E11D48;--radius:16px;--font-display:'Playfair Display',serif;--font-body:'DM Sans',sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-body);background:var(--cream);color:var(--dark);line-height:1.65;overflow-x:hidden;}
+a{text-decoration:none;color:inherit;}
+.topbar{background:var(--dark);padding:14px 32px;display:flex;align-items:center;gap:16px;}
+.back-btn{display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,0.7);font-size:13px;font-weight:600;background:rgba(255,255,255,0.08);padding:8px 18px;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all .3s;cursor:pointer;}
+.back-btn:hover{background:var(--orange);color:#fff;border-color:var(--orange);}
+.topbar-label{color:rgba(255,255,255,0.4);font-size:13px;}
+.topbar-label span{color:rgba(255,255,255,0.8);font-weight:600;}
+.hero{background:linear-gradient(135deg,#FFF0F3 0%,#FFE4E6 50%,#FFF0F3 100%);padding:72px 32px 56px;text-align:center;position:relative;overflow:hidden;border-bottom:1px solid #FECDD3;}
+.hero::before{content:'';position:absolute;top:-150px;right:-150px;width:500px;height:500px;background:radial-gradient(circle,rgba(225,29,72,.1) 0%,transparent 70%);pointer-events:none;}
+.hero-icon{width:80px;height:80px;background:#FFF0F3;color:var(--red);border-radius:24px;display:inline-flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:24px;box-shadow:0 8px 32px rgba(225,29,72,.2);}
+.hero h1{font-family:var(--font-display);font-size:clamp(32px,5vw,56px);font-weight:900;color:var(--dark);line-height:1.1;margin-bottom:16px;}
+.hero h1 span{color:var(--red);}
+.hero p{font-size:18px;color:var(--muted);max-width:620px;margin:0 auto 32px;}
+.badge{display:inline-flex;align-items:center;gap:8px;background:#FFF0F3;color:var(--red);border:1px solid #FECDD3;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:8px 18px;border-radius:100px;margin-bottom:24px;}
+.container{max-width:1100px;margin:0 auto;padding:0 32px;}
+.section-label{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--orange);display:block;margin-bottom:10px;}
+.section-title{font-family:var(--font-display);font-size:clamp(24px,3.5vw,38px);font-weight:800;color:var(--dark);line-height:1.2;margin-bottom:16px;}
+.divider{width:44px;height:4px;background:var(--red);border-radius:2px;margin-bottom:32px;}
+.video-section{padding:64px 0 48px;}
+.video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:20px;box-shadow:0 24px 80px rgba(26,26,46,.15);border:3px solid var(--border);}
+.video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;}
+.section{padding:56px 0;}
+/* MODULE CARDS */
+.module-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;}
+.module-card{border-radius:24px;padding:36px;border:2px solid;transition:all .3s;position:relative;overflow:hidden;}
+.module-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(26,26,46,.12);}
+.module-card .mod-icon{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;}
+.module-card h3{font-family:var(--font-display);font-size:21px;font-weight:700;margin-bottom:10px;}
+.module-card p{font-size:14px;line-height:1.7;margin-bottom:16px;}
+.module-points{display:flex;flex-direction:column;gap:8px;}
+.module-point{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;}
+.module-point i{font-size:12px;width:18px;}
+/* SAFETY STRIP */
+.safety-strip{background:var(--dark);border-radius:24px;padding:48px;display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:center;}
+.safety-item{}
+.safety-num{font-family:var(--font-display);font-size:42px;font-weight:900;color:var(--red);}
+.safety-label{font-size:13px;color:rgba(255,255,255,.5);margin-top:6px;}
+/* TIMELINE */
+.month-banner{background:linear-gradient(135deg,#FFF0F3,#FFE4E6);border-radius:var(--radius);padding:24px 32px;margin-bottom:32px;display:flex;align-items:center;gap:20px;border:1px solid #FECDD3;}
+.month-badge-big{background:var(--red);color:#fff;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:8px 20px;border-radius:100px;white-space:nowrap;}
+.month-banner p{color:var(--mid);font-size:15px;}
+/* CHECKLIST */
+.checklist-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.check-item{background:var(--white);border-radius:var(--radius);padding:20px 24px;border:1px solid var(--border);display:flex;gap:14px;align-items:flex-start;transition:all .3s;}
+.check-item:hover{border-color:var(--red);box-shadow:0 4px 20px rgba(225,29,72,.08);}
+.check-icon{width:36px;height:36px;background:#FFF0F3;color:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.check-text h5{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:3px;}
+.check-text p{font-size:12px;color:var(--muted);}
+/* CTA */
+.cta{background:linear-gradient(135deg,#9F1239 0%,#E11D48 100%);border-radius:24px;padding:48px;text-align:center;margin:0 0 64px;}
+.cta h2{font-family:var(--font-display);font-size:32px;font-weight:800;color:#fff;margin-bottom:12px;}
+.cta p{color:rgba(255,255,255,.8);font-size:16px;margin-bottom:28px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-body);font-size:14px;font-weight:700;padding:14px 30px;border-radius:100px;transition:all .3s;cursor:pointer;border:none;}
+.btn-white{background:#fff;color:var(--red);}
+.btn-white:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.2);}
+.btn-outline-white{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.5);margin-left:12px;}
+.btn-outline-white:hover{background:rgba(255,255,255,.1);}
+@media(max-width:768px){.module-grid{grid-template-columns:1fr;}.safety-strip{grid-template-columns:1fr 1fr;}.checklist-grid{grid-template-columns:1fr;}.topbar{padding:14px 20px;}.container{padding:0 20px;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-left"></i> Back to Portal</button>
+  <span class="topbar-label">SpacECE India Foundation &rsaquo; <span>Health & Safety</span></span>
+</div>
+
+<div class="hero">
+  <div class="badge"><i class="fas fa-heartbeat"></i> Core Feature</div>
+  <div class="hero-icon"><i class="fas fa-heartbeat"></i></div>
+  <h1>Health <span>&</span> Safety</h1>
+  <p>Child protection, first aid, nutrition planning, and hygiene modules — because every child deserves a safe, healthy, and nurturing learning environment.</p>
+</div>
+
+<div class="video-section">
+  <div class="container">
+    <span class="section-label">Watch & Learn</span>
+    <h2 class="section-title">Health, Safety & Child Wellbeing</h2>
+    <div class="divider"></div>
+    <div class="video-wrap">
+      <iframe src="https://www.youtube.com/embed/fwUkHiXtqrE" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="Child Health Safety & Nutrition"></iframe>
+    </div>
+    <p style="text-align:center;margin-top:16px;font-size:14px;color:var(--muted);">
+      <i class="fab fa-youtube" style="color:#FF0000;margin-right:6px;"></i>
+      More on <a href="https://www.youtube.com/@SpacECE" target="_blank" style="color:var(--orange);font-weight:700;">SpacECE YouTube Channel →</a>
+    </p>
+  </div>
+</div>
+
+<!-- WHERE IN THE PROGRAMME -->
+<div class="section" style="background:var(--white);padding:56px 0;">
+  <div class="container">
+    <span class="section-label">Part of Month 5</span>
+    <h2 class="section-title">Where Health & Safety Fits</h2>
+    <div class="divider"></div>
+    <div class="month-banner">
+      <span class="month-badge-big">Month 5 · Week 19</span>
+      <p>Child Health, Safety & Nutrition is a dedicated full week within Month 5 of the SpacECE Training Programme — covering everything from first aid to nutrition planning to safeguarding protocols.</p>
+    </div>
+
+    <div class="module-grid">
+      <div class="module-card" style="background:#FFF0F3;border-color:#FECDD3;">
+        <div class="mod-icon" style="background:#FECDD3;color:var(--red);"><i class="fas fa-shield-alt"></i></div>
+        <h3 style="color:#9F1239;">Child Protection & Safeguarding</h3>
+        <p style="color:#881337;">Every teacher must be the first line of protection for the children in their care. This module covers recognition, reporting, and response.</p>
+        <div class="module-points">
+          <div class="module-point" style="color:#9F1239;"><i class="fas fa-check" style="color:var(--red);"></i> Recognise signs of abuse and neglect</div>
+          <div class="module-point" style="color:#9F1239;"><i class="fas fa-check" style="color:var(--red);"></i> Understand mandatory reporting duty</div>
+          <div class="module-point" style="color:#9F1239;"><i class="fas fa-check" style="color:var(--red);"></i> Apply POCSO Act guidelines in school</div>
+          <div class="module-point" style="color:#9F1239;"><i class="fas fa-check" style="color:var(--red);"></i> Create a safe, trusting classroom environment</div>
+        </div>
+      </div>
+      <div class="module-card" style="background:#FFF4EC;border-color:#FED7AA;">
+        <div class="mod-icon" style="background:#FED7AA;color:var(--orange);"><i class="fas fa-first-aid"></i></div>
+        <h3 style="color:#9A3412;">Emergency Preparedness & First Aid</h3>
+        <p style="color:#7C2D12;">Teachers are often the first adult on scene when a child is hurt. Learn to respond calmly and correctly in the most common preschool emergencies.</p>
+        <div class="module-points">
+          <div class="module-point" style="color:#9A3412;"><i class="fas fa-check" style="color:var(--orange);"></i> Basic first aid: cuts, burns, choking</div>
+          <div class="module-point" style="color:#9A3412;"><i class="fas fa-check" style="color:var(--orange);"></i> Emergency evacuation procedures</div>
+          <div class="module-point" style="color:#9A3412;"><i class="fas fa-check" style="color:var(--orange);"></i> When and how to call for medical help</div>
+          <div class="module-point" style="color:#9A3412;"><i class="fas fa-check" style="color:var(--orange);"></i> Incident documentation and reporting</div>
+        </div>
+      </div>
+      <div class="module-card" style="background:#ECFDF5;border-color:#A7F3D0;">
+        <div class="mod-icon" style="background:#A7F3D0;color:#059669;"><i class="fas fa-soap"></i></div>
+        <h3 style="color:#065F46;">Hygiene & Healthy Habits</h3>
+        <p style="color:#064E3B;">Young children learn lifelong hygiene habits in the preschool years. Teachers are the key to establishing routines that stick.</p>
+        <div class="module-points">
+          <div class="module-point" style="color:#065F46;"><i class="fas fa-check" style="color:#059669;"></i> Teach handwashing through songs & games</div>
+          <div class="module-point" style="color:#065F46;"><i class="fas fa-check" style="color:#059669;"></i> Classroom sanitisation routines</div>
+          <div class="module-point" style="color:#065F46;"><i class="fas fa-check" style="color:#059669;"></i> Toilet training support strategies</div>
+          <div class="module-point" style="color:#065F46;"><i class="fas fa-check" style="color:#059669;"></i> Illness prevention and management</div>
+        </div>
+      </div>
+      <div class="module-card" style="background:#FFF8E0;border-color:#FDE68A;">
+        <div class="mod-icon" style="background:#FDE68A;color:#D97706;"><i class="fas fa-apple-alt"></i></div>
+        <h3 style="color:#92400E;">Nutrition Planning</h3>
+        <p style="color:#78350F;">Good nutrition is the foundation of learning. Teachers learn to plan age-appropriate snacks, spot nutritional deficiencies, and engage families.</p>
+        <div class="module-points">
+          <div class="module-point" style="color:#92400E;"><i class="fas fa-check" style="color:#D97706;"></i> Age-appropriate meal and snack planning</div>
+          <div class="module-point" style="color:#92400E;"><i class="fas fa-check" style="color:#D97706;"></i> Signs of malnutrition in young children</div>
+          <div class="module-point" style="color:#92400E;"><i class="fas fa-check" style="color:#D97706;"></i> Food allergy awareness and management</div>
+          <div class="module-point" style="color:#92400E;"><i class="fas fa-check" style="color:#D97706;"></i> Linking nutrition to developmental outcomes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="section">
+  <div class="container">
+    <div class="safety-strip">
+      <div class="safety-item"><div class="safety-num">1</div><div class="safety-label">Dedicated Week in Month 5</div></div>
+      <div class="safety-item"><div class="safety-num">4</div><div class="safety-label">Core Safety Modules</div></div>
+      <div class="safety-item"><div class="safety-num">100%</div><div class="safety-label">POCSO Act Aligned</div></div>
+      <div class="safety-item"><div class="safety-num">0</div><div class="safety-label">Compromises on Child Safety</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKLIST -->
+<div class="section" style="background:var(--white);padding:56px 0;">
+  <div class="container">
+    <span class="section-label">What Teachers Will Know</span>
+    <h2 class="section-title">Health & Safety Competencies</h2>
+    <div class="divider"></div>
+    <div class="checklist-grid">
+      <div class="check-item"><div class="check-icon"><i class="fas fa-shield-alt"></i></div><div class="check-text"><h5>Child Safeguarding</h5><p>Recognise, report, and respond to indicators of abuse or neglect.</p></div></div>
+      <div class="check-item"><div class="check-icon"><i class="fas fa-band-aid"></i></div><div class="check-text"><h5>First Aid Basics</h5><p>Handle cuts, burns, choking, and common preschool injuries confidently.</p></div></div>
+      <div class="check-item"><div class="check-icon"><i class="fas fa-running"></i></div><div class="check-text"><h5>Emergency Protocols</h5><p>Lead a calm, safe evacuation and document incidents correctly.</p></div></div>
+      <div class="check-item"><div class="check-icon"><i class="fas fa-hands-wash"></i></div><div class="check-text"><h5>Hygiene Routines</h5><p>Build healthy handwashing, dental, and hygiene habits through play.</p></div></div>
+      <div class="check-item"><div class="check-icon"><i class="fas fa-carrot"></i></div><div class="check-text"><h5>Nutritional Awareness</h5><p>Plan balanced snacks and spot signs of malnutrition in young learners.</p></div></div>
+      <div class="check-item"><div class="check-icon"><i class="fas fa-heartbeat"></i></div><div class="check-text"><h5>Wellbeing Promotion</h5><p>Teach mindfulness, movement, and emotional regulation from an early age.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+    <div class="cta">
+      <h2>Every Child Deserves Safety</h2>
+      <p>Join SpacECE and become a trained, confident, and child-safe educator who makes a difference every day.</p>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSf1qJKod-3F5Wl7HJoRdtMVOK-F3QjKGYQEAtKXZUH0u1g2nA/viewform" target="_blank" class="btn btn-white"><i class="fas fa-paper-plane"></i> Apply Now</a>
+      <a href="https://www.youtube.com/@SpacECE" target="_blank" class="btn btn-outline-white"><i class="fab fa-youtube"></i> Watch More</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -276,12 +276,86 @@ const STATION_ACTIVITIES = [
 ];
 
 const COURSES_DATA = [
-  { title: "Early Childhood Education Program", duration: "6 Months", img: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&q=80&w=600", desc: "Comprehensive foundation in child development and pedagogy, aligned with NEP 2020 and global ECE standards." },
-  { title: "Preschool Teacher Training", duration: "6 Months", img: "https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&q=80&w=600", desc: "Specialized training for nursery and kindergarten educators with hands-on practicum." },
-  { title: "School Readiness Program", duration: "3 Months", img: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=600", desc: "Preparing children for the transition to formal schooling through play-based learning strategies." },
-  { title: "Montessori Teaching Basics", duration: "4 Months", img: "https://images.unsplash.com/photo-1596464716127-f9a0859b4bf6?auto=format&fit=crop&q=80&w=600", desc: "Introduction to Montessori philosophy, materials, and child-led discovery approach." },
-  { title: "Inclusive Education Module", duration: "2 Months", img: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=600", desc: "Supporting children with diverse learning needs in mainstream preschool environments." },
-  { title: "Child Assessment & Documentation", duration: "1 Month", img: "https://images.unsplash.com/photo-1571260899304-425eee4c7efc?auto=format&fit=crop&q=80&w=600", desc: "Techniques for observing, recording, and communicating children's developmental progress." }
+  {
+    title: "Preschool Teacher Training",
+    duration: "6 Months",
+    img: "1st.jpg",
+    desc: "Master the essential skills every preschool teacher needs — from classroom setup and daily routines to building warm relationships with children that spark a lifelong love of learning.",
+    videoId: "3Ok2VGpfRtM",
+    highlights: ["10 Keys to Success", "Daily Routine Design", "Teacher–Child Bonding", "Certification Included"]
+  },
+  {
+    title: "Classroom Management for Teachers",
+    duration: "2 Months",
+    img: "2nd.jpg",
+    desc: "Learn proven strategies to manage preschool classrooms with empathy and confidence — positive discipline, transitions, behaviour guidance, and creating a safe space for every student.",
+    videoId: "bAXToCVjcdk",
+    highlights: ["Positive Discipline", "Behaviour Guidance", "Smooth Transitions", "Empathy-Based Teaching"]
+  },
+  {
+    title: "Montessori Teaching Basics",
+    duration: "4 Months",
+    img: "3rd.jpg",
+    desc: "Understand the Montessori philosophy from the ground up — child-led discovery, prepared environments, sensitive periods, and hands-on materials adapted for Indian classrooms.",
+    videoId: "eY2Y2DfosYI",
+    highlights: ["Child-Led Discovery", "Prepared Environment", "Sensitive Periods", "Montessori Materials"]
+  },
+  {
+    title: "Play-Based Learning Design",
+    duration: "2 Months",
+    img: "4th.jpg",
+    desc: "Design rich, purposeful play experiences that teachers can use to build cognitive, social, emotional, and language skills in students aged 2–6.",
+    videoId: "_PIuorhLj0c",
+    highlights: ["Free & Guided Play", "Sensory Activities", "Station-Based Learning", "Activity Design"]
+  },
+  {
+    title: "Early Literacy for Students",
+    duration: "2 Months",
+    img: "5th.jpg",
+    desc: "Equip teachers with powerful early literacy strategies — read-alouds, phonemic awareness, storytelling, and language-rich environments that help students learn to read and write.",
+    videoId: "-fNm4aa3Hr0",
+    highlights: ["Phonics Methods", "Read-Aloud Techniques", "Story-Based Learning", "Language-Rich Classroom"]
+  },
+  {
+    title: "Student Assessment & Documentation",
+    duration: "1 Month",
+    img: "6th.jpg",
+    desc: "Learn how to observe, record, and communicate each student's developmental progress — building portfolios, using checklists, and sharing meaningful reports with parents.",
+    videoId: "VT7dkEjjkyc",
+    highlights: ["Portfolio Building", "Observation Checklists", "Progress Reporting", "Parent Communication"]
+  },
+  {
+    title: "School Readiness Program",
+    duration: "3 Months",
+    img: "7th.jpg",
+    desc: "Prepare students confidently for formal school — teachers learn to develop the social, emotional, and cognitive skills children need to thrive in Grade 1 and beyond.",
+    videoId: "3Ok2VGpfRtM",
+    highlights: ["Social Skills", "Pre-Academic Concepts", "Emotional Readiness", "Smooth School Transition"]
+  },
+  {
+    title: "Inclusive Classroom Practices",
+    duration: "2 Months",
+    img: "8th.jpg",
+    desc: "Support every student regardless of ability — teachers gain tools to differentiate learning, accommodate diverse needs, and create truly inclusive preschool environments.",
+    videoId: "ySOgtwlLy1w",
+    highlights: ["Differentiated Learning", "Special Needs Support", "Inclusive Strategies", "Every Child Matters"]
+  },
+  {
+    title: "Teacher–Student Relationship Building",
+    duration: "1 Month",
+    img: "9th.jpg",
+    desc: "Build warm, trusting relationships with students that form the foundation of all effective teaching — attachment theory, responsive caregiving, and emotional safety in the classroom.",
+    videoId: "7XytnZJ-90U",
+    highlights: ["Attachment Theory", "Responsive Caregiving", "Emotional Safety", "Trust Building"]
+  },
+  {
+    title: "Early Childhood Education Program",
+    duration: "6 Months",
+    img: "10th.jpg",
+    desc: "The complete 6-month flagship program — child development, curriculum design, teaching strategies, student assessment, family engagement, and real classroom practicum.",
+    videoId: "fuoCgt5gGNc",
+    highlights: ["NEP 2020 Aligned", "24-Week Plan", "Real Practicum", "Full Certification"]
+  }
 ];
 
 /* Full 6-month / 24-week plan derived from curriculum document */
@@ -644,22 +718,137 @@ function navigate(pageId) {
 function renderCourses() {
   const grid = document.getElementById('courses-grid');
   if (!grid) return;
-  grid.innerHTML = COURSES_DATA.map(c => `
+  grid.innerHTML = COURSES_DATA.map((c, i) => `
     <div class="card course-card fade-in">
       <div class="course-thumb">
         <img src="${c.img}" alt="${c.title}" loading="lazy">
         <span class="course-duration"><i class="far fa-clock"></i> ${c.duration}</span>
+        <button class="course-play-btn" onclick="openCoursePreview(${i})" title="Preview Course">
+          <i class="fas fa-play"></i>
+        </button>
       </div>
       <div class="course-body">
         <h3>${c.title}</h3>
         <p>${c.desc}</p>
+        <div class="course-highlights">
+          ${c.highlights.map(h => `<span class="highlight-tag"><i class="fas fa-check"></i> ${h}</span>`).join('')}
+        </div>
       </div>
       <div class="course-footer">
-        <a href="#" class="btn btn-outline btn-sm" onclick="return false;"><i class="fab fa-youtube"></i> Preview</a>
+        <button class="btn btn-outline btn-sm" onclick="openCoursePreview(${i})">
+          <i class="fab fa-youtube"></i> Preview
+        </button>
         <button class="btn btn-primary btn-sm" onclick="navigate('contact')">Enquire Now</button>
       </div>
     </div>
   `).join('');
+}
+
+function openCoursePreview(index) {
+  const c = COURSES_DATA[index];
+  const modal     = document.getElementById('course-preview-modal');
+  const titleEl   = document.getElementById('cpm-title');
+  const durEl     = document.getElementById('cpm-duration');
+  const descEl    = document.getElementById('cpm-desc');
+  const hlEl      = document.getElementById('cpm-highlights');
+  const iframe    = document.getElementById('cpm-iframe');
+
+  titleEl.textContent = c.title;
+  durEl.textContent   = c.duration;
+  descEl.textContent  = c.desc;
+  hlEl.innerHTML = c.highlights.map(h =>
+    `<div class="cpm-highlight"><i class="fas fa-check-circle"></i> ${h}</div>`
+  ).join('');
+  iframe.src = `https://www.youtube.com/embed/${c.videoId}?autoplay=1&rel=0`;
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCoursePreview() {
+  const modal  = document.getElementById('course-preview-modal');
+  const iframe = document.getElementById('cpm-iframe');
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+  iframe.src = '';
+}
+
+function initCoursePreviewModal() {
+  const modal = document.createElement('div');
+  modal.id = 'course-preview-modal';
+  modal.innerHTML = `
+    <div class="cpm-backdrop" id="cpm-backdrop"></div>
+    <div class="cpm-box">
+      <button class="cpm-close" onclick="closeCoursePreview()" title="Close">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="cpm-video-wrap">
+        <iframe id="cpm-iframe" src="" allowfullscreen
+          allow="autoplay; encrypted-media; picture-in-picture" frameborder="0"></iframe>
+      </div>
+      <div class="cpm-info">
+        <div class="cpm-badge"><i class="far fa-clock"></i> <span id="cpm-duration"></span></div>
+        <h3 id="cpm-title"></h3>
+        <p id="cpm-desc"></p>
+        <div id="cpm-highlights" class="cpm-highlights-grid"></div>
+        <div class="cpm-actions">
+          <button class="btn btn-primary" onclick="navigate('contact'); closeCoursePreview();">
+            <i class="fas fa-paper-plane"></i> Apply Now
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  document.getElementById('cpm-backdrop').addEventListener('click', closeCoursePreview);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCoursePreview(); });
+}
+
+function openDayPreview(d) {
+  if (!document.getElementById('day-preview-modal')) initDayPreviewModal();
+  document.getElementById('dpm-duration').textContent = d.day;
+  document.getElementById('dpm-title').textContent    = d.topic;
+  document.getElementById('dpm-desc').textContent     = d.activity;
+  document.getElementById('dpm-highlights').innerHTML = '';
+  document.getElementById('dpm-iframe').src = d.videoId
+    ? 'https://www.youtube.com/embed/' + d.videoId + '?rel=0' : '';
+  document.getElementById('day-preview-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDayPreview() {
+  document.getElementById('day-preview-modal').classList.remove('open');
+  document.getElementById('dpm-iframe').src = '';
+  document.body.style.overflow = '';
+}
+function initDayPreviewModal() {
+  const modal = document.createElement('div');
+  modal.id = 'day-preview-modal';
+  modal.innerHTML = `
+    <div class="cpm-backdrop" id="dpm-backdrop"></div>
+    <div class="cpm-box">
+      <button class="cpm-close" onclick="closeDayPreview()" title="Close">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="cpm-video-wrap">
+        <iframe id="dpm-iframe" src="" allowfullscreen
+          allow="autoplay; encrypted-media; picture-in-picture" frameborder="0"></iframe>
+      </div>
+      <div class="cpm-info">
+        <div class="cpm-badge"><i class="fas fa-calendar-day"></i> <span id="dpm-duration"></span></div>
+        <h3 id="dpm-title"></h3>
+        <p id="dpm-desc"></p>
+        <div id="dpm-highlights" class="cpm-highlights-grid"></div>
+        <div class="cpm-actions">
+          <button class="btn btn-primary" onclick="navigate('contact'); closeDayPreview();">
+            <i class="fas fa-paper-plane"></i> Apply Now
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  document.getElementById('dpm-backdrop').addEventListener('click', closeDayPreview);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDayPreview(); });
 }
 
 function renderTimeline() {
@@ -862,28 +1051,53 @@ function renderResources() {
   `).join('');
 
   /* Station Activity Bank */
-  const stationWrap = document.getElementById('station-activity-bank');
-  if (!stationWrap) return;
-  stationWrap.innerHTML = STATION_ACTIVITIES.map(s => `
-    <div class="card station-card fade-in">
-      <div class="station-card-header">
-        <div class="station-icon-wrap" style="background:${s.color};color:${s.iconColor};">
-          <i class="fas ${s.icon}"></i>
-        </div>
-        <h4>${s.title}</h4>
+const stationWrap = document.getElementById('station-activity-bank');
+if (!stationWrap) return;
+
+stationWrap.innerHTML = STATION_ACTIVITIES.map(s => `
+  <div class="card station-card fade-in">
+    <div class="station-card-header">
+      <div class="station-icon-wrap" style="background:${s.color};color:${s.iconColor};">
+        <i class="fas ${s.icon}"></i>
       </div>
-      <div class="station-links">
-        ${s.links.map(l => `
-          <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="station-link">
-            <i class="fab fa-facebook" style="color:#1877F2;font-size:12px;"></i>
-            <span>${l.label}</span>
-            <i class="fas fa-external-link-alt" style="margin-left:auto;font-size:10px;color:var(--muted);"></i>
-          </a>
-        `).join('')}
-      </div>
+      <h4>${s.title}</h4>
     </div>
-  `).join('');
+
+    <div class="station-links">
+      ${s.links.map(l => `
+        <div class="station-link">
+
+          <!-- Facebook Resource Indicator -->
+          <i class="fab fa-facebook"
+             style="color:#1877F2;font-size:14px;"></i>
+
+          <span>${l.label}</span>
+
+          <!-- Open in Same Tab -->
+          <a href="${l.url}"
+             class="same-tab-link"
+             title="Open in Same Tab">
+            <i class="fas fa-play-circle"
+               style="color:#22c55e;font-size:15px;"></i>
+          </a>
+
+          <!-- Open in New Tab -->
+          <a href="${l.url}"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="new-tab-link"
+             title="Open in New Tab">
+            <i class="fas fa-external-link-alt"
+               style="font-size:12px;color:var(--muted);"></i>
+          </a>
+
+        </div>
+      `).join('')}
+    </div>
+  </div>
+`).join('');
 }
+
 
 /* ============================================================
    INTERSECTION OBSERVER (fade-in)
@@ -954,6 +1168,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set google form link
   document.querySelectorAll('.google-form-link').forEach(a => a.href = ASSETS.googleForm);
 
+  initCoursePreviewModal();
   initNavbar();
   renderCourses();
   renderTimeline();

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Structured Plan — SpacECE India Foundation</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--orange:#F56A00;--orange-lt:#FF8C38;--orange-bg:#FFF4EC;--yellow:#FFB800;--cream:#FFFAF4;--dark:#1A1A2E;--mid:#3D3D5C;--muted:#7B7B9A;--white:#fff;--border:#EDE8E0;--green:#2ECC71;--blue:#3B82F6;--radius:16px;--font-display:'Playfair Display',serif;--font-body:'DM Sans',sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-body);background:var(--cream);color:var(--dark);line-height:1.65;overflow-x:hidden;}
+a{text-decoration:none;color:inherit;}
+.topbar{background:var(--dark);padding:14px 32px;display:flex;align-items:center;gap:16px;}
+.back-btn{display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,0.7);font-size:13px;font-weight:600;background:rgba(255,255,255,0.08);padding:8px 18px;border-radius:100px;border:1px solid rgba(255,255,255,0.12);transition:all .3s;cursor:pointer;}
+.back-btn:hover{background:var(--orange);color:#fff;border-color:var(--orange);}
+.topbar-label{color:rgba(255,255,255,0.4);font-size:13px;}
+.topbar-label span{color:rgba(255,255,255,0.8);font-weight:600;}
+.hero{background:linear-gradient(135deg,#FFF8F0 0%,#FFF4EC 50%,#FFF0E0 100%);padding:72px 32px 56px;text-align:center;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+.hero::before{content:'';position:absolute;top:-150px;right:-150px;width:500px;height:500px;background:radial-gradient(circle,rgba(255,184,0,.12) 0%,transparent 70%);pointer-events:none;}
+.hero-icon{width:80px;height:80px;background:#FFF8E0;color:var(--yellow);border-radius:24px;display:inline-flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:24px;box-shadow:0 8px 32px rgba(255,184,0,.25);}
+.hero h1{font-family:var(--font-display);font-size:clamp(32px,5vw,56px);font-weight:900;color:var(--dark);line-height:1.1;margin-bottom:16px;}
+.hero h1 span{color:var(--yellow);}
+.hero p{font-size:18px;color:var(--muted);max-width:620px;margin:0 auto 32px;}
+.badge{display:inline-flex;align-items:center;gap:8px;background:#FFF8E0;color:var(--yellow);border:1px solid rgba(255,184,0,.3);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:8px 18px;border-radius:100px;margin-bottom:24px;}
+.container{max-width:1100px;margin:0 auto;padding:0 32px;}
+.section-label{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--orange);display:block;margin-bottom:10px;}
+.section-title{font-family:var(--font-display);font-size:clamp(24px,3.5vw,38px);font-weight:800;color:var(--dark);line-height:1.2;margin-bottom:16px;}
+.divider{width:44px;height:4px;background:var(--yellow);border-radius:2px;margin-bottom:32px;}
+.video-section{padding:64px 0 48px;}
+.video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:20px;box-shadow:0 24px 80px rgba(26,26,46,.15);border:3px solid var(--border);}
+.video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;}
+.section{padding:56px 0;}
+/* MONTH CARDS */
+.months-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.month-card{background:var(--white);border-radius:var(--radius);padding:24px;border:1px solid var(--border);position:relative;overflow:hidden;transition:all .3s;}
+.month-card:hover{box-shadow:0 12px 40px rgba(26,26,46,.12);transform:translateY(-4px);}
+.month-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.month-card:nth-child(1)::before{background:var(--orange);}
+.month-card:nth-child(2)::before{background:var(--yellow);}
+.month-card:nth-child(3)::before{background:var(--green);}
+.month-card:nth-child(4)::before{background:var(--blue);}
+.month-card:nth-child(5)::before{background:#E11D48;}
+.month-card:nth-child(6)::before{background:#7C3AED;}
+.month-badge{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.month-card h3{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--dark);margin-bottom:10px;}
+.month-card p{font-size:13px;color:var(--muted);margin-bottom:14px;}
+.week-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.week-tag{background:var(--cream);border:1px solid var(--border);font-size:11px;font-weight:600;color:var(--mid);padding:3px 10px;border-radius:100px;}
+/* HOW IT WORKS */
+.steps{display:flex;flex-direction:column;gap:0;}
+.step{display:grid;grid-template-columns:80px 1fr;gap:24px;align-items:start;padding:28px 0;border-bottom:1px solid var(--border);}
+.step:last-child{border-bottom:none;}
+.step-num{font-family:var(--font-display);font-size:48px;font-weight:900;color:var(--orange-bg);-webkit-text-stroke:2px var(--orange);line-height:1;text-align:center;}
+.step h4{font-size:17px;font-weight:700;color:var(--dark);margin-bottom:6px;}
+.step p{font-size:14px;color:var(--muted);}
+/* DAILY SAMPLE */
+.daily-sample{background:var(--dark);border-radius:24px;overflow:hidden;}
+.daily-header{padding:32px 40px;background:linear-gradient(135deg,#2D2D50,#1A1A2E);border-bottom:1px solid rgba(255,255,255,.08);}
+.daily-header h3{font-family:var(--font-display);font-size:22px;color:#fff;margin-bottom:4px;}
+.daily-header p{color:rgba(255,255,255,.5);font-size:13px;}
+.daily-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;}
+.day-block{padding:20px;border-right:1px solid rgba(255,255,255,.06);}
+.day-block:last-child{border-right:none;}
+.day-name{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-bottom:8px;}
+.day-topic{font-size:13px;font-weight:700;color:#fff;margin-bottom:6px;}
+.day-act{font-size:11px;color:rgba(255,255,255,.45);line-height:1.5;}
+.cta{background:linear-gradient(135deg,#FFB800 0%,#FFC822 100%);border-radius:24px;padding:48px;text-align:center;margin:0 0 64px;}
+.cta h2{font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--dark);margin-bottom:12px;}
+.cta p{color:rgba(26,26,46,.7);font-size:16px;margin-bottom:28px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-body);font-size:14px;font-weight:700;padding:14px 30px;border-radius:100px;transition:all .3s;cursor:pointer;border:none;}
+.btn-dark{background:var(--dark);color:#fff;}
+.btn-dark:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.2);}
+.btn-outline-dark{background:transparent;color:var(--dark);border:2px solid rgba(26,26,46,.3);margin-left:12px;}
+.btn-outline-dark:hover{background:rgba(26,26,46,.08);}
+@media(max-width:768px){.months-grid{grid-template-columns:1fr;}.daily-grid{grid-template-columns:1fr;}.step{grid-template-columns:1fr;}.topbar{padding:14px 20px;}.container{padding:0 20px;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="back-btn" onclick="window.close()"><i class="fas fa-arrow-left"></i> Back to Portal</button>
+  <span class="topbar-label">SpacECE India Foundation &rsaquo; <span>Weekly Structured Plan</span></span>
+</div>
+
+<div class="hero">
+  <div class="badge"><i class="fas fa-calendar-check"></i> Core Feature</div>
+  <div class="hero-icon"><i class="fas fa-map-marked-alt"></i></div>
+  <h1>Weekly <span>Structured Plan</span></h1>
+  <p>24 weeks of meticulously designed daily schedules — every topic, every activity, and every learning objective mapped out so teachers never have to guess what's next.</p>
+</div>
+
+<div class="video-section">
+  <div class="container">
+    <span class="section-label">Watch & Learn</span>
+    <h2 class="section-title">See the Weekly Plan in Action</h2>
+    <div class="divider"></div>
+    <div class="video-wrap">
+      <iframe src="https://www.youtube.com/embed/jozNEpY8iik" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="Weekly Lesson Planning Guide"></iframe>
+    </div>
+    <p style="text-align:center;margin-top:16px;font-size:14px;color:var(--muted);">
+      <i class="fab fa-youtube" style="color:#FF0000;margin-right:6px;"></i>
+      Full playlist on <a href="https://www.youtube.com/@SpacECE" target="_blank" style="color:var(--orange);font-weight:700;">SpacECE YouTube Channel →</a>
+    </p>
+  </div>
+</div>
+
+<!-- 6 MONTHS OVERVIEW -->
+<div class="section" style="background:var(--white);padding:56px 0;">
+  <div class="container">
+    <span class="section-label">The Full Journey</span>
+    <h2 class="section-title">6-Month Training Overview</h2>
+    <div class="divider"></div>
+    <div class="months-grid">
+      <div class="month-card">
+        <div class="month-badge">Month 1 · Weeks 1–4</div>
+        <h3>Foundations of ECE</h3>
+        <p>Child development theories, NEP 2020, brain development, and learning philosophies.</p>
+        <div class="week-tags"><span class="week-tag">Piaget</span><span class="week-tag">Vygotsky</span><span class="week-tag">Milestones</span><span class="week-tag">NEP 2020</span></div>
+      </div>
+      <div class="month-card">
+        <div class="month-badge">Month 2 · Weeks 5–8</div>
+        <h3>Curriculum & Environment</h3>
+        <p>Lesson planning, activity design, classroom setup, and daily routine creation.</p>
+        <div class="week-tags"><span class="week-tag">Lesson Plans</span><span class="week-tag">Learning Corners</span><span class="week-tag">Routines</span></div>
+      </div>
+      <div class="month-card">
+        <div class="month-badge">Month 3 · Weeks 9–12</div>
+        <h3>Instructional Strategies</h3>
+        <p>Literacy, numeracy, STEM, and creative arts teaching techniques.</p>
+        <div class="week-tags"><span class="week-tag">Literacy</span><span class="week-tag">Numeracy</span><span class="week-tag">STEM</span><span class="week-tag">Arts</span></div>
+      </div>
+      <div class="month-card">
+        <div class="month-badge">Month 4 · Weeks 13–16</div>
+        <h3>Assessment & Inclusion</h3>
+        <p>Observation tools, positive discipline, and inclusive classroom practices.</p>
+        <div class="week-tags"><span class="week-tag">Portfolios</span><span class="week-tag">Checklists</span><span class="week-tag">Inclusion</span></div>
+      </div>
+      <div class="month-card">
+        <div class="month-badge">Month 5 · Weeks 17–20</div>
+        <h3>Family & Wellbeing</h3>
+        <p>Parent partnerships, child safety, nutrition, and reflective teaching practice.</p>
+        <div class="week-tags"><span class="week-tag">Parent PTM</span><span class="week-tag">Safety</span><span class="week-tag">Nutrition</span></div>
+      </div>
+      <div class="month-card">
+        <div class="month-badge">Month 6 · Weeks 21–24</div>
+        <h3>Practicum & Capstone</h3>
+        <p>Real classroom teaching, capstone project, portfolio, and certification.</p>
+        <div class="week-tags"><span class="week-tag">Practicum</span><span class="week-tag">Micro-Teaching</span><span class="week-tag">Certification</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SAMPLE DAY -->
+<div class="section">
+  <div class="container">
+    <span class="section-label">Sample Week</span>
+    <h2 class="section-title">Week 1 — A Glimpse Inside</h2>
+    <div class="divider"></div>
+    <div class="daily-sample">
+      <div class="daily-header">
+        <h3>Week 1: Introduction to ECE & The Teacher's Role</h3>
+        <p>Month 1 · Foundations of Early Childhood Education</p>
+      </div>
+      <div class="daily-grid">
+        <div class="day-block">
+          <div class="day-name">Monday</div>
+          <div class="day-topic">What is ECE?</div>
+          <div class="day-act">Group discussion on the purpose of early education</div>
+        </div>
+        <div class="day-block">
+          <div class="day-name">Tuesday</div>
+          <div class="day-topic">NEP 2020 Overview</div>
+          <div class="day-act">Reading & reflection on policy document excerpts</div>
+        </div>
+        <div class="day-block">
+          <div class="day-name">Wednesday</div>
+          <div class="day-topic">ICDS Framework</div>
+          <div class="day-act">Case study: ICDS Anganwadi model</div>
+        </div>
+        <div class="day-block">
+          <div class="day-name">Thursday</div>
+          <div class="day-topic">Role of the Teacher</div>
+          <div class="day-act">Role-play: teacher vs. facilitator scenarios</div>
+        </div>
+        <div class="day-block">
+          <div class="day-name">Friday</div>
+          <div class="day-topic">Global ECE Standards</div>
+          <div class="day-act">Comparative chart: India vs. international approaches</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="section" style="background:var(--white);padding:56px 0;">
+  <div class="container">
+    <span class="section-label">How It Works</span>
+    <h2 class="section-title">Structure of Each Week</h2>
+    <div class="divider"></div>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><div><h4>Clear Learning Objectives</h4><p>Every week starts with 3 measurable outcomes — so trainees know exactly what they'll be able to do by Friday.</p></div></div>
+      <div class="step"><div class="step-num">02</div><div><h4>Daily Topic + Activity</h4><p>Monday to Friday, each day has a focused topic and a hands-on activity — no passive lectures, only active learning.</p></div></div>
+      <div class="step"><div class="step-num">03</div><div><h4>Theory Linked to Practice</h4><p>Every activity is explicitly connected to a learning theory or curriculum framework — bridging the gap between what and why.</p></div></div>
+      <div class="step"><div class="step-num">04</div><div><h4>Weekly Reflection</h4><p>Every Friday closes with a review, peer discussion, or reflective journal entry to consolidate learning.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+    <div class="cta">
+      <h2>See the Full 24-Week Plan</h2>
+      <p>Explore every week in detail inside the SpacECE Teacher Training Portal.</p>
+      <button class="btn btn-dark" onclick="window.close()"><i class="fas fa-calendar-alt"></i> View Full Plan</button>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSf1qJKod-3F5Wl7HJoRdtMVOK-F3QjKGYQEAtKXZUH0u1g2nA/viewform" target="_blank" class="btn btn-outline-dark"><i class="fas fa-paper-plane"></i> Apply Now</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
