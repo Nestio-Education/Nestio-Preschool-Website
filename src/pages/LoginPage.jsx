@@ -146,14 +146,14 @@ function RegisterForm({ onBack }) {
             <label style={S.label}>Full Name</label>
             <div style={{ position:"relative", marginBottom:12 }}>
               <span style={S.fieldIcon}>👤</span>
-              <input style={S.input} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Dr. Jane Smith"/>
+              <input style={{...S.input, paddingLeft: 32}} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Dr. Jane Smith"/>
             </div>
           </div>
           <div style={{ flex:1 }}>
             <label style={S.label}>Subject</label>
             <div style={{ position:"relative", marginBottom:12 }}>
               <span style={S.fieldIcon}>📘</span>
-              <input style={S.input} value={form.subject} onChange={e=>setForm({...form,subject:e.target.value})} placeholder="Mathematics"/>
+              <input style={{ ...S.input, paddingLeft: 32 }}  value={form.subject} onChange={e=>setForm({...form,subject:e.target.value})} placeholder="Mathematics"/>
             </div>
           </div>
         </div>
@@ -165,17 +165,17 @@ function RegisterForm({ onBack }) {
             <label style={S.label}>{f.label}</label>
             <div style={{ position:"relative", marginBottom:12 }}>
               <span style={S.fieldIcon}>{f.icon}</span>
-              <input style={S.input} type={f.type} value={form[f.key]} onChange={e=>setForm({...form,[f.key]:e.target.value})} placeholder={f.ph}/>
+              <input style={{ ...S.input, paddingLeft: 32 }} type={f.type} value={form[f.key]} onChange={e=>setForm({...form,[f.key]:e.target.value})} placeholder={f.ph}/>
             </div>
           </div>
         ))}
         <label style={S.label}>School / Address</label>
-        <textarea style={{ ...S.input, height:56, resize:"none", marginBottom:12 }}
+        <textarea style={{ ...S.input, height:56, resize:"none", marginBottom:12, paddingLeft: 32}}
           value={form.address} onChange={e=>setForm({...form,address:e.target.value})} placeholder="School name and location"/>
         <label style={S.label}>Password</label>
         <div style={{ position:"relative", marginBottom:4 }}>
           <span style={S.fieldIcon}>🔒</span>
-          <input style={S.input} type={showPass?"text":"password"} value={form.password}
+          <input style={{ ...S.input, paddingLeft: 32 }} type={showPass?"text":"password"} value={form.password}
             onChange={e=>setForm({...form,password:e.target.value})} placeholder="Min. 8 characters"/>
           <button type="button" onClick={()=>setShowPass(!showPass)}
             style={{ position:"absolute", right:10, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:16 }}>
@@ -187,7 +187,7 @@ function RegisterForm({ onBack }) {
           <label style={S.label}>Confirm Password</label>
           <div style={{ position:"relative" }}>
             <span style={S.fieldIcon}>🛡️</span>
-            <input style={S.input} type="password" value={form.confirmPassword}
+            <input style={{ ...S.input, paddingLeft: 32 }} type="password" value={form.confirmPassword}
               onChange={e=>setForm({...form,confirmPassword:e.target.value})} placeholder="Re-enter password"/>
           </div>
         </div>

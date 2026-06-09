@@ -85,6 +85,38 @@ const CLOSE_BTN = {
   alignItems: "center", justifyContent: "center",
 };
 
+const NT_OVERLAY = {
+  position:"fixed", inset:0, background:"rgba(0,0,0,0.45)",
+  display:"flex", alignItems:"center", justifyContent:"center",
+  zIndex:1000, backdropFilter:"blur(3px)", padding:20,
+};
+const NT_MODAL = {
+  background:"white", borderRadius:20, width:"100%", maxWidth:580,
+  maxHeight:"90vh", display:"flex", flexDirection:"column",
+  boxShadow:"0 20px 60px rgba(0,0,0,0.2)", overflow:"hidden",
+};
+const NT_HDR = {
+  padding:"18px 24px", borderBottom:"1px solid #f3f4f6",
+  display:"flex", justifyContent:"space-between", alignItems:"center",
+  flexShrink:0,
+};
+const NT_CLOSE = {
+  background:"#f3f4f6", border:"none", width:30, height:30,
+  borderRadius:8, cursor:"pointer", fontSize:15,
+};
+const NT_BTN_PRIMARY = {
+  padding:"8px 16px", borderRadius:9, border:"none",
+  background:"#f59e0b", color:"white", fontSize:12,
+  fontWeight:700, cursor:"pointer", fontFamily:"inherit",
+};
+const NT_BTN_GHOST = {
+  padding:"7px 13px", borderRadius:8,
+  border:"1.5px solid #e5e7eb", background:"white",
+  color:"#6b7280", fontSize:12, fontWeight:600,
+  cursor:"pointer", fontFamily:"inherit",
+};
+ 
+
 const MOCK_TEACHERS = [
   { id:1, name:"Priya Sharma",   email:"priya@school.edu",  phone:"9876543210", subject:"Mathematics",    address:"Mumbai", qualification:"B.Ed",    experience:"3-5 yrs",  status:"approved", joined:"01/05/2026", attendance:92, classes:6, students:38, batch:"Batch A", course:"Pre-Primary Teacher Training", revenue:4500 },
   { id:2, name:"Rahul Verma",    email:"rahul@school.edu",  phone:"9123456780", subject:"Science",        address:"Pune",   qualification:"Graduate",experience:"1-2 yrs",  status:"approved", joined:"15/04/2026", attendance:87, classes:5, students:42, batch:"Batch B", course:"Montessori Teacher Training",  revenue:5200 },
@@ -218,11 +250,48 @@ const MOCK_TRAINERS = [
 ];
 
 const MOCK_SESSIONS = [
-  { id:1, title:"Classroom Management Techniques",  date:"02/06/2026", time:"10:00 AM", batch:"Batch A", trainer:"Dr. Rekha Iyer",   platform:"Zoom",        duration:90,  status:"upcoming",  attendees:28 },
-  { id:2, title:"Montessori Material Demonstration", date:"03/06/2026", time:"11:00 AM", batch:"Batch B", trainer:"Prof. Amol Desai", platform:"Google Meet", duration:60,  status:"upcoming",  attendees:22 },
-  { id:3, title:"NEP 2020 Overview & FLN Goals",     date:"01/06/2026", time:"09:00 AM", batch:"Batch C", trainer:"Ms. Geeta Rao",    platform:"Zoom",        duration:120, status:"completed", attendees:18 },
-  { id:4, title:"Child Development Milestones",      date:"30/05/2026", time:"03:00 PM", batch:"Batch B", trainer:"Dr. Vikram Shah",  platform:"Google Meet", duration:75,  status:"completed", attendees:25 },
-  { id:5, title:"Digital Tools for Preschool",       date:"05/06/2026", time:"02:00 PM", batch:"Batch A", trainer:"Dr. Rekha Iyer",   platform:"Zoom",        duration:60,  status:"upcoming",  attendees:0 },
+  {
+    id:1, title:"Classroom Management Techniques", date:"02/06/2026", time:"10:00", batch:"Batch A",
+    trainer:"Dr. Rekha Iyer", backupTrainer:"Prof. Amol Desai", platform:"Zoom",
+    meetingLink:"https://zoom.us/j/123456789", duration:90, status:"completed",
+    attendees:28, maxParticipants:40, recurrence:"none", recurrenceEnd:"",
+    recording:"", materials:[], feedbackSent:false, summary:"",
+    reminderSent24h:true, reminderSent1h:true,
+  },
+  {
+    id:2, title:"Montessori Material Demonstration", date:"03/06/2026", time:"11:00", batch:"Batch B",
+    trainer:"Prof. Amol Desai", backupTrainer:"", platform:"Google Meet",
+    meetingLink:"https://meet.google.com/abc-defg-hij", duration:60, status:"upcoming",
+    attendees:0, maxParticipants:35, recurrence:"weekly", recurrenceEnd:"2026-07-03",
+    recording:"", materials:[], feedbackSent:false, summary:"",
+    reminderSent24h:false, reminderSent1h:false,
+  },
+  {
+    id:3, title:"NEP 2020 Overview & FLN Goals", date:"01/06/2026", time:"09:00", batch:"Batch C",
+    trainer:"Ms. Geeta Rao", backupTrainer:"Dr. Rekha Iyer", platform:"Zoom",
+    meetingLink:"https://zoom.us/j/987654321", duration:120, status:"completed",
+    attendees:18, maxParticipants:50, recurrence:"none", recurrenceEnd:"",
+    recording:"https://recordings.spaceece.in/session3.mp4", materials:["NEP_Overview_Slides.pdf"],
+    feedbackSent:true, summary:"Session covered NEP 2020 foundational goals and FLN framework. 18 attendees, high engagement.",
+    reminderSent24h:true, reminderSent1h:true,
+  },
+  {
+    id:4, title:"Child Development Milestones", date:"30/05/2026", time:"15:00", batch:"Batch B",
+    trainer:"Dr. Vikram Shah", backupTrainer:"", platform:"Google Meet",
+    meetingLink:"https://meet.google.com/xyz-uvwx-yz", duration:75, status:"completed",
+    attendees:25, maxParticipants:35, recurrence:"bi-weekly", recurrenceEnd:"2026-06-30",
+    recording:"https://recordings.spaceece.in/session4.mp4", materials:["Child_Dev_Notes.pdf","Activity_Sheet.docx"],
+    feedbackSent:true, summary:"",
+    reminderSent24h:true, reminderSent1h:true,
+  },
+  {
+    id:5, title:"Digital Tools for Preschool", date:"05/06/2026", time:"14:00", batch:"Batch A",
+    trainer:"Dr. Rekha Iyer", backupTrainer:"Ms. Geeta Rao", platform:"Zoom",
+    meetingLink:"https://zoom.us/j/555444333", duration:60, status:"upcoming",
+    attendees:0, maxParticipants:40, recurrence:"none", recurrenceEnd:"",
+    recording:"", materials:[], feedbackSent:false, summary:"",
+    reminderSent24h:false, reminderSent1h:false,
+  },
 ];
 
 const MOCK_ASSIGNMENTS = [
@@ -574,11 +643,16 @@ const MOCK_CERTIFICATES = [
 ];
 
 const MOCK_FEEDBACKS = [
-  { id:1, learner:"Asha Kulkarni",  course:"Pre-Primary Teacher Training", trainer:"Dr. Rekha Iyer",  rating:5, trainerRating:5, tag:"More demos",         suggestion:"Add more classroom demonstration videos in Module 2.", status:"open",     date:"02/06/2026" },
-  { id:2, learner:"Neha Joshi",     course:"Montessori Teacher Training",  trainer:"Prof. Amol Desai",rating:4, trainerRating:5, tag:"More worksheets",    suggestion:"Provide printable worksheets after each live session.", status:"resolved", date:"01/06/2026" },
-  { id:3, learner:"Ritika Menon",   course:"Child Psychology & Development", trainer:"Dr. Vikram Shah", rating:5, trainerRating:4, tag:"Slower pacing",   suggestion:"Some topics felt fast; slower pacing would help.", status:"open",     date:"31/05/2026" },
-  { id:4, learner:"Sneha Rao",      course:"NEP 2020 Alignment & FLN",      trainer:"Ms. Geeta Rao",    rating:4, trainerRating:4, tag:"More examples",    suggestion:"Need more practical examples tied to school classrooms.", status:"open", date:"30/05/2026" },
-  { id:5, learner:"Farah Khan",     course:"Special Education & Inclusive Ed", trainer:"Dr. Rekha Iyer", rating:5, trainerRating:5, tag:"Loved toolkit",  suggestion:"The toolkit resources were very useful and well organised.", status:"resolved", date:"29/05/2026" },
+  { id:1, learner:"Asha Kulkarni",  course:"Pre-Primary Teacher Training", batch:"Batch A", trainer:"Dr. Rekha Iyer",  rating:5, trainerRating:5, tag:"Content Quality", suggestion:"Add more classroom demonstration videos in Module 2.", status:"pending",  date:"02/06/2026", anonymous:false, adminResponse:"" },
+  { id:2, learner:"Neha Joshi",     course:"Montessori Teacher Training",  batch:"Batch B", trainer:"Prof. Amol Desai",rating:4, trainerRating:5, tag:"Platform UX",     suggestion:"Provide printable worksheets after each live session.", status:"approved", date:"01/06/2026", anonymous:false, adminResponse:"Thank you for the suggestion! We will add downloadable worksheets soon." },
+  { id:3, learner:"Ritika Menon",   course:"Child Psychology & Development",batch:"Batch A",trainer:"Dr. Vikram Shah", rating:5, trainerRating:4, tag:"Schedule",        suggestion:"Some topics felt fast; slower pacing would help.", status:"pending",  date:"31/05/2026", anonymous:true,  adminResponse:"" },
+  { id:4, learner:"Sneha Rao",      course:"NEP 2020 Alignment & FLN",     batch:"Batch C", trainer:"Ms. Geeta Rao",   rating:4, trainerRating:4, tag:"Trainer",         suggestion:"Need more practical examples tied to school classrooms.", status:"approved", date:"30/05/2026", anonymous:false, adminResponse:"" },
+  { id:5, learner:"Farah Khan",     course:"Special Education & Inclusive Ed",batch:"Batch B",trainer:"Dr. Rekha Iyer",rating:5, trainerRating:5, tag:"Content Quality", suggestion:"The toolkit resources were very useful and well organised.", status:"approved", date:"29/05/2026", anonymous:false, adminResponse:"" },
+  { id:6, learner:"Priya Mehta",    course:"Pre-Primary Teacher Training", batch:"Batch A", trainer:"Dr. Rekha Iyer",  rating:2, trainerRating:3, tag:"Price",           suggestion:"Course fee is too high compared to similar programs online.", status:"pending",  date:"28/05/2026", anonymous:true,  adminResponse:"" },
+  { id:7, learner:"Amit Sharma",    course:"Montessori Teacher Training",  batch:"Batch B", trainer:"Prof. Amol Desai",rating:3, trainerRating:4, tag:"Platform UX",     suggestion:"Video player lags on mobile. Please optimise for low bandwidth.", status:"rejected", date:"27/05/2026", anonymous:false, adminResponse:"" },
+  { id:8, learner:"Kavya Nair",     course:"Leadership & School Administration",batch:"Batch A",trainer:"Mr. Sunil Mehta",rating:5, trainerRating:5, tag:"Trainer",      suggestion:"Mr. Mehta is an exceptional trainer. Very inspiring sessions!", status:"approved", date:"26/05/2026", anonymous:false, adminResponse:"" },
+  { id:9, learner:"Deepa Iyer",     course:"NEP 2020 Alignment & FLN",     batch:"Batch C", trainer:"Ms. Geeta Rao",   rating:1, trainerRating:2, tag:"Content Quality", suggestion:"Content is outdated and does not reflect current NEP guidelines.", status:"pending",  date:"25/05/2026", anonymous:true,  adminResponse:"" },
+  { id:10,learner:"Rohit Verma",    course:"Child Psychology & Development",batch:"Batch A",trainer:"Dr. Vikram Shah", rating:4, trainerRating:5, tag:"Schedule",        suggestion:"Would prefer weekend batches instead of weekday sessions.", status:"approved", date:"24/05/2026", anonymous:false, adminResponse:"" },
 ];
 
 const MOCK_CATEGORIES = [
@@ -592,6 +666,35 @@ const MOCK_CATEGORIES = [
   { id:8, name:"Digital",    sub:["EdTech","Tools"],          icon:"💻", color:"#14b8a6", order:8, count:1 },
 ];
 
+const MOCK_NOTIFICATION_TEMPLATES = [
+  { id:1,  type:"Welcome Email",       trigger:"On registration approval",             channel:["email"],              subject:"Welcome to SpacECE! 🎉",                    body:"Dear {{name}}, welcome to SpacECE Teacher Training Portal. Your registration has been approved. Log in to begin your journey.",   active:true,  lastSent:"02/06/2026", sentCount:48  },
+  { id:2,  type:"Course Enrolled",     trigger:"On enrollment + payment confirmation", channel:["email","sms"],        subject:"You're enrolled in {{course}}!",             body:"Dear {{name}}, you have been successfully enrolled in {{course}}. Your batch starts on {{startDate}}. Access the course from your dashboard.", active:true,  lastSent:"01/06/2026", sentCount:124 },
+  { id:3,  type:"Session Reminder",    trigger:"24 hrs and 1 hr before live session",  channel:["email","in-app","whatsapp"], subject:"Live Session Tomorrow: {{sessionTitle}}", body:"Don't forget! Your live session '{{sessionTitle}}' is scheduled for {{sessionDate}} at {{sessionTime}}. Join via {{platform}}.",    active:true,  lastSent:"01/06/2026", sentCount:89  },
+  { id:4,  type:"Assignment Due",      trigger:"72 hrs, 24 hrs, and on deadline",      channel:["email","sms","in-app"], subject:"Assignment Due: {{assignmentTitle}}",      body:"Dear {{name}}, your assignment '{{assignmentTitle}}' is due on {{dueDate}}. Please submit on time to avoid penalties.",               active:true,  lastSent:"30/05/2026", sentCount:67  },
+  { id:5,  type:"Quiz Available",      trigger:"When new quiz published",              channel:["in-app","email"],     subject:"New Quiz Available: {{quizTitle}}",         body:"A new quiz '{{quizTitle}}' is now available in your course {{course}}. Complete it before {{dueDate}}.",                             active:true,  lastSent:"29/05/2026", sentCount:52  },
+  { id:6,  type:"Feedback Received",   trigger:"When trainer reviews assignment",      channel:["email","in-app"],     subject:"Your Assignment Has Been Reviewed",         body:"Dear {{name}}, your assignment '{{assignmentTitle}}' has been reviewed. Log in to see your score and feedback.",                      active:true,  lastSent:"31/05/2026", sentCount:38  },
+  { id:7,  type:"Certificate Issued",  trigger:"Certificate generated",               channel:["email","in-app","whatsapp"], subject:"Your Certificate is Ready! 🎓",      body:"Congratulations {{name}}! Your certificate for {{course}} has been issued. Download it here: {{downloadLink}}",                     active:true,  lastSent:"01/06/2026", sentCount:29  },
+  { id:8,  type:"Batch Reminder",      trigger:"Weekly — every Monday 9 AM",          channel:["email","in-app"],     subject:"Weekly Digest: {{batchName}}",              body:"Hi {{name}}, here's your weekly summary for {{batchName}}: {{upcomingSessions}} sessions this week, {{pendingAssignments}} assignments pending.", active:true, lastSent:"27/05/2026", sentCount:156 },
+  { id:9,  type:"System Updates",      trigger:"Manual trigger by Admin",             channel:["email","in-app"],     subject:"Important Update from SpacECE",            body:"Dear User, we have an important update regarding {{updateTitle}}. {{updateBody}}",                                                      active:false, lastSent:"20/05/2026", sentCount:210 },
+];
+ 
+const MOCK_NOTIFICATION_LOG = [
+  { id:1,  type:"Session Reminder",   recipient:"Priya Sharma",  channel:"email",   subject:"Live Session Tomorrow",         sentAt:"01/06/2026 09:00", status:"delivered", opened:true,  clicked:true  },
+  { id:2,  type:"Session Reminder",   recipient:"Rahul Verma",   channel:"sms",     subject:"Session at 11 AM tomorrow",     sentAt:"01/06/2026 09:00", status:"delivered", opened:false, clicked:false },
+  { id:3,  type:"Assignment Due",     recipient:"Meera Patel",   channel:"email",   subject:"Assignment Due in 24 hours",     sentAt:"30/05/2026 10:00", status:"delivered", opened:true,  clicked:false },
+  { id:4,  type:"Welcome Email",      recipient:"Anita Joshi",   channel:"email",   subject:"Welcome to SpacECE!",           sentAt:"28/05/2026 14:00", status:"delivered", opened:true,  clicked:true  },
+  { id:5,  type:"Certificate Issued", recipient:"Suresh Kumar",  channel:"whatsapp",subject:"Certificate Ready 🎓",          sentAt:"01/06/2026 11:00", status:"delivered", opened:true,  clicked:true  },
+  { id:6,  type:"Batch Reminder",     recipient:"Deepak Nair",   channel:"in-app",  subject:"Weekly Digest: Batch B",        sentAt:"27/05/2026 09:00", status:"delivered", opened:false, clicked:false },
+  { id:7,  type:"Feedback Received",  recipient:"Priya Sharma",  channel:"email",   subject:"Assignment Reviewed",           sentAt:"31/05/2026 15:00", status:"bounced",   opened:false, clicked:false },
+  { id:8,  type:"Quiz Available",     recipient:"Meera Patel",   channel:"in-app",  subject:"New Quiz: ECCE Foundations",    sentAt:"29/05/2026 10:00", status:"delivered", opened:true,  clicked:false },
+];
+ 
+const MOCK_CHANNEL_CONFIG = {
+  email:    { provider:"SendGrid", apiKey:"SG.***", fromName:"SpacECE Admin", fromEmail:"admin@spaceece.in", connected:true  },
+  sms:      { provider:"MSG91",    apiKey:"MSG91***", senderId:"SPCEDU",       connected:true  },
+  inapp:    { provider:"Built-in", connected:true  },
+  whatsapp: { provider:"WhatsApp Business API", token:"WABA***", phoneNumberId:"1234567890", connected:false },
+};
 
 
 /* ═══════════════════════════════════════════
@@ -4584,134 +4687,1286 @@ function AssignmentReviewTab({ assignments, setAssignments, setToast }) {
 }
 
 /* ── A7: Attendance Management ── */
-function AttendanceTab({ teachers, sessions }) {
-  const [selectedBatch, setSelectedBatch] = useState("all");
-  const batches = [...new Set(teachers.filter(t=>t.batch).map(t=>t.batch))];
-  const filtered = selectedBatch==="all" ? teachers.filter(t=>t.status==="approved") : teachers.filter(t=>t.batch===selectedBatch&&t.status==="approved");
-  const lowAttendance = filtered.filter(t=>t.attendance<70);
+/* ═══════════════════════════════════════════════════════════
+   ATTENDANCE MANAGEMENT TAB — A9.1 + A9.2
+   Paste this block into AdminDashboard.jsx
+   replacing the old AttendanceTab function.
+═══════════════════════════════════════════════════════════ */
 
+/* ── Attendance Mock Data (add to your MOCK DATA section) ──
+const MOCK_ATTENDANCE_RECORDS = [
+  { id:1, teacherId:1, teacherName:"Priya Sharma",  sessionId:1, sessionTitle:"Classroom Management Techniques",  batch:"Batch A", date:"02/06/2026", status:"present",  markedBy:"auto",  note:"" },
+  { id:2, teacherId:4, teacherName:"Meera Patel",   sessionId:1, sessionTitle:"Classroom Management Techniques",  batch:"Batch A", date:"02/06/2026", status:"late",     markedBy:"auto",  note:"Joined 10 mins late" },
+  { id:3, teacherId:2, teacherName:"Rahul Verma",   sessionId:2, sessionTitle:"Montessori Material Demonstration",batch:"Batch B", date:"03/06/2026", status:"present",  markedBy:"auto",  note:"" },
+  { id:4, teacherId:7, teacherName:"Deepak Nair",   sessionId:2, sessionTitle:"Montessori Material Demonstration",batch:"Batch B", date:"03/06/2026", status:"absent",   markedBy:"auto",  note:"" },
+  { id:5, teacherId:5, teacherName:"Suresh Kumar",  sessionId:3, sessionTitle:"NEP 2020 Overview & FLN Goals",    batch:"Batch C", date:"01/06/2026", status:"present",  markedBy:"auto",  note:"" },
+  { id:6, teacherId:1, teacherName:"Priya Sharma",  sessionId:5, sessionTitle:"Digital Tools for Preschool",      batch:"Batch A", date:"05/06/2026", status:"excused",  markedBy:"admin", note:"Medical leave" },
+  { id:7, teacherId:4, teacherName:"Meera Patel",   sessionId:5, sessionTitle:"Digital Tools for Preschool",      batch:"Batch A", date:"05/06/2026", status:"present",  markedBy:"auto",  note:"" },
+  { id:8, teacherId:2, teacherName:"Rahul Verma",   sessionId:4, sessionTitle:"Child Development Milestones",     batch:"Batch B", date:"30/05/2026", status:"present",  markedBy:"auto",  note:"" },
+  { id:9, teacherId:7, teacherName:"Deepak Nair",   sessionId:4, sessionTitle:"Child Development Milestones",     batch:"Batch B", date:"30/05/2026", status:"present",  markedBy:"auto",  note:"" },
+];
+── end of mock data ── */
+
+/* ── Audit Log Entry ── */
+function AuditLogEntry({ entry }) {
   return (
-    <div style={{ animation:"fadeIn 0.3s ease" }}>
-      <h1 style={S.pageTitle}>Attendance Management</h1>
-      <p style={S.pageSub}>Track and manage teacher attendance across all batches</p>
-
-      {lowAttendance.length>0 && (
-        <div style={{ background:"#fee2e2", border:"1px solid #fca5a5", borderRadius:12, padding:"12px 16px", marginBottom:20, display:"flex", alignItems:"center", gap:10 }}>
-          <span style={{ fontSize:20 }}>⚠️</span>
-          <div>
-            <div style={{ fontSize:13, fontWeight:700, color:"#991b1b" }}>Low Attendance Alert</div>
-            <div style={{ fontSize:12, color:"#dc2626" }}>{lowAttendance.length} teacher(s) below 70% attendance: {lowAttendance.map(t=>t.name).join(", ")}</div>
-          </div>
-        </div>
-      )}
-
-      <div style={{ display:"flex", gap:8, marginBottom:20, flexWrap:"wrap" }}>
-        <button onClick={()=>setSelectedBatch("all")}
-          style={{ padding:"7px 14px", borderRadius:8, border:`1.5px solid ${selectedBatch==="all"?"#f59e0b":"#e5e7eb"}`,
-            background:selectedBatch==="all"?"#fef3c7":"white", color:selectedBatch==="all"?"#92400e":"#6b7280",
-            fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>All Batches</button>
-        {batches.map(b=>(
-          <button key={b} onClick={()=>setSelectedBatch(b)}
-            style={{ padding:"7px 14px", borderRadius:8, border:`1.5px solid ${selectedBatch===b?"#f59e0b":"#e5e7eb"}`,
-              background:selectedBatch===b?"#fef3c7":"white", color:selectedBatch===b?"#92400e":"#6b7280",
-              fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>{b}</button>
-        ))}
-      </div>
-
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
-        <SectionCard title="📊 Attendance Register">
-          {filtered.map((t,i)=><AttendanceBar key={i} val={t.attendance} name={t.name}/>)}
-        </SectionCard>
-
-        <SectionCard title="📅 Recent Sessions Attendance">
-          {sessions.filter(s=>s.status==="completed").map((s,i)=>(
-            <div key={i} style={{ padding:"10px 0", borderBottom:"1px solid #f3f4f6" }}>
-              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:2 }}>
-                <span style={{ fontSize:13, fontWeight:600, color:"#1c1917" }}>{s.title}</span>
-                <span style={{ fontSize:12, fontWeight:700, color:"#10b981" }}>{s.attendees} attended</span>
-              </div>
-              <div style={{ fontSize:11, color:"#9ca3af" }}>{s.date} · {s.batch} · {s.trainer}</div>
-            </div>
-          ))}
-        </SectionCard>
+    <div style={{ display:"flex", gap:10, padding:"8px 0", borderBottom:"1px solid #f3f4f6", alignItems:"flex-start" }}>
+      <div style={{ width:28, height:28, borderRadius:8, background:"#f0f9ff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, flexShrink:0 }}>📝</div>
+      <div style={{ flex:1 }}>
+        <div style={{ fontSize:12, color:"#1c1917", fontWeight:600 }}>{entry.action}</div>
+        <div style={{ fontSize:11, color:"#9ca3af", marginTop:1 }}>{entry.by} · {entry.time}</div>
       </div>
     </div>
   );
 }
 
-/* ── A8: Live Sessions ── */
-function LiveSessionsTab({ sessions, setSessions, setToast }) {
-  const [addModal, setAddModal] = useState(false);
-  const [newS, setNewS] = useState({ title:"",date:"",time:"",batch:"",trainer:"",platform:"Zoom",duration:60,status:"upcoming" });
+/* ── Status Badge for Attendance ── */
+function AttStatusBadge({ status }) {
+  const map = {
+    present: { label:"Present", color:"#059669", bg:"#d1fae5" },
+    late:    { label:"Late",    color:"#d97706", bg:"#fef3c7" },
+    absent:  { label:"Absent",  color:"#dc2626", bg:"#fee2e2" },
+    excused: { label:"Excused", color:"#6366f1", bg:"#ede9fe" },
+  };
+  const s = map[status] || { label:status, color:"#6b7280", bg:"#f3f4f6" };
+  return (
+    <span style={{ padding:"2px 8px", borderRadius:20, fontSize:10, fontWeight:700, color:s.color, background:s.bg, border:`1px solid ${s.color}30`, whiteSpace:"nowrap" }}>
+      {s.label}
+    </span>
+  );
+}
 
-  const handleAdd = (e) => {
-    e.preventDefault();
-    if(!newS.title||!newS.date||!newS.time) { setToast({msg:"Fill required fields.",type:"error"}); return; }
-    setSessions(prev=>[...prev,{ id:Date.now(), ...newS, attendees:0 }]);
-    setToast({msg:"Session scheduled!",type:"success"});
-    setAddModal(false);
-    setNewS({ title:"",date:"",time:"",batch:"",trainer:"",platform:"Zoom",duration:60,status:"upcoming" });
+/* ── Manual Attendance Entry Modal ── */
+function ManualAttendanceModal({ session, teachers, existingRecords, onSave, onClose, setToast }) {
+  const batchTeachers = teachers.filter(t => t.batch === session.batch && t.status === "approved");
+  const [entries, setEntries] = useState(
+    batchTeachers.map(t => {
+      const existing = existingRecords.find(r => r.teacherId === t.id && r.sessionId === session.id);
+      return {
+        teacherId:   t.id,
+        teacherName: t.name,
+        status:      existing?.status || "present",
+        note:        existing?.note   || "",
+      };
+    })
+  );
+
+  const setStatus = (teacherId, status) =>
+    setEntries(prev => prev.map(e => e.teacherId === teacherId ? { ...e, status } : e));
+
+  const setNote = (teacherId, note) =>
+    setEntries(prev => prev.map(e => e.teacherId === teacherId ? { ...e, note } : e));
+
+  const handleSave = () => {
+    const newRecords = entries.map(e => ({
+      id:           Date.now() + e.teacherId,
+      teacherId:    e.teacherId,
+      teacherName:  e.teacherName,
+      sessionId:    session.id,
+      sessionTitle: session.title,
+      batch:        session.batch,
+      date:         session.date,
+      status:       e.status,
+      markedBy:     "admin",
+      note:         e.note,
+    }));
+    onSave(newRecords, session.id);
+    setToast({ msg:`Attendance saved for ${session.title}!`, type:"success" });
+    onClose();
+  };
+
+  const statusColors = {
+    present: { bg:"#d1fae5", color:"#059669", border:"#6ee7b7" },
+    late:    { bg:"#fef3c7", color:"#d97706", border:"#fbbf24" },
+    absent:  { bg:"#fee2e2", color:"#dc2626", border:"#fca5a5" },
+    excused: { bg:"#ede9fe", color:"#6366f1", border:"#c4b5fd" },
   };
 
   return (
+    <Modal title={`📋 Manual Attendance — ${session.title}`} onClose={onClose}>
+      <div style={{ background:"#f0f9ff", border:"1px solid #bae6fd", borderRadius:10, padding:"10px 14px", marginBottom:14, fontSize:12, color:"#0369a1" }}>
+        📅 {session.date} · 🗂️ {session.batch} · 🕐 {session.time || "—"}
+      </div>
+      <div style={{ maxHeight:360, overflowY:"auto" }}>
+        {batchTeachers.length === 0 ? (
+          <div style={{ textAlign:"center", padding:20, color:"#9ca3af", fontSize:13 }}>No approved teachers in {session.batch}</div>
+        ) : (
+          entries.map(e => (
+            <div key={e.teacherId} style={{ padding:"12px 0", borderBottom:"1px solid #f3f4f6" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+                <div style={{ width:32, height:32, borderRadius:8, background:"linear-gradient(135deg,#f59e0b,#d97706)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:800, color:"white", flexShrink:0 }}>
+                  {e.teacherName[0]}
+                </div>
+                <div style={{ fontSize:13, fontWeight:700, color:"#1c1917", flex:1 }}>{e.teacherName}</div>
+                <div style={{ display:"flex", gap:6 }}>
+                  {["present","late","absent","excused"].map(s => (
+                    <button key={s} onClick={() => setStatus(e.teacherId, s)}
+                      style={{ padding:"4px 10px", borderRadius:8, border:`1.5px solid ${e.status===s?statusColors[s].border:"#e5e7eb"}`, background:e.status===s?statusColors[s].bg:"white", color:e.status===s?statusColors[s].color:"#9ca3af", fontSize:10, fontWeight:700, cursor:"pointer", fontFamily:"inherit", textTransform:"capitalize" }}>
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {(e.status === "late" || e.status === "excused" || e.status === "absent") && (
+                <input
+                  style={{ ...S.input, fontSize:11, padding:"6px 10px", marginLeft:42 }}
+                  value={e.note}
+                  onChange={ev => setNote(e.teacherId, ev.target.value)}
+                  placeholder={e.status === "excused" ? "Reason for excuse..." : e.status === "late" ? "How late? Note..." : "Reason for absence..."}
+                />
+              )}
+            </div>
+          ))
+        )}
+      </div>
+      <div style={{ display:"flex", gap:10, marginTop:16 }}>
+        <button onClick={handleSave} style={{ ...S.primaryBtn, flex:1 }}>💾 Save Attendance</button>
+        <button onClick={onClose}   style={{ ...S.tblBtn,    flex:1 }}>Cancel</button>
+      </div>
+    </Modal>
+  );
+}
+
+/* ── Edit Single Record Modal (Audit Log) ── */
+function EditRecordModal({ record, onSave, onClose, setToast }) {
+  const [status, setStatus] = useState(record.status);
+  const [note,   setNote]   = useState(record.note || "");
+
+  const handleSave = () => {
+    onSave({ ...record, status, note, markedBy:"admin", editedAt:new Date().toLocaleString("en-IN") });
+    setToast({ msg:"Attendance record updated!", type:"success" });
+    onClose();
+  };
+
+  return (
+    <Modal title={`✏️ Edit Attendance — ${record.teacherName}`} onClose={onClose}>
+      <div style={{ background:"#f9fafb", borderRadius:10, padding:"12px 14px", marginBottom:14, fontSize:12, color:"#6b7280" }}>
+        Session: <b>{record.sessionTitle}</b> · Date: <b>{record.date}</b>
+      </div>
+      <label style={S.label}>Status</label>
+      <div style={{ display:"flex", gap:8, marginBottom:14 }}>
+        {["present","late","absent","excused"].map(s => (
+          <button key={s} onClick={() => setStatus(s)}
+            style={{ flex:1, padding:"8px", borderRadius:8, border:`1.5px solid ${status===s?"#f59e0b":"#e5e7eb"}`, background:status===s?"#fef3c7":"white", color:status===s?"#92400e":"#6b7280", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"inherit", textTransform:"capitalize" }}>
+            {s}
+          </button>
+        ))}
+      </div>
+      <label style={S.label}>Note / Reason</label>
+      <textarea style={{ ...S.input, height:70, resize:"none", marginBottom:14 }} value={note} onChange={e=>setNote(e.target.value)} placeholder="Reason for change..."/>
+      <div style={{ background:"#fef3c7", border:"1px solid #fbbf24", borderRadius:8, padding:"8px 12px", fontSize:11, color:"#92400e", marginBottom:16 }}>
+        ⚠️ This edit will be logged in the audit trail with your admin credentials.
+      </div>
+      <button onClick={handleSave} style={{ ...S.primaryBtn, width:"100%" }}>Save Change →</button>
+    </Modal>
+  );
+}
+
+/* ══════════════════════════════════════════
+   MAIN ATTENDANCE MANAGEMENT TAB — A9.1 + A9.2
+══════════════════════════════════════════ */
+function AttendanceTab({ teachers, sessions, attendanceRecords: propRecords, setAttendanceRecords: setPropRecords }) {
+  /* ── Fallback internal state if prop not passed ── */
+  const INITIAL_RECORDS = [
+    { id:1, teacherId:1, teacherName:"Priya Sharma",  sessionId:1, sessionTitle:"Classroom Management Techniques",   batch:"Batch A", date:"02/06/2026", status:"present", markedBy:"auto",  note:"" },
+    { id:2, teacherId:4, teacherName:"Meera Patel",   sessionId:1, sessionTitle:"Classroom Management Techniques",   batch:"Batch A", date:"02/06/2026", status:"late",    markedBy:"auto",  note:"Joined 10 mins late" },
+    { id:3, teacherId:2, teacherName:"Rahul Verma",   sessionId:2, sessionTitle:"Montessori Material Demonstration", batch:"Batch B", date:"03/06/2026", status:"present", markedBy:"auto",  note:"" },
+    { id:4, teacherId:7, teacherName:"Deepak Nair",   sessionId:2, sessionTitle:"Montessori Material Demonstration", batch:"Batch B", date:"03/06/2026", status:"absent",  markedBy:"auto",  note:"" },
+    { id:5, teacherId:5, teacherName:"Suresh Kumar",  sessionId:3, sessionTitle:"NEP 2020 Overview & FLN Goals",     batch:"Batch C", date:"01/06/2026", status:"present", markedBy:"auto",  note:"" },
+    { id:6, teacherId:1, teacherName:"Priya Sharma",  sessionId:5, sessionTitle:"Digital Tools for Preschool",       batch:"Batch A", date:"05/06/2026", status:"excused", markedBy:"admin", note:"Medical leave" },
+    { id:7, teacherId:4, teacherName:"Meera Patel",   sessionId:5, sessionTitle:"Digital Tools for Preschool",       batch:"Batch A", date:"05/06/2026", status:"present", markedBy:"auto",  note:"" },
+    { id:8, teacherId:2, teacherName:"Rahul Verma",   sessionId:4, sessionTitle:"Child Development Milestones",      batch:"Batch B", date:"30/05/2026", status:"present", markedBy:"auto",  note:"" },
+    { id:9, teacherId:7, teacherName:"Deepak Nair",   sessionId:4, sessionTitle:"Child Development Milestones",      batch:"Batch B", date:"30/05/2026", status:"present", markedBy:"auto",  note:"" },
+  ];
+
+  const [records,       setRecordsState] = useState(propRecords || INITIAL_RECORDS);
+  const [activeTab,     setActiveTab]    = useState("register");
+  const [batchFilter,   setBatchFilter]  = useState("all");
+  const [sessionFilter, setSessionFilter]= useState("all");
+  const [manualModal,   setManualModal]  = useState(null);  // session object
+  const [editModal,     setEditModal]    = useState(null);  // record object
+  const [auditLog,      setAuditLog]     = useState([
+    { action:"Auto-captured attendance for Classroom Management (Batch A)",  by:"System (Zoom webhook)", time:"02/06/2026 11:32 AM" },
+    { action:"Auto-captured attendance for Montessori Demonstration (Batch B)", by:"System (Google Meet)", time:"03/06/2026 12:05 PM" },
+    { action:"Manual edit: Priya Sharma → Excused (Medical leave)",          by:"Admin",                  time:"05/06/2026 02:10 PM" },
+  ]);
+
+  const setRecords = (val) => {
+    setRecordsState(val);
+    if (setPropRecords) setPropRecords(val);
+  };
+
+  /* ── Derived Data ── */
+  const batches  = ["all", ...new Set(sessions.map(s => s.batch))];
+  const approved = teachers.filter(t => t.status === "approved");
+
+  /* Per-teacher attendance percentage */
+  const teacherStats = approved.map(t => {
+    const teacherRecs = records.filter(r => r.teacherId === t.id);
+    const total   = teacherRecs.length;
+    const present = teacherRecs.filter(r => r.status === "present" || r.status === "late").length;
+    const pct     = total > 0 ? Math.round((present / total) * 100) : t.attendance;
+    return { ...t, recordCount:total, presentCount:present, pct };
+  });
+
+  const lowAlert  = teacherStats.filter(t => t.pct < 60);
+  const warnAlert = teacherStats.filter(t => t.pct >= 60 && t.pct < 75);
+
+  /* Session-level attendance matrix */
+  const filteredSessions = sessions.filter(s => batchFilter === "all" || s.batch === batchFilter);
+
+  /* Per-session stats */
+  const sessionStats = filteredSessions.map(s => {
+    const recs     = records.filter(r => r.sessionId === s.id);
+    const present  = recs.filter(r => r.status === "present").length;
+    const late     = recs.filter(r => r.status === "late").length;
+    const absent   = recs.filter(r => r.status === "absent").length;
+    const excused  = recs.filter(r => r.status === "excused").length;
+    return { ...s, present, late, absent, excused, total:recs.length };
+  });
+
+  /* Batch comparison */
+  const batchNames = [...new Set(sessions.map(s => s.batch))];
+  const batchComparison = batchNames.map(batch => {
+    const batchRecs     = records.filter(r => r.batch === batch);
+    const batchPresent  = batchRecs.filter(r => r.status === "present" || r.status === "late").length;
+    const pct           = batchRecs.length > 0 ? Math.round((batchPresent / batchRecs.length) * 100) : 0;
+    return { batch, total:batchRecs.length, present:batchPresent, pct };
+  });
+
+  /* Save manual attendance */
+  const saveManualAttendance = (newRecs, sessionId) => {
+    setRecords(prev => {
+      const filtered = prev.filter(r => r.sessionId !== sessionId || !newRecs.find(nr => nr.teacherId === r.teacherId));
+      return [...filtered, ...newRecs];
+    });
+    setAuditLog(prev => [{
+      action:`Manual attendance entered for session ID ${sessionId}`,
+      by:"Admin",
+      time:new Date().toLocaleString("en-IN"),
+    }, ...prev]);
+  };
+
+  /* Save edit */
+  const saveEdit = (updated) => {
+    setRecords(prev => prev.map(r => r.id === updated.id ? updated : r));
+    setAuditLog(prev => [{
+      action:`Edited: ${updated.teacherName} → ${updated.status}${updated.note ? ` (${updated.note})` : ""}`,
+      by:"Admin",
+      time:new Date().toLocaleString("en-IN"),
+    }, ...prev]);
+  };
+
+  /* Export CSV */
+  const exportCSV = () => {
+    const headers = ["Teacher","Session","Batch","Date","Status","Marked By","Note"];
+    const rows    = records.map(r => [r.teacherName, r.sessionTitle, r.batch, r.date, r.status, r.markedBy, r.note]);
+    const csv     = [headers, ...rows].map(row => row.map(v => `"${v}"`).join(",")).join("\n");
+    const blob    = new Blob([csv], { type:"text/csv" });
+    const url     = URL.createObjectURL(blob);
+    const a       = document.createElement("a");
+    a.href = url; a.download = "attendance_report.csv"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const tabs = [
+    { key:"register",   label:"📋 Attendance Register" },
+    { key:"matrix",     label:"🗂️ Session Matrix"      },
+    { key:"analytics",  label:"📊 Analytics"           },
+    { key:"audit",      label:"🕓 Audit Log"            },
+  ];
+
+  const statusIcon = { present:"✅", late:"⏰", absent:"❌", excused:"💙" };
+
+  return (
     <div style={{ animation:"fadeIn 0.3s ease" }}>
+
+      {/* Modals */}
+      {manualModal && (
+        <ManualAttendanceModal
+          session={manualModal}
+          teachers={teachers}
+          existingRecords={records}
+          onSave={saveManualAttendance}
+          onClose={() => setManualModal(null)}
+          setToast={() => {}}
+        />
+      )}
+      {editModal && (
+        <EditRecordModal
+          record={editModal}
+          onSave={saveEdit}
+          onClose={() => setEditModal(null)}
+          setToast={() => {}}
+        />
+      )}
+
+      {/* Header */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+        <div>
+          <h1 style={S.pageTitle}>Attendance Management</h1>
+          <p style={S.pageSub}>Session attendance, reports, and analytics across all batches</p>
+        </div>
+        <div style={{ display:"flex", gap:10 }}>
+          <button onClick={exportCSV} style={S.exportBtn}>⬇ Export CSV</button>
+          <button onClick={() => alert("PDF export requires a PDF library. CSV is available.")} style={S.exportBtn}>⬇ Export PDF</button>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(150px,1fr))", gap:14, marginBottom:20 }}>
+        <StatCard icon="📋" label="Total Records"   val={records.length}                                              color="#f59e0b" bg="#fef3c7"/>
+        <StatCard icon="✅" label="Present"         val={records.filter(r=>r.status==="present").length}              color="#10b981" bg="#d1fae5"/>
+        <StatCard icon="⏰" label="Late"            val={records.filter(r=>r.status==="late").length}                 color="#d97706" bg="#fef3c7"/>
+        <StatCard icon="❌" label="Absent"          val={records.filter(r=>r.status==="absent").length}               color="#ef4444" bg="#fee2e2"/>
+        <StatCard icon="⚠️" label="Low Attendance" val={lowAlert.length}                                             color="#ef4444" bg="#fee2e2"/>
+      </div>
+
+      {/* Low Attendance Alert */}
+      {lowAlert.length > 0 && (
+        <div style={{ background:"#fef2f2", border:"1px solid #fca5a5", borderRadius:12, padding:"14px 18px", marginBottom:16, display:"flex", alignItems:"flex-start", gap:12 }}>
+          <span style={{ fontSize:22, flexShrink:0 }}>🚨</span>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:13, fontWeight:800, color:"#991b1b", marginBottom:4 }}>
+              Low Attendance Alert — {lowAlert.length} teacher{lowAlert.length>1?"s":""} below 60%
+            </div>
+            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+              {lowAlert.map(t => (
+                <span key={t.id} style={{ padding:"3px 10px", borderRadius:20, fontSize:11, fontWeight:700, background:"#fee2e2", color:"#dc2626", border:"1px solid #fca5a5" }}>
+                  {t.name} ({t.pct}%)
+                </span>
+              ))}
+            </div>
+          </div>
+          <button style={{ ...S.primaryBtn, fontSize:11, padding:"7px 14px", flexShrink:0 }}>
+            📧 Send Alerts
+          </button>
+        </div>
+      )}
+      {warnAlert.length > 0 && (
+        <div style={{ background:"#fffbeb", border:"1px solid #fde68a", borderRadius:12, padding:"12px 16px", marginBottom:16, display:"flex", alignItems:"center", gap:10 }}>
+          <span style={{ fontSize:18 }}>⚠️</span>
+          <div style={{ fontSize:12, color:"#92400e" }}>
+            <b>{warnAlert.length} teacher{warnAlert.length>1?"s":""}</b> between 60–75%: {warnAlert.map(t=>`${t.name} (${t.pct}%)`).join(" · ")}
+          </div>
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
+        {tabs.map(t => (
+          <button key={t.key} onClick={() => setActiveTab(t.key)}
+            style={{ padding:"8px 16px", borderRadius:8, border:`1.5px solid ${activeTab===t.key?"#f59e0b":"#e5e7eb"}`, background:activeTab===t.key?"#fef3c7":"white", color:activeTab===t.key?"#92400e":"#6b7280", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ══ TAB: REGISTER ══ */}
+      {activeTab === "register" && (
+        <div>
+          {/* Filters */}
+          <div style={{ display:"flex", gap:10, marginBottom:16, flexWrap:"wrap", alignItems:"center" }}>
+            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+              {batches.map(b => (
+                <button key={b} onClick={() => setBatchFilter(b)}
+                  style={{ padding:"7px 14px", borderRadius:8, border:`1.5px solid ${batchFilter===b?"#f59e0b":"#e5e7eb"}`, background:batchFilter===b?"#fef3c7":"white", color:batchFilter===b?"#92400e":"#6b7280", fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
+                  {b === "all" ? "All Batches" : b}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Per-Teacher Attendance Register */}
+          <SectionCard title="👩‍🏫 Teacher Attendance Register">
+            <div style={{ overflowX:"auto" }}>
+              <table style={{ width:"100%", borderCollapse:"collapse", minWidth:600 }}>
+                <thead>
+                  <tr style={{ background:"#f9fafb", borderBottom:"1px solid #f1f5f9" }}>
+                    {["Teacher","Batch","Sessions","Present","Late","Absent","Excused","Rate","Alert"].map(h => (
+                      <th key={h} style={{ padding:"10px 14px", fontSize:11, fontWeight:700, color:"#9ca3af", textAlign:"left", textTransform:"uppercase", letterSpacing:"0.5px", whiteSpace:"nowrap" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {teacherStats
+                    .filter(t => batchFilter === "all" || t.batch === batchFilter)
+                    .map((t, i) => {
+                      const tRecs   = records.filter(r => r.teacherId === t.id);
+                      const present = tRecs.filter(r => r.status === "present").length;
+                      const late    = tRecs.filter(r => r.status === "late").length;
+                      const absent  = tRecs.filter(r => r.status === "absent").length;
+                      const excused = tRecs.filter(r => r.status === "excused").length;
+                      const pctColor = t.pct >= 75 ? "#10b981" : t.pct >= 60 ? "#f59e0b" : "#ef4444";
+                      return (
+                        <tr key={t.id} style={{ borderBottom:"1px solid #f9fafb", background:i%2===0?"white":"#fafafa" }}>
+                          <td style={{ padding:"12px 14px" }}>
+                            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                              <div style={{ width:32, height:32, borderRadius:8, background:"linear-gradient(135deg,#f59e0b,#d97706)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:800, color:"white", flexShrink:0 }}>{t.name[0]}</div>
+                              <div>
+                                <div style={{ fontSize:13, fontWeight:700, color:"#1c1917" }}>{t.name}</div>
+                                <div style={{ fontSize:10, color:"#9ca3af" }}>{t.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td style={{ padding:"12px 14px", fontSize:12, color:"#374151" }}>{t.batch || "—"}</td>
+                          <td style={{ padding:"12px 14px", fontSize:13, fontWeight:600, color:"#374151", textAlign:"center" }}>{tRecs.length || t.classes}</td>
+                          <td style={{ padding:"12px 14px", textAlign:"center" }}><span style={{ fontSize:12, fontWeight:700, color:"#10b981" }}>{present || "—"}</span></td>
+                          <td style={{ padding:"12px 14px", textAlign:"center" }}><span style={{ fontSize:12, fontWeight:700, color:"#d97706" }}>{late || "—"}</span></td>
+                          <td style={{ padding:"12px 14px", textAlign:"center" }}><span style={{ fontSize:12, fontWeight:700, color:"#ef4444" }}>{absent || "—"}</span></td>
+                          <td style={{ padding:"12px 14px", textAlign:"center" }}><span style={{ fontSize:12, fontWeight:700, color:"#6366f1" }}>{excused || "—"}</span></td>
+                          <td style={{ padding:"12px 14px" }}>
+                            <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                              <div style={{ width:52, height:6, background:"#f3f4f6", borderRadius:4, overflow:"hidden" }}>
+                                <div style={{ height:"100%", width:`${t.pct}%`, background:pctColor }}/>
+                              </div>
+                              <span style={{ fontSize:11, fontWeight:800, color:pctColor }}>{t.pct}%</span>
+                            </div>
+                          </td>
+                          <td style={{ padding:"12px 14px" }}>
+                            {t.pct < 60 && <span style={{ fontSize:10, fontWeight:700, color:"#dc2626", background:"#fee2e2", padding:"2px 8px", borderRadius:20 }}>🚨 LOW</span>}
+                            {t.pct >= 60 && t.pct < 75 && <span style={{ fontSize:10, fontWeight:700, color:"#d97706", background:"#fef3c7", padding:"2px 8px", borderRadius:20 }}>⚠️ WARN</span>}
+                            {t.pct >= 75 && <span style={{ fontSize:10, color:"#9ca3af" }}>—</span>}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+          </SectionCard>
+
+          {/* Session List with Manual Entry Buttons */}
+          <SectionCard title="📅 Sessions — Mark or Edit Attendance">
+            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+              {filteredSessions.map((s, i) => {
+                const stat = sessionStats.find(ss => ss.id === s.id);
+                const isCompleted = s.status === "completed";
+                return (
+                  <div key={i} style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 16px", borderRadius:12, border:"1px solid #f1f5f9", background:isCompleted?"#f9fafb":"white" }}>
+                    <div style={{ width:40, height:40, borderRadius:10, background:isCompleted?"#d1fae5":"#dbeafe", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0 }}>
+                      {isCompleted ? "✅" : "📹"}
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:"#1c1917" }}>{s.title}</div>
+                      <div style={{ fontSize:11, color:"#9ca3af", marginTop:2 }}>📅 {s.date} · 🗂️ {s.batch} · 👩‍🏫 {s.trainer}</div>
+                    </div>
+                    {/* Stats pills */}
+                    {stat && stat.total > 0 && (
+                      <div style={{ display:"flex", gap:6 }}>
+                        {[["✅",stat.present,"#d1fae5","#059669"],["⏰",stat.late,"#fef3c7","#d97706"],["❌",stat.absent,"#fee2e2","#dc2626"],["💙",stat.excused,"#ede9fe","#6366f1"]].map(([icon,val,bg,color],j)=>(
+                          val > 0 && <span key={j} style={{ fontSize:11, fontWeight:700, color, background:bg, padding:"2px 8px", borderRadius:20 }}>{icon} {val}</span>
+                        ))}
+                      </div>
+                    )}
+                    <div style={{ display:"flex", gap:6, flexShrink:0 }}>
+                      <StatusBadge status={s.status}/>
+                      <button onClick={() => setManualModal(s)} style={{ ...S.tblBtn, color:"#3b82f6", borderColor:"#93c5fd" }}>
+                        {stat && stat.total > 0 ? "✏️ Edit" : "📋 Mark"}
+                      </button>
+                      {s.status === "upcoming" && (
+                        <span style={{ fontSize:10, color:"#9ca3af", padding:"4px 8px", background:"#f0f9ff", borderRadius:8, border:"1px solid #bae6fd" }}>🔗 Zoom Auto</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </SectionCard>
+        </div>
+      )}
+
+      {/* ══ TAB: MATRIX ══ */}
+      {activeTab === "matrix" && (
+        <SectionCard title="🗂️ Attendance Matrix — Teacher × Session">
+          <div style={{ marginBottom:14, display:"flex", gap:8, flexWrap:"wrap", alignItems:"center" }}>
+            <span style={{ fontSize:12, color:"#6b7280", fontWeight:600 }}>Filter by batch:</span>
+            {batches.map(b => (
+              <button key={b} onClick={() => setBatchFilter(b)}
+                style={{ padding:"5px 12px", borderRadius:8, border:`1.5px solid ${batchFilter===b?"#f59e0b":"#e5e7eb"}`, background:batchFilter===b?"#fef3c7":"white", color:batchFilter===b?"#92400e":"#6b7280", fontSize:11, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
+                {b === "all" ? "All" : b}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ overflowX:"auto" }}>
+            <table style={{ borderCollapse:"collapse", minWidth:600 }}>
+              <thead>
+                <tr style={{ background:"#f9fafb" }}>
+                  <th style={{ padding:"10px 14px", fontSize:11, fontWeight:700, color:"#9ca3af", textAlign:"left", minWidth:160, borderBottom:"1px solid #f1f5f9" }}>TEACHER</th>
+                  {filteredSessions.map(s => (
+                    <th key={s.id} style={{ padding:"8px 10px", fontSize:10, fontWeight:700, color:"#9ca3af", textAlign:"center", borderBottom:"1px solid #f1f5f9", minWidth:100 }}>
+                      <div style={{ maxWidth:90, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.title}</div>
+                      <div style={{ fontSize:9, color:"#d1d5db", marginTop:2 }}>{s.date}</div>
+                    </th>
+                  ))}
+                  <th style={{ padding:"10px 14px", fontSize:11, fontWeight:700, color:"#9ca3af", textAlign:"center", borderBottom:"1px solid #f1f5f9", minWidth:80 }}>RATE</th>
+                </tr>
+              </thead>
+              <tbody>
+                {approved
+                  .filter(t => batchFilter === "all" || t.batch === batchFilter)
+                  .map((t, ri) => {
+                    const tRecs  = records.filter(r => r.teacherId === t.id);
+                    const total   = filteredSessions.length;
+                    const present = tRecs.filter(r => r.status === "present" || r.status === "late").length;
+                    const pct     = total > 0 ? Math.round((present / Math.max(1, tRecs.length)) * 100) : t.attendance;
+                    return (
+                      <tr key={t.id} style={{ borderBottom:"1px solid #f9fafb", background:ri%2===0?"white":"#fafafa" }}>
+                        <td style={{ padding:"10px 14px" }}>
+                          <div style={{ fontSize:12, fontWeight:700, color:"#1c1917" }}>{t.name}</div>
+                          <div style={{ fontSize:10, color:"#9ca3af" }}>{t.batch}</div>
+                        </td>
+                        {filteredSessions.map(s => {
+                          const rec = records.find(r => r.teacherId === t.id && r.sessionId === s.id);
+                          const cellBg = !rec ? "#f9fafb" : rec.status==="present" ? "#d1fae5" : rec.status==="late" ? "#fef3c7" : rec.status==="absent" ? "#fee2e2" : "#ede9fe";
+                          return (
+                            <td key={s.id} style={{ padding:"8px 10px", textAlign:"center", background:cellBg, border:"1px solid white" }}>
+                              {rec ? (
+                                <button onClick={() => setEditModal(rec)}
+                                  style={{ background:"none", border:"none", cursor:"pointer", fontSize:16 }}
+                                  title={`${rec.status}${rec.note ? ` — ${rec.note}` : ""}`}>
+                                  {statusIcon[rec.status] || "?"}
+                                </button>
+                              ) : (
+                                <span style={{ fontSize:12, color:"#d1d5db" }}>—</span>
+                              )}
+                            </td>
+                          );
+                        })}
+                        <td style={{ padding:"10px 14px", textAlign:"center" }}>
+                          <span style={{ fontSize:12, fontWeight:800, color:pct>=75?"#10b981":pct>=60?"#f59e0b":"#ef4444" }}>{pct}%</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Legend */}
+          <div style={{ display:"flex", gap:16, marginTop:14, flexWrap:"wrap" }}>
+            {[["✅","Present","#d1fae5"],["⏰","Late","#fef3c7"],["❌","Absent","#fee2e2"],["💙","Excused","#ede9fe"],["—","No Record","#f9fafb"]].map(([icon,label,bg]) => (
+              <div key={label} style={{ display:"flex", alignItems:"center", gap:6 }}>
+                <div style={{ width:24, height:24, borderRadius:6, background:bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, border:"1px solid #e5e7eb" }}>{icon}</div>
+                <span style={{ fontSize:11, color:"#6b7280" }}>{label}</span>
+              </div>
+            ))}
+            <span style={{ fontSize:11, color:"#9ca3af", marginLeft:"auto" }}>Click any cell to edit (with audit log)</span>
+          </div>
+        </SectionCard>
+      )}
+
+      {/* ══ TAB: ANALYTICS ══ */}
+      {activeTab === "analytics" && (
+        <div>
+          {/* Batch Comparison */}
+          <SectionCard title="📊 Attendance Rate Comparison — Across Batches">
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:14, marginBottom:20 }}>
+              {batchComparison.map((b, i) => {
+                const color = b.pct >= 80 ? "#10b981" : b.pct >= 65 ? "#f59e0b" : "#ef4444";
+                return (
+                  <div key={i} style={{ background:"white", borderRadius:14, padding:"16px", border:`1px solid ${color}30`, borderTop:`3px solid ${color}` }}>
+                    <div style={{ fontSize:13, fontWeight:800, color:"#1c1917", marginBottom:4 }}>{b.batch}</div>
+                    <div style={{ fontSize:28, fontWeight:900, color, marginBottom:4 }}>{b.pct}%</div>
+                    <div style={{ fontSize:11, color:"#9ca3af" }}>{b.present} present of {b.total} records</div>
+                    <div style={{ height:6, background:"#f3f4f6", borderRadius:4, overflow:"hidden", marginTop:10 }}>
+                      <div style={{ height:"100%", width:`${b.pct}%`, background:color, borderRadius:4 }}/>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </SectionCard>
+
+          {/* Individual Teacher Analytics */}
+          <SectionCard title="👩‍🏫 Individual Teacher Attendance % by Course">
+            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+              {teacherStats.map(t => {
+                const pctColor = t.pct >= 75 ? "#10b981" : t.pct >= 60 ? "#f59e0b" : "#ef4444";
+                return (
+                  <div key={t.id} style={{ padding:"14px 16px", borderRadius:12, border:`1px solid ${t.pct<60?"#fca5a5":t.pct<75?"#fde68a":"#f1f5f9"}`, background:t.pct<60?"#fef2f2":t.pct<75?"#fffbeb":"white" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
+                      <div style={{ width:36, height:36, borderRadius:10, background:"linear-gradient(135deg,#f59e0b,#d97706)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:800, color:"white", flexShrink:0 }}>{t.name[0]}</div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:13, fontWeight:700, color:"#1c1917" }}>{t.name}</div>
+                        <div style={{ fontSize:11, color:"#9ca3af" }}>{t.course || "—"} · {t.batch || "—"}</div>
+                      </div>
+                      <div style={{ textAlign:"right" }}>
+                        <div style={{ fontSize:22, fontWeight:900, color:pctColor }}>{t.pct}%</div>
+                        {t.pct < 60 && <span style={{ fontSize:10, fontWeight:700, color:"#dc2626", background:"#fee2e2", padding:"2px 8px", borderRadius:20 }}>🚨 LOW</span>}
+                        {t.pct >= 60 && t.pct < 75 && <span style={{ fontSize:10, fontWeight:700, color:"#d97706", background:"#fef3c7", padding:"2px 8px", borderRadius:20 }}>⚠️ WARN</span>}
+                      </div>
+                    </div>
+                    <div style={{ height:8, background:"#f3f4f6", borderRadius:6, overflow:"hidden" }}>
+                      <div style={{ height:"100%", width:`${t.pct}%`, background:pctColor, borderRadius:6, transition:"width 0.8s" }}/>
+                    </div>
+                    <div style={{ display:"flex", gap:16, marginTop:8 }}>
+                      {[["✅",records.filter(r=>r.teacherId===t.id&&r.status==="present").length,"Present"],["⏰",records.filter(r=>r.teacherId===t.id&&r.status==="late").length,"Late"],["❌",records.filter(r=>r.teacherId===t.id&&r.status==="absent").length,"Absent"],["💙",records.filter(r=>r.teacherId===t.id&&r.status==="excused").length,"Excused"]].map(([icon,val,label])=>(
+                        val > 0 && <span key={label} style={{ fontSize:11, color:"#6b7280" }}>{icon} {val} {label}</span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </SectionCard>
+
+          {/* Session attendance stats */}
+          <SectionCard title="📅 Per-Session Attendance Breakdown" action={<button onClick={exportCSV} style={S.exportBtn}>⬇ Export Excel</button>}>
+            {sessionStats.filter(s => s.total > 0).map((s, i) => {
+              const pct = s.total > 0 ? Math.round(((s.present + s.late) / s.total) * 100) : 0;
+              return (
+                <div key={i} style={{ marginBottom:14 }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
+                    <div>
+                      <div style={{ fontSize:13, fontWeight:700, color:"#1c1917" }}>{s.title}</div>
+                      <div style={{ fontSize:11, color:"#9ca3af" }}>{s.batch} · {s.date}</div>
+                    </div>
+                    <div style={{ textAlign:"right" }}>
+                      <div style={{ fontSize:16, fontWeight:800, color:pct>=75?"#10b981":pct>=60?"#f59e0b":"#ef4444" }}>{pct}%</div>
+                      <div style={{ fontSize:10, color:"#9ca3af" }}>{s.present+s.late}/{s.total} attended</div>
+                    </div>
+                  </div>
+                  <div style={{ height:8, background:"#f3f4f6", borderRadius:6, overflow:"hidden", marginBottom:6 }}>
+                    <div style={{ height:"100%", borderRadius:6, display:"flex" }}>
+                      <div style={{ width:`${s.total>0?(s.present/s.total*100):0}%`, background:"#10b981" }}/>
+                      <div style={{ width:`${s.total>0?(s.late/s.total*100):0}%`, background:"#f59e0b" }}/>
+                      <div style={{ width:`${s.total>0?(s.absent/s.total*100):0}%`, background:"#ef4444" }}/>
+                      <div style={{ width:`${s.total>0?(s.excused/s.total*100):0}%`, background:"#6366f1" }}/>
+                    </div>
+                  </div>
+                  <div style={{ display:"flex", gap:12, fontSize:10, color:"#6b7280" }}>
+                    <span>✅ {s.present} Present</span>
+                    <span>⏰ {s.late} Late</span>
+                    <span>❌ {s.absent} Absent</span>
+                    <span>💙 {s.excused} Excused</span>
+                  </div>
+                </div>
+              );
+            })}
+            {sessionStats.filter(s => s.total > 0).length === 0 && (
+              <div style={{ textAlign:"center", padding:20, color:"#9ca3af", fontSize:13 }}>No attendance records yet.</div>
+            )}
+          </SectionCard>
+        </div>
+      )}
+
+      {/* ══ TAB: AUDIT LOG ══ */}
+      {activeTab === "audit" && (
+        <SectionCard title="🕓 Attendance Audit Log">
+          <div style={{ background:"#f0f9ff", border:"1px solid #bae6fd", borderRadius:10, padding:"10px 14px", marginBottom:14, fontSize:12, color:"#0369a1" }}>
+            Every manual edit and auto-capture event is logged here for compliance.
+          </div>
+          <div style={{ display:"flex", flexDirection:"column" }}>
+            {auditLog.map((entry, i) => (
+              <AuditLogEntry key={i} entry={entry}/>
+            ))}
+            {auditLog.length === 0 && (
+              <div style={{ textAlign:"center", padding:20, color:"#9ca3af", fontSize:13 }}>No audit entries yet.</div>
+            )}
+          </div>
+        </SectionCard>
+      )}
+    </div>
+  );
+}
+
+/* ── A8: Live Sessions ── */
+function LiveSessionsTab({ sessions, setSessions, teachers, batches, setToast }) {
+
+  const [view,          setView]          = useState("list");   // list | detail
+  const [selected,      setSelected]      = useState(null);
+  const [addModal,      setAddModal]      = useState(false);
+  const [postModal,     setPostModal]     = useState(null);
+  const [aiLoading,     setAiLoading]     = useState(false);
+  const [statusFilter,  setStatusFilter]  = useState("all");
+  const [batchFilter,   setBatchFilter]   = useState("all");
+  const [search,        setSearch]        = useState("");
+
+  const PLATFORMS = ["Zoom","Google Meet","Microsoft Teams","Webex"];
+  const TRAINERS  = [...new Set((teachers||[]).filter(t=>t.status==="approved").map(t=>t.name))];
+  const BATCHES   = [...new Set((batches||[]).map(b=>b.name))];
+
+  const emptyForm = {
+    title:"", date:"", time:"", duration:60, batch:"", trainer:"", backupTrainer:"",
+    platform:"Zoom", meetingLink:"", maxParticipants:40,
+    recurrence:"none", recurrenceEnd:"", status:"upcoming",
+  };
+  const [form, setForm] = useState(emptyForm);
+  const upd = (k,v) => setForm(f=>({...f,[k]:v}));
+
+  // Post-session form state
+  const [postForm, setPostForm] = useState({
+    recording:"", newMaterial:"", feedbackMsg:"", summary:"",
+  });
+
+  const filtered = sessions.filter(s => {
+    const q = search.toLowerCase();
+    const matchSearch = s.title.toLowerCase().includes(q) || s.trainer.toLowerCase().includes(q) || s.batch.toLowerCase().includes(q);
+    const matchStatus = statusFilter === "all" || s.status === statusFilter;
+    const matchBatch  = batchFilter  === "all" || s.batch  === batchFilter;
+    return matchSearch && matchStatus && matchBatch;
+  });
+
+  const updateSession = (id, changes) => {
+    setSessions(prev => prev.map(s => s.id===id ? {...s,...changes} : s));
+    if (selected?.id === id) setSelected(s => ({...s,...changes}));
+  };
+
+  // ── Auto-generate meeting link ──
+  const generateLink = (platform) => {
+    const id = Math.random().toString(36).substring(2,11);
+    const links = {
+      "Zoom":              `https://zoom.us/j/${Math.floor(Math.random()*9000000000+1000000000)}`,
+      "Google Meet":       `https://meet.google.com/${id.substring(0,3)}-${id.substring(3,7)}-${id.substring(7,10)}`,
+      "Microsoft Teams":   `https://teams.microsoft.com/l/meetup-join/${id}`,
+      "Webex":             `https://webex.com/meet/${id}`,
+    };
+    upd("meetingLink", links[platform] || links["Zoom"]);
+    setToast({ msg:"Meeting link generated!", type:"success" });
+  };
+
+  // ── Create session (with recurrence expansion) ──
+  const handleCreate = (e) => {
+    e.preventDefault();
+    if (!form.title||!form.date||!form.time||!form.batch||!form.trainer) {
+      setToast({ msg:"Fill required fields: title, date, time, batch, trainer.", type:"error" });
+      return;
+    }
+
+    const base = {
+      ...form,
+      duration:       Number(form.duration),
+      maxParticipants:Number(form.maxParticipants),
+      attendees:0, recording:"", materials:[], feedbackSent:false, summary:"",
+      reminderSent24h:false, reminderSent1h:false,
+    };
+
+    const newSessions = [];
+
+    if (form.recurrence !== "none" && form.recurrenceEnd) {
+      const startDate = new Date(form.date);
+      const endDate   = new Date(form.recurrenceEnd);
+      const stepDays  = form.recurrence === "weekly" ? 7 : 14;
+      let current     = new Date(startDate);
+
+      while (current <= endDate) {
+        newSessions.push({
+          ...base,
+          id:   Date.now() + newSessions.length,
+          date: current.toLocaleDateString("en-IN"),
+        });
+        current.setDate(current.getDate() + stepDays);
+      }
+      setToast({ msg:`${newSessions.length} recurring sessions created!`, type:"success" });
+    } else {
+      newSessions.push({ ...base, id:Date.now(), date:new Date(form.date).toLocaleDateString("en-IN") });
+      setToast({ msg:"Session scheduled!", type:"success" });
+    }
+
+    setSessions(prev => [...prev, ...newSessions]);
+    setAddModal(false);
+    setForm(emptyForm);
+  };
+
+  // ── Send reminders ──
+  const sendReminder = (id, type) => {
+    const key = type === "24h" ? "reminderSent24h" : "reminderSent1h";
+    updateSession(id, { [key]:true });
+    setToast({ msg:`${type === "24h" ? "24-hour" : "1-hour"} reminder sent via email + SMS!`, type:"success" });
+  };
+
+  // ── Post-session save ──
+  const savePostSession = (id) => {
+    const s = sessions.find(x=>x.id===id);
+    const updates = {};
+    if (postForm.recording)    updates.recording = postForm.recording;
+    if (postForm.newMaterial)  updates.materials = [...(s?.materials||[]), postForm.newMaterial];
+    if (postForm.summary)      updates.summary   = postForm.summary;
+    if (postForm.feedbackMsg)  updates.feedbackSent = true;
+    updateSession(id, updates);
+    setToast({ msg:"Post-session tasks saved!", type:"success" });
+    setPostModal(null);
+    setPostForm({ recording:"", newMaterial:"", feedbackMsg:"", summary:"" });
+  };
+
+  // ── AI session summary ──
+  const generateAISummary = async (session) => {
+    setAiLoading(true);
+    await new Promise(r => setTimeout(r, 2000));
+    const summary = `📋 AI Session Summary — ${session.title}\n\nDate: ${session.date} | Duration: ${session.duration} min | Batch: ${session.batch}\nTrainer: ${session.trainer} | Platform: ${session.platform}\nAttendees: ${session.attendees} / ${session.maxParticipants}\n\nKey Topics Covered:\n• Introduction and context setting for ${session.batch}\n• Core concepts aligned with course curriculum\n• Interactive Q&A with ${session.attendees} participants\n• Practical demonstrations and activity walkthroughs\n\nEngagement Level: ${session.attendees > 20 ? "High" : "Moderate"}\nCompletion Rate: ${Math.round((session.attendees/session.maxParticipants)*100)}%\n\nNext Steps:\n• Review uploaded materials before next session\n• Complete assigned module quiz by end of week\n• Trainer to follow up with absentees`;
+    setPostForm(f => ({...f, summary}));
+    setAiLoading(false);
+    setToast({ msg:"AI summary generated!", type:"success" });
+  };
+
+  const platformIcon = { "Zoom":"📹", "Google Meet":"📞", "Microsoft Teams":"💼", "Webex":"🌐" };
+  const statusColor  = { upcoming:"#2563eb", completed:"#7c3aed", cancelled:"#dc2626", live:"#059669" };
+  const statusBg     = { upcoming:"#dbeafe", completed:"#ede9fe", cancelled:"#fee2e2", live:"#d1fae5" };
+
+  // ── DETAIL VIEW ──
+  if (view === "detail" && selected) {
+    const s = sessions.find(x=>x.id===selected.id) || selected;
+    return (
+      <div style={{ animation:"fadeIn 0.3s ease" }}>
+
+        {/* Post-session modal */}
+        {postModal && (
+          <Modal title={`📋 Post-Session Tasks — ${s.title}`} onClose={()=>setPostModal(null)}>
+            <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
+
+              {/* Recording upload */}
+              <div>
+                <label style={S.label}>🎥 Session Recording URL</label>
+                <input style={S.input} value={postForm.recording} onChange={e=>setPostForm(f=>({...f,recording:e.target.value}))}
+                  placeholder="https://recordings.spaceece.in/session.mp4 or Drive link"/>
+                {s.recording && <div style={{ fontSize:11, color:"#059669", marginTop:4 }}>✓ Current: {s.recording.substring(0,40)}...</div>}
+              </div>
+
+              {/* Materials */}
+              <div>
+                <label style={S.label}>📎 Upload Session Material</label>
+                <input style={S.input} value={postForm.newMaterial} onChange={e=>setPostForm(f=>({...f,newMaterial:e.target.value}))}
+                  placeholder="Filename or URL e.g. Session_Notes.pdf"/>
+                {s.materials?.length > 0 && (
+                  <div style={{ marginTop:6, display:"flex", flexWrap:"wrap", gap:6 }}>
+                    {s.materials.map((m,i)=>(
+                      <span key={i} style={{ fontSize:11, padding:"3px 10px", background:"#dbeafe", color:"#1d4ed8", borderRadius:20, fontWeight:600 }}>📎 {m}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Attendance button */}
+              <div style={{ padding:"12px 14px", background:"#f9fafb", borderRadius:10, border:"1px solid #f3f4f6" }}>
+                <div style={{ fontSize:13, fontWeight:700, color:"#374151", marginBottom:6 }}>📊 Mark Attendance</div>
+                <div style={{ fontSize:12, color:"#6b7280", marginBottom:8 }}>Attendance for this session is managed in the Attendance tab.</div>
+                <button onClick={()=>{ setToast({ msg:"Go to Attendance tab to mark this session.", type:"success" }); setPostModal(null); }}
+                  style={{ ...S.exportBtn, fontSize:11 }}>Go to Attendance →</button>
+              </div>
+
+              {/* Feedback form */}
+              <div>
+                <label style={S.label}>💬 Send Feedback Form to Attendees</label>
+                <textarea style={{ ...S.input, height:60, resize:"none" }}
+                  value={postForm.feedbackMsg}
+                  onChange={e=>setPostForm(f=>({...f,feedbackMsg:e.target.value}))}
+                  placeholder="Optional message to include with feedback form link..."/>
+                {s.feedbackSent && <div style={{ fontSize:11, color:"#059669", marginTop:4 }}>✓ Feedback form already sent</div>}
+              </div>
+
+              {/* AI Summary */}
+              <div>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+                  <label style={S.label}>🤖 AI Session Summary</label>
+                  <button onClick={()=>generateAISummary(s)} disabled={aiLoading}
+                    style={{ ...S.exportBtn, fontSize:11, opacity:aiLoading?0.7:1 }}>
+                    {aiLoading ? "⏳ Generating..." : "🤖 Generate"}
+                  </button>
+                </div>
+                <textarea style={{ ...S.input, height:130, resize:"none", fontSize:11, fontFamily:"inherit", lineHeight:1.6 }}
+                  value={postForm.summary}
+                  onChange={e=>setPostForm(f=>({...f,summary:e.target.value}))}
+                  placeholder="AI-generated or manual session summary..."/>
+                {s.summary && !postForm.summary && (
+                  <div style={{ fontSize:11, color:"#6b7280", marginTop:4 }}>
+                    <button onClick={()=>setPostForm(f=>({...f,summary:s.summary}))} style={{ ...S.tblBtn, fontSize:10 }}>Load existing summary</button>
+                  </div>
+                )}
+              </div>
+
+              <button onClick={()=>savePostSession(s.id)} style={{ ...S.primaryBtn, width:"100%" }}>
+                💾 Save Post-Session Tasks
+              </button>
+            </div>
+          </Modal>
+        )}
+
+        <button onClick={()=>{ setView("list"); setSelected(null); }} style={S.backBtn}>← Back to Sessions</button>
+
+        {/* Session header card */}
+        <div style={{ background:"white", borderRadius:20, padding:28, border:"1px solid #f1f5f9", boxShadow:"0 4px 20px rgba(0,0,0,0.06)", marginBottom:20 }}>
+          <div style={{ display:"flex", alignItems:"flex-start", gap:16, marginBottom:20, paddingBottom:18, borderBottom:"1px solid #f3f4f6" }}>
+            <div style={{ width:60, height:60, borderRadius:16, background:statusBg[s.status]||"#f3f4f6", display:"flex", alignItems:"center", justifyContent:"center", fontSize:26, flexShrink:0 }}>
+              {platformIcon[s.platform]||"📹"}
+            </div>
+            <div style={{ flex:1 }}>
+              <h2 style={{ fontSize:20, fontWeight:900, color:"#0f172a", margin:"0 0 6px" }}>{s.title}</h2>
+              <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                <span style={{ padding:"3px 9px", borderRadius:20, fontSize:11, fontWeight:700, background:statusBg[s.status], color:statusColor[s.status] }}>{s.status.toUpperCase()}</span>
+                <span style={{ padding:"3px 9px", borderRadius:20, fontSize:11, fontWeight:700, background:"#fef3c7", color:"#92400e" }}>{s.batch}</span>
+                <span style={{ padding:"3px 9px", borderRadius:20, fontSize:11, fontWeight:700, background:"#f3f4f6", color:"#374151" }}>{s.platform}</span>
+                {s.recurrence !== "none" && <span style={{ padding:"3px 9px", borderRadius:20, fontSize:11, fontWeight:700, background:"#ede9fe", color:"#6d28d9" }}>🔁 {s.recurrence}</span>}
+              </div>
+            </div>
+            <div style={{ display:"flex", gap:8 }}>
+              {s.status === "upcoming" && (
+                <button onClick={()=>updateSession(s.id,{status:"live"})} style={{ ...S.btnGreen }}>▶ Go Live</button>
+              )}
+              {s.status === "live" && (
+                <button onClick={()=>updateSession(s.id,{status:"completed"})} style={{ ...S.btnOrange }}>■ End Session</button>
+              )}
+              <button onClick={()=>{ setPostForm({ recording:s.recording||"", newMaterial:"", feedbackMsg:"", summary:s.summary||"" }); setPostModal(s); }}
+                style={S.exportBtn}>📋 Post-Session Tasks</button>
+            </div>
+          </div>
+
+          {/* Details grid */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12, marginBottom:20 }}>
+            {[
+              { icon:"📅", label:"Date",          val:s.date                                      },
+              { icon:"🕐", label:"Time",          val:s.time                                      },
+              { icon:"⏱",  label:"Duration",      val:`${s.duration} min`                         },
+              { icon:"👩‍🏫", label:"Primary Trainer",val:s.trainer                                 },
+              { icon:"👥", label:"Backup Trainer", val:s.backupTrainer||"Not assigned"             },
+              { icon:"🪑", label:"Capacity",       val:`${s.attendees}/${s.maxParticipants} seats` },
+            ].map((r,i)=>(
+              <div key={i} style={{ background:"#f9fafb", borderRadius:10, padding:"10px 13px", border:"1px solid #f3f4f6" }}>
+                <div style={{ fontSize:10, color:"#9ca3af", fontWeight:700, textTransform:"uppercase", letterSpacing:".4px", marginBottom:2 }}>{r.label}</div>
+                <div style={{ fontSize:13, fontWeight:700, color:"#0f172a" }}>{r.icon} {r.val}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Meeting link */}
+          {s.meetingLink && (
+            <div style={{ background:"#eff6ff", border:"1px solid #bfdbfe", borderRadius:10, padding:"10px 14px", display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
+              <span style={{ fontSize:16 }}>🔗</span>
+              <a href={s.meetingLink} target="_blank" rel="noreferrer" style={{ fontSize:12, fontWeight:700, color:"#2563eb", flex:1 }}>{s.meetingLink}</a>
+              <button onClick={()=>{ navigator.clipboard?.writeText(s.meetingLink); setToast({ msg:"Link copied!", type:"success" }); }}
+                style={{ ...S.tblBtn, fontSize:11 }}>📋 Copy</button>
+            </div>
+          )}
+
+          {/* Reminders */}
+          {s.status === "upcoming" && (
+            <div style={{ background:"#f9fafb", borderRadius:12, padding:"14px 16px", border:"1px solid #f3f4f6" }}>
+              <div style={{ fontSize:13, fontWeight:700, color:"#374151", marginBottom:10 }}>🔔 Session Reminders</div>
+              <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+                <div style={{ flex:1, padding:"10px 14px", background:"white", borderRadius:10, border:`1px solid ${s.reminderSent24h?"#86efac":"#e5e7eb"}` }}>
+                  <div style={{ fontSize:12, fontWeight:700, color:"#374151" }}>24-Hour Reminder</div>
+                  <div style={{ fontSize:11, color:"#9ca3af", marginBottom:8 }}>Email + SMS to all enrolled teachers</div>
+                  {s.reminderSent24h
+                    ? <span style={{ fontSize:11, color:"#059669", fontWeight:700 }}>✓ Sent</span>
+                    : <button onClick={()=>sendReminder(s.id,"24h")} style={{ ...S.btnGreen, fontSize:11, padding:"5px 12px" }}>Send Now</button>}
+                </div>
+                <div style={{ flex:1, padding:"10px 14px", background:"white", borderRadius:10, border:`1px solid ${s.reminderSent1h?"#86efac":"#e5e7eb"}` }}>
+                  <div style={{ fontSize:12, fontWeight:700, color:"#374151" }}>1-Hour Reminder</div>
+                  <div style={{ fontSize:11, color:"#9ca3af", marginBottom:8 }}>Email + SMS to all enrolled teachers</div>
+                  {s.reminderSent1h
+                    ? <span style={{ fontSize:11, color:"#059669", fontWeight:700 }}>✓ Sent</span>
+                    : <button onClick={()=>sendReminder(s.id,"1h")} style={{ ...S.btnGreen, fontSize:11, padding:"5px 12px" }}>Send Now</button>}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Recording & Materials */}
+        {s.status === "completed" && (
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, marginBottom:20 }}>
+            <SectionCard title="🎥 Session Recording">
+              {s.recording ? (
+                <div>
+                  <div style={{ background:"#f9fafb", borderRadius:10, padding:"14px", border:"1px solid #f3f4f6", marginBottom:10 }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:"#374151", marginBottom:4 }}>Recording Available</div>
+                    <a href={s.recording} target="_blank" rel="noreferrer" style={{ fontSize:11, color:"#2563eb", wordBreak:"break-all" }}>{s.recording}</a>
+                  </div>
+                  <div style={{ fontSize:11, color:"#059669", fontWeight:600 }}>✓ Auto-available in Live Session page for enrolled teachers</div>
+                </div>
+              ) : (
+                <div style={{ textAlign:"center", padding:20, color:"#9ca3af" }}>
+                  <div style={{ fontSize:28, marginBottom:8 }}>🎥</div>
+                  <div style={{ fontSize:12, marginBottom:10 }}>No recording uploaded yet</div>
+                  <button onClick={()=>{ setPostForm({ recording:"", newMaterial:"", feedbackMsg:"", summary:"" }); setPostModal(s); }}
+                    style={S.primaryBtn}>Upload Recording</button>
+                </div>
+              )}
+            </SectionCard>
+
+            <SectionCard title="📎 Session Materials">
+              {s.materials?.length > 0 ? (
+                <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                  {s.materials.map((m,i)=>(
+                    <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", background:"#f9fafb", borderRadius:8, border:"1px solid #f3f4f6" }}>
+                      <span style={{ fontSize:16 }}>📄</span>
+                      <span style={{ fontSize:12, fontWeight:600, color:"#374151", flex:1 }}>{m}</span>
+                      <button style={{ ...S.tblBtn, fontSize:10 }}>⬇ Download</button>
+                    </div>
+                  ))}
+                  <button onClick={()=>{ setPostForm(f=>({...f})); setPostModal(s); }} style={{ ...S.exportBtn, marginTop:4, fontSize:11 }}>+ Add More</button>
+                </div>
+              ) : (
+                <div style={{ textAlign:"center", padding:20, color:"#9ca3af" }}>
+                  <div style={{ fontSize:28, marginBottom:8 }}>📎</div>
+                  <div style={{ fontSize:12, marginBottom:10 }}>No materials uploaded</div>
+                  <button onClick={()=>{ setPostForm({ recording:"", newMaterial:"", feedbackMsg:"", summary:"" }); setPostModal(s); }}
+                    style={S.exportBtn}>Upload Material</button>
+                </div>
+              )}
+            </SectionCard>
+          </div>
+        )}
+
+        {/* AI Summary */}
+        {s.summary && (
+          <SectionCard title="🤖 AI Session Summary">
+            <pre style={{ whiteSpace:"pre-wrap", fontSize:12, color:"#374151", lineHeight:1.7, fontFamily:"inherit", background:"#f9fafb", padding:14, borderRadius:10, border:"1px solid #f3f4f6" }}>
+              {s.summary}
+            </pre>
+          </SectionCard>
+        )}
+
+        {/* Post-session checklist */}
+        {s.status === "completed" && (
+          <SectionCard title="✅ Post-Session Checklist">
+            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+              {[
+                { label:"Recording uploaded",         done:!!s.recording    },
+                { label:"Materials uploaded",          done:(s.materials?.length||0)>0 },
+                { label:"Attendance marked",           done:s.attendees>0   },
+                { label:"Feedback form sent",          done:s.feedbackSent  },
+                { label:"Session summary generated",   done:!!s.summary     },
+              ].map((item,i)=>(
+                <div key={i} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 14px", background:item.done?"#ecfdf5":"#f9fafb", borderRadius:10, border:`1px solid ${item.done?"#86efac":"#f3f4f6"}` }}>
+                  <span style={{ fontSize:18 }}>{item.done?"✅":"⏳"}</span>
+                  <span style={{ fontSize:13, fontWeight:600, color:item.done?"#065f46":"#6b7280" }}>{item.label}</span>
+                  {!item.done && (
+                    <button onClick={()=>{ setPostForm({ recording:s.recording||"", newMaterial:"", feedbackMsg:"", summary:s.summary||"" }); setPostModal(s); }}
+                      style={{ ...S.tblBtn, marginLeft:"auto", fontSize:11 }}>Complete →</button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+        )}
+      </div>
+    );
+  }
+
+  // ── LIST VIEW ──
+  return (
+    <div style={{ animation:"fadeIn 0.3s ease" }}>
+
+      {/* Schedule Session Modal */}
+      {addModal && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.45)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:999, backdropFilter:"blur(4px)", padding:20 }}>
+          <div style={{ background:"white", borderRadius:20, width:"100%", maxWidth:680, maxHeight:"92vh", display:"flex", flexDirection:"column", boxShadow:"0 20px 60px rgba(0,0,0,0.2)", overflow:"hidden" }}>
+            <div style={{ padding:"20px 28px", borderBottom:"1px solid #f3f4f6", display:"flex", justifyContent:"space-between", alignItems:"center", flexShrink:0 }}>
+              <h3 style={{ fontSize:17, fontWeight:900, color:"#1c1917", margin:0 }}>📅 Schedule New Session</h3>
+              <button onClick={()=>{ setAddModal(false); setForm(emptyForm); }} style={{ background:"none", border:"none", fontSize:20, cursor:"pointer", color:"#9ca3af" }}>✕</button>
+            </div>
+            <form onSubmit={handleCreate} style={{ padding:"20px 28px 24px", overflowY:"auto" }}>
+
+              {/* Title */}
+              <label style={S.label}>Session Title *</label>
+              <input style={{ ...S.input, marginBottom:12 }} value={form.title} onChange={e=>upd("title",e.target.value)} placeholder="e.g. Classroom Management Techniques"/>
+
+              {/* Date / Time / Duration */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginBottom:12 }}>
+                <div>
+                  <label style={S.label}>Date *</label>
+                  <input style={S.input} type="date" value={form.date} onChange={e=>upd("date",e.target.value)}/>
+                </div>
+                <div>
+                  <label style={S.label}>Time *</label>
+                  <input style={S.input} type="time" value={form.time} onChange={e=>upd("time",e.target.value)}/>
+                </div>
+                <div>
+                  <label style={S.label}>Duration (min)</label>
+                  <input style={S.input} type="number" value={form.duration} onChange={e=>upd("duration",e.target.value)} min="15" max="300"/>
+                </div>
+              </div>
+
+              {/* Batch / Max Participants */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
+                <div>
+                  <label style={S.label}>Batch *</label>
+                  <select style={S.input} value={form.batch} onChange={e=>upd("batch",e.target.value)}>
+                    <option value="">Select batch...</option>
+                    {BATCHES.map(b=><option key={b}>{b}</option>)}
+                    <option value="All Batches">All Batches</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={S.label}>Max Participants</label>
+                  <input style={S.input} type="number" value={form.maxParticipants} onChange={e=>upd("maxParticipants",e.target.value)} min="1"/>
+                </div>
+              </div>
+
+              {/* Trainers */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
+                <div>
+                  <label style={S.label}>Primary Trainer *</label>
+                  <select style={S.input} value={form.trainer} onChange={e=>upd("trainer",e.target.value)}>
+                    <option value="">Select trainer...</option>
+                    {["Dr. Rekha Iyer","Prof. Amol Desai","Ms. Geeta Rao","Dr. Vikram Shah","Mr. Sunil Mehta"].map(t=><option key={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={S.label}>Backup Trainer</label>
+                  <select style={S.input} value={form.backupTrainer} onChange={e=>upd("backupTrainer",e.target.value)}>
+                    <option value="">None</option>
+                    {["Dr. Rekha Iyer","Prof. Amol Desai","Ms. Geeta Rao","Dr. Vikram Shah","Mr. Sunil Mehta"].map(t=><option key={t}>{t}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Platform + Meeting Link */}
+              <div style={{ marginBottom:12 }}>
+                <label style={S.label}>Platform</label>
+                <div style={{ display:"flex", gap:8, marginBottom:8 }}>
+                  {PLATFORMS.map(p=>(
+                    <button key={p} type="button" onClick={()=>upd("platform",p)}
+                      style={{ flex:1, padding:"8px", borderRadius:8, border:`1.5px solid ${form.platform===p?"#f59e0b":"#e5e7eb"}`, background:form.platform===p?"#fef3c7":"white", color:form.platform===p?"#92400e":"#6b7280", fontSize:11, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+                      {platformIcon[p]} {p}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ display:"flex", gap:8 }}>
+                  <input style={{ ...S.input, marginBottom:0, flex:1 }} value={form.meetingLink} onChange={e=>upd("meetingLink",e.target.value)} placeholder="Paste meeting link or auto-generate below"/>
+                  <button type="button" onClick={()=>generateLink(form.platform)} style={{ ...S.exportBtn, whiteSpace:"nowrap" }}>⚡ Auto-Generate</button>
+                </div>
+              </div>
+
+              {/* Recurrence */}
+              <div style={{ background:"#f9fafb", borderRadius:12, padding:"14px 16px", border:"1px solid #f3f4f6", marginBottom:20 }}>
+                <label style={{ ...S.label, marginBottom:8 }}>🔁 Recurrence</label>
+                <div style={{ display:"flex", gap:8, marginBottom:10 }}>
+                  {["none","weekly","bi-weekly"].map(r=>(
+                    <button key={r} type="button" onClick={()=>upd("recurrence",r)}
+                      style={{ flex:1, padding:"8px", borderRadius:8, border:`1.5px solid ${form.recurrence===r?"#f59e0b":"#e5e7eb"}`, background:form.recurrence===r?"#fef3c7":"white", color:form.recurrence===r?"#92400e":"#6b7280", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"inherit", textTransform:"capitalize" }}>
+                      {r==="none"?"One-time":r==="weekly"?"Weekly":"Bi-weekly"}
+                    </button>
+                  ))}
+                </div>
+                {form.recurrence !== "none" && (
+                  <div>
+                    <label style={S.label}>Repeat Until *</label>
+                    <input style={{ ...S.input, marginBottom:0 }} type="date" value={form.recurrenceEnd} onChange={e=>upd("recurrenceEnd",e.target.value)}/>
+                    {form.date && form.recurrenceEnd && (
+                      <div style={{ fontSize:11, color:"#6366f1", marginTop:4, fontWeight:600 }}>
+                        ≈ {Math.ceil((new Date(form.recurrenceEnd)-new Date(form.date))/(1000*60*60*24)/(form.recurrence==="weekly"?7:14))+1} sessions will be created
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <button type="submit" style={{ ...S.primaryBtn, width:"100%" }}>Schedule Session →</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
         <div>
           <h1 style={S.pageTitle}>Live Session Management</h1>
-          <p style={S.pageSub}>{sessions.filter(s=>s.status==="upcoming").length} upcoming · {sessions.filter(s=>s.status==="completed").length} completed</p>
+          <p style={S.pageSub}>
+            {sessions.filter(s=>s.status==="upcoming").length} upcoming &nbsp;·&nbsp;
+            {sessions.filter(s=>s.status==="live").length} live now &nbsp;·&nbsp;
+            {sessions.filter(s=>s.status==="completed").length} completed
+          </p>
         </div>
         <button onClick={()=>setAddModal(true)} style={S.primaryBtn}>+ Schedule Session</button>
       </div>
 
-      <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-        {sessions.map((s,i)=>(
-          <div key={i} style={{ background:"white", borderRadius:14, padding:"16px 20px", border:"1px solid #f1f5f9",
-            display:"flex", alignItems:"center", gap:16, boxShadow:"0 1px 4px rgba(0,0,0,0.04)" }}>
-            <div style={{ width:48, height:48, borderRadius:12, background:s.status==="upcoming"?"#dbeafe":"#f3f4f6",
-              display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>
-              {s.platform==="Zoom"?"📹":"📞"}
-            </div>
-            <div style={{ flex:1 }}>
-              <div style={{ fontSize:14, fontWeight:700, color:"#1c1917" }}>{s.title}</div>
-              <div style={{ fontSize:12, color:"#6b7280", marginTop:2 }}>
-                📅 {s.date} · 🕐 {s.time} · ⏱ {s.duration} min · 👩‍🏫 {s.trainer}
-              </div>
-              <div style={{ fontSize:12, color:"#9ca3af", marginTop:1 }}>🗂️ {s.batch} · 🖥️ {s.platform}</div>
-            </div>
-            <div style={{ display:"flex", alignItems:"center", gap:12, flexShrink:0 }}>
-              {s.status==="completed" && <span style={{ fontSize:13, fontWeight:700, color:"#10b981" }}>👥 {s.attendees} attended</span>}
-              <StatusBadge status={s.status}/>
-              {s.status==="upcoming" && <button style={S.primaryBtn}>Start →</button>}
-            </div>
-          </div>
+      {/* KPI Cards */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(150px,1fr))", gap:14, marginBottom:20 }}>
+        {[
+          { icon:"📅", label:"Total Sessions",  val:sessions.length,                                          color:"#f59e0b", bg:"#fef3c7" },
+          { icon:"🟢", label:"Live Now",         val:sessions.filter(s=>s.status==="live").length,             color:"#10b981", bg:"#d1fae5" },
+          { icon:"⏳", label:"Upcoming",         val:sessions.filter(s=>s.status==="upcoming").length,         color:"#3b82f6", bg:"#dbeafe" },
+          { icon:"✅", label:"Completed",        val:sessions.filter(s=>s.status==="completed").length,        color:"#7c3aed", bg:"#ede9fe" },
+          { icon:"🎥", label:"Recordings Ready", val:sessions.filter(s=>s.recording).length,                  color:"#ef4444", bg:"#fee2e2" },
+          { icon:"🔁", label:"Recurring",        val:sessions.filter(s=>s.recurrence!=="none").length,         color:"#06b6d4", bg:"#cffafe" },
+        ].map((k,i)=>(
+          <StatCard key={i} icon={k.icon} label={k.label} val={k.val} color={k.color} bg={k.bg}/>
         ))}
       </div>
 
-      {addModal && (
-        <Modal title="Schedule New Session" onClose={()=>setAddModal(false)}>
-          <form onSubmit={handleAdd}>
-            <label style={S.label}>Session Title *</label>
-            <input style={{ ...S.input, marginBottom:12 }} value={newS.title} onChange={e=>setNewS({...newS,title:e.target.value})} placeholder="Session topic"/>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
-              <div><label style={S.label}>Date *</label><input style={S.input} type="date" value={newS.date} onChange={e=>setNewS({...newS,date:e.target.value})}/></div>
-              <div><label style={S.label}>Time *</label><input style={S.input} type="time" value={newS.time} onChange={e=>setNewS({...newS,time:e.target.value})}/></div>
-            </div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
-              <div><label style={S.label}>Batch</label><input style={S.input} value={newS.batch} onChange={e=>setNewS({...newS,batch:e.target.value})} placeholder="Batch name"/></div>
-              <div><label style={S.label}>Trainer</label><input style={S.input} value={newS.trainer} onChange={e=>setNewS({...newS,trainer:e.target.value})} placeholder="Trainer name"/></div>
-            </div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:20 }}>
-              <div><label style={S.label}>Platform</label>
-                <select style={S.input} value={newS.platform} onChange={e=>setNewS({...newS,platform:e.target.value})}>
-                  {["Zoom","Google Meet","Microsoft Teams"].map(p=><option key={p}>{p}</option>)}
-                </select>
+      {/* Filters */}
+      <div style={{ display:"flex", gap:10, marginBottom:16, flexWrap:"wrap", alignItems:"center" }}>
+        <div style={{ flex:1, minWidth:200, position:"relative" }}>
+          <span style={{ position:"absolute", left:11, top:"50%", transform:"translateY(-50%)", fontSize:14 }}>🔍</span>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search session, trainer, batch..."
+            style={{ ...S.input, paddingLeft:34, marginBottom:0 }}/>
+        </div>
+        <div style={{ display:"flex", gap:6 }}>
+          {["all","upcoming","live","completed","cancelled"].map(f=>(
+            <button key={f} onClick={()=>setStatusFilter(f)}
+              style={{ padding:"7px 12px", borderRadius:8, border:`1.5px solid ${statusFilter===f?"#f59e0b":"#e5e7eb"}`, background:statusFilter===f?"#fef3c7":"white", color:statusFilter===f?"#92400e":"#6b7280", fontSize:11, fontWeight:600, cursor:"pointer", fontFamily:"inherit", textTransform:"capitalize" }}>
+              {f==="all"?"All":f}
+            </button>
+          ))}
+        </div>
+        <select value={batchFilter} onChange={e=>setBatchFilter(e.target.value)} style={{ ...S.input, width:160, marginBottom:0 }}>
+          <option value="all">All Batches</option>
+          {BATCHES.map(b=><option key={b}>{b}</option>)}
+        </select>
+      </div>
+
+      {/* Session Cards */}
+      <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+        {filtered.map((s,i)=>(
+          <div key={i} style={{ background:"white", borderRadius:16, padding:"16px 20px", border:`1px solid ${s.status==="live"?"#86efac":"#f1f5f9"}`, borderLeft:`4px solid ${statusColor[s.status]||"#e5e7eb"}`, boxShadow:"0 1px 4px rgba(0,0,0,0.04)" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+
+              {/* Platform icon */}
+              <div style={{ width:48, height:48, borderRadius:12, background:statusBg[s.status]||"#f3f4f6", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>
+                {platformIcon[s.platform]||"📹"}
               </div>
-              <div><label style={S.label}>Duration (min)</label><input style={S.input} type="number" value={newS.duration} onChange={e=>setNewS({...newS,duration:e.target.value})}/></div>
+
+              {/* Info */}
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:14, fontWeight:800, color:"#0f172a" }}>{s.title}</div>
+                <div style={{ fontSize:12, color:"#6b7280", marginTop:3, display:"flex", gap:14, flexWrap:"wrap" }}>
+                  <span>📅 {s.date} · 🕐 {s.time}</span>
+                  <span>⏱ {s.duration} min</span>
+                  <span>🗂️ {s.batch}</span>
+                  <span>👩‍🏫 {s.trainer}</span>
+                  {s.backupTrainer && <span>👥 Backup: {s.backupTrainer}</span>}
+                  <span>🪑 {s.attendees}/{s.maxParticipants}</span>
+                </div>
+                <div style={{ display:"flex", gap:8, marginTop:6, flexWrap:"wrap" }}>
+                  <span style={{ padding:"2px 8px", borderRadius:20, fontSize:10, fontWeight:700, background:statusBg[s.status], color:statusColor[s.status] }}>{s.status.toUpperCase()}</span>
+                  {s.recurrence !== "none" && <span style={{ padding:"2px 8px", borderRadius:20, fontSize:10, fontWeight:700, background:"#ede9fe", color:"#6d28d9" }}>🔁 {s.recurrence}</span>}
+                  {s.recording  && <span style={{ padding:"2px 8px", borderRadius:20, fontSize:10, fontWeight:700, background:"#dbeafe", color:"#1d4ed8" }}>🎥 Recording</span>}
+                  {s.feedbackSent && <span style={{ padding:"2px 8px", borderRadius:20, fontSize:10, fontWeight:700, background:"#d1fae5", color:"#065f46" }}>💬 Feedback Sent</span>}
+                  {s.summary    && <span style={{ padding:"2px 8px", borderRadius:20, fontSize:10, fontWeight:700, background:"#ede9fe", color:"#6d28d9" }}>🤖 AI Summary</span>}
+                  {!s.reminderSent24h && s.status==="upcoming" && <span style={{ padding:"2px 8px", borderRadius:20, fontSize:10, fontWeight:700, background:"#fef3c7", color:"#92400e" }}>⏰ Reminder Pending</span>}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display:"flex", gap:6, flexShrink:0, flexWrap:"wrap" }}>
+                <button onClick={()=>{ setSelected(s); setView("detail"); }} style={{ ...S.tblBtn, color:"#2563eb", borderColor:"#93c5fd" }}>👁 View</button>
+                {s.status === "upcoming" && <>
+                  <button onClick={()=>updateSession(s.id,{status:"live"})} style={{ ...S.btnGreen, fontSize:11 }}>▶ Start</button>
+                  {!s.reminderSent24h && <button onClick={()=>sendReminder(s.id,"24h")} style={{ ...S.tblBtn, fontSize:11 }}>🔔 Remind</button>}
+                </>}
+                {s.status === "live" && (
+                  <button onClick={()=>updateSession(s.id,{status:"completed"})} style={{ ...S.btnOrange, fontSize:11 }}>■ End</button>
+                )}
+                {s.status === "completed" && (
+                  <button onClick={()=>{ setPostForm({ recording:s.recording||"", newMaterial:"", feedbackMsg:"", summary:s.summary||"" }); setPostModal(s); }}
+                    style={{ ...S.tblBtn, color:"#7c3aed", borderColor:"#c4b5fd", fontSize:11 }}>📋 Post-Tasks</button>
+                )}
+                <button onClick={()=>{ setSessions(prev=>prev.filter(x=>x.id!==s.id)); setToast({ msg:"Session deleted.", type:"error" }); }}
+                  style={{ ...S.tblBtn, color:"#dc2626", borderColor:"#fca5a5", fontSize:11 }}>🗑</button>
+              </div>
             </div>
-            <button type="submit" style={{ ...S.primaryBtn, width:"100%" }}>Schedule Session →</button>
-          </form>
-        </Modal>
-      )}
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <div style={{ textAlign:"center", padding:60, color:"#9ca3af" }}>
+            <div style={{ fontSize:40, marginBottom:10 }}>📅</div>
+            <div style={{ fontSize:14, fontWeight:700 }}>No sessions found</div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -4855,79 +6110,677 @@ function ReportsTab({ teachers, courses, batches }) {
 
 /* ── A10: Notifications ── */
 function NotificationsTab({ teachers, setToast }) {
-  const [type, setType] = useState("email");
-  const [audience, setAudience] = useState("all");
-  const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
-
-  const templates = [
-    { label:"Welcome Email",      subject:"Welcome to SpacECE!",           body:"Dear Teacher, welcome to SpacECE Teacher Training Portal. Your journey to becoming an exceptional educator starts here." },
-    { label:"Session Reminder",   subject:"Live Session Tomorrow!",         body:"Don't forget! You have a live session tomorrow. Please join on time using the link in your dashboard." },
-    { label:"Assignment Due",     subject:"Assignment Due in 24 Hours",     body:"Your assignment is due tomorrow. Please submit it on time to avoid late penalties." },
-    { label:"Certificate Issued", subject:"Your Certificate is Ready! 🎓", body:"Congratulations! Your course certificate has been issued. Log in to download it from your dashboard." },
-  ];
-
-  const handleSend = () => {
-    if(!subject||!body) { setToast({msg:"Please fill subject and message.",type:"error"}); return; }
-    setToast({msg:`Notification sent to ${audience==="all"?teachers.length+" teachers":"selected group"}!`,type:"success"});
-    setSubject(""); setBody("");
+  const [activeTab,      setActiveTab]      = useState("compose");
+  const [templates,      setTemplates]      = useState(MOCK_NOTIFICATION_TEMPLATES);
+  const [notifLog,       setNotifLog]       = useState(MOCK_NOTIFICATION_LOG);
+  const [channelConfig,  setChannelConfig]  = useState(MOCK_CHANNEL_CONFIG);
+ 
+  // Compose state
+  const [channels,       setChannels]       = useState(["email"]);
+  const [audience,       setAudience]       = useState("all");
+  const [courseAudience, setCourseAudience] = useState("");
+  const [batchAudience,  setBatchAudience]  = useState("");
+  const [subject,        setSubject]        = useState("");
+  const [subjectB,       setSubjectB]       = useState("");     // A/B test
+  const [body,           setBody]           = useState("");
+  const [scheduleMode,   setScheduleMode]   = useState("now");  // now | scheduled
+  const [schedDate,      setSchedDate]      = useState("");
+  const [schedTime,      setSchedTime]      = useState("");
+  const [abTest,         setAbTest]         = useState(false);
+  const [sending,        setSending]        = useState(false);
+  const [sentAnim,       setSentAnim]       = useState(false);
+ 
+  // Template edit
+  const [editTemplate,   setEditTemplate]   = useState(null);
+ 
+  // Channel config edit
+  const [editChannel,    setEditChannel]    = useState(null);
+  const [chanFormData,   setChanFormData]   = useState({});
+ 
+  const ALL_COURSES = [...new Set(teachers.map(t => t.course).filter(Boolean))];
+  const ALL_BATCHES = [...new Set(teachers.map(t => t.batch).filter(Boolean))];
+ 
+  const CHANNEL_META = {
+    email:    { icon:"📧", label:"Email",    color:"#3b82f6", provider:"SendGrid / AWS SES / SMTP"     },
+    sms:      { icon:"💬", label:"SMS",      color:"#10b981", provider:"Twilio / MSG91"                },
+    "in-app": { icon:"🔔", label:"In-App",   color:"#8b5cf6", provider:"Built-in Push"                },
+    whatsapp: { icon:"💚", label:"WhatsApp", color:"#25d366", provider:"WhatsApp Business API"         },
   };
-
+ 
+  const getAudienceCount = () => {
+    if (audience === "all")    return teachers.length;
+    if (audience === "course") return teachers.filter(t => t.course === courseAudience).length;
+    if (audience === "batch")  return teachers.filter(t => t.batch  === batchAudience).length;
+    if (audience === "approved") return teachers.filter(t => t.status === "approved").length;
+    if (audience === "pending")  return teachers.filter(t => t.status === "pending").length;
+    return 0;
+  };
+ 
+  const toggleChannel = ch => setChannels(p => p.includes(ch) ? p.filter(x => x !== ch) : [...p, ch]);
+ 
+  const handleSend = async () => {
+    if (!subject || !body)    { setToast({ msg:"Fill subject and message.", type:"error" }); return; }
+    if (channels.length === 0){ setToast({ msg:"Select at least one channel.", type:"error" }); return; }
+    setSending(true);
+    await new Promise(r => setTimeout(r, 1800));
+    const count = getAudienceCount();
+    const now   = new Date().toLocaleString("en-IN");
+    // Add to log
+    const newEntries = Array.from({ length: Math.min(count, 5) }, (_, i) => ({
+      id: Date.now() + i,
+      type: "Manual Broadcast",
+      recipient: teachers[i]?.name || `Teacher ${i+1}`,
+      channel: channels[0],
+      subject,
+      sentAt: now,
+      status: "delivered",
+      opened: false,
+      clicked: false,
+    }));
+    setNotifLog(p => [...newEntries, ...p]);
+    setSending(false);
+    setSentAnim(true);
+    setTimeout(() => setSentAnim(false), 3000);
+    setToast({ msg: `${scheduleMode === "now" ? "Sent" : "Scheduled"} to ${count} teachers via ${channels.join(", ")}! 📨`, type:"success" });
+    setSubject(""); setBody(""); setSubjectB(""); setAbTest(false);
+  };
+ 
+  // Delivery stats
+  const deliveryStats = {
+    sent:      notifLog.length,
+    delivered: notifLog.filter(n => n.status === "delivered").length,
+    opened:    notifLog.filter(n => n.opened).length,
+    clicked:   notifLog.filter(n => n.clicked).length,
+    bounced:   notifLog.filter(n => n.status === "bounced").length,
+  };
+  const openRate  = deliveryStats.delivered > 0 ? Math.round((deliveryStats.opened   / deliveryStats.delivered) * 100) : 0;
+  const clickRate = deliveryStats.opened    > 0 ? Math.round((deliveryStats.clicked  / deliveryStats.opened)    * 100) : 0;
+ 
+  // ─────────────────────────────────────────────
   return (
     <div style={{ animation:"fadeIn 0.3s ease" }}>
-      <h1 style={S.pageTitle}>Notifications Management</h1>
-      <p style={S.pageSub}>Send emails, SMS, and in-app notifications</p>
-
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
-        {/* Compose */}
-        <SectionCard title="✉️ Compose Notification">
-          <div style={{ marginBottom:12 }}>
-            <label style={S.label}>Channel</label>
-            <div style={{ display:"flex", gap:8 }}>
-              {["email","sms","in-app"].map(c=>(
-                <button key={c} onClick={()=>setType(c)}
-                  style={{ flex:1, padding:"8px", borderRadius:8, border:`1.5px solid ${type===c?"#f59e0b":"#e5e7eb"}`,
-                    background:type===c?"#fef3c7":"white", color:type===c?"#92400e":"#6b7280",
-                    fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:"inherit", textTransform:"uppercase" }}>{c}</button>
-              ))}
+ 
+      {/* Template Edit Modal */}
+      {editTemplate && (
+        <div style={NT_OVERLAY}>
+          <div style={NT_MODAL}>
+            <div style={NT_HDR}>
+              <span style={{ fontSize:15, fontWeight:800 }}>✏️ Edit Template — {editTemplate.type}</span>
+              <button onClick={() => setEditTemplate(null)} style={NT_CLOSE}>✕</button>
+            </div>
+            <div style={{ padding:"20px 24px 24px", overflowY:"auto", maxHeight:"75vh" }}>
+              <div style={{ marginBottom:12 }}>
+                <label style={S.label}>Notification Type</label>
+                <input style={{ ...S.input, background:"#f9fafb", color:"#9ca3af" }} value={editTemplate.type} readOnly />
+              </div>
+              <div style={{ marginBottom:12 }}>
+                <label style={S.label}>Trigger</label>
+                <input style={S.input} value={editTemplate.trigger}
+                  onChange={e => setEditTemplate(t => ({ ...t, trigger:e.target.value }))} />
+              </div>
+              <div style={{ marginBottom:12 }}>
+                <label style={S.label}>Subject Line</label>
+                <input style={S.input} value={editTemplate.subject}
+                  onChange={e => setEditTemplate(t => ({ ...t, subject:e.target.value }))} />
+                <div style={{ fontSize:10, color:"#9ca3af", marginTop:3 }}>
+                  Variables: {"{{name}}, {{course}}, {{batch}}, {{sessionTitle}}, {{dueDate}}, {{downloadLink}}"}
+                </div>
+              </div>
+              <div style={{ marginBottom:16 }}>
+                <label style={S.label}>Message Body</label>
+                <textarea style={{ ...S.input, height:120, resize:"vertical" }} value={editTemplate.body}
+                  onChange={e => setEditTemplate(t => ({ ...t, body:e.target.value }))} />
+              </div>
+              <div style={{ marginBottom:16 }}>
+                <label style={S.label}>Channels</label>
+                <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                  {Object.entries(CHANNEL_META).map(([ch, meta]) => (
+                    <button key={ch} onClick={() => setEditTemplate(t => ({
+                      ...t,
+                      channel: t.channel.includes(ch) ? t.channel.filter(x => x !== ch) : [...t.channel, ch]
+                    }))}
+                      style={{ padding:"7px 12px", borderRadius:8, border:`1.5px solid ${editTemplate.channel.includes(ch) ? meta.color : "#e5e7eb"}`, background:editTemplate.channel.includes(ch) ? `${meta.color}15` : "white", color:editTemplate.channel.includes(ch) ? meta.color : "#6b7280", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+                      {meta.icon} {meta.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div style={{ display:"flex", gap:10 }}>
+                <button onClick={() => {
+                  setTemplates(p => p.map(t => t.id === editTemplate.id ? editTemplate : t));
+                  setEditTemplate(null);
+                  setToast({ msg:"Template saved!", type:"success" });
+                }} style={{ ...NT_BTN_PRIMARY, flex:1 }}>💾 Save Template</button>
+                <button onClick={() => setEditTemplate(null)} style={{ ...NT_BTN_GHOST, flex:1 }}>Cancel</button>
+              </div>
             </div>
           </div>
-          <div style={{ marginBottom:12 }}>
-            <label style={S.label}>Send To</label>
-            <select style={S.input} value={audience} onChange={e=>setAudience(e.target.value)}>
-              <option value="all">All Teachers ({teachers.length})</option>
-              <option value="approved">Active Teachers Only ({teachers.filter(t=>t.status==="approved").length})</option>
-              <option value="pending">Pending Teachers ({teachers.filter(t=>t.status==="pending").length})</option>
-            </select>
+        </div>
+      )}
+ 
+      {/* Channel Config Modal */}
+      {editChannel && (
+        <div style={NT_OVERLAY}>
+          <div style={{ ...NT_MODAL, maxWidth:480 }}>
+            <div style={NT_HDR}>
+              <span style={{ fontSize:15, fontWeight:800 }}>
+                {CHANNEL_META[editChannel]?.icon} Configure {CHANNEL_META[editChannel]?.label}
+              </span>
+              <button onClick={() => setEditChannel(null)} style={NT_CLOSE}>✕</button>
+            </div>
+            <div style={{ padding:"20px 24px 24px" }}>
+              {editChannel === "email" && (
+                <div>
+                  <div style={{ marginBottom:12 }}>
+                    <label style={S.label}>Provider</label>
+                    <select style={S.input} value={chanFormData.provider || channelConfig.email.provider}
+                      onChange={e => setChanFormData(p => ({ ...p, provider:e.target.value }))}>
+                      {["SendGrid","AWS SES","SMTP","Mailgun"].map(p => <option key={p}>{p}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ marginBottom:12 }}>
+                    <label style={S.label}>API Key</label>
+                    <input style={S.input} type="password" placeholder="••••••••••••••••"
+                      value={chanFormData.apiKey || ""}
+                      onChange={e => setChanFormData(p => ({ ...p, apiKey:e.target.value }))} />
+                  </div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
+                    <div>
+                      <label style={S.label}>From Name</label>
+                      <input style={S.input} value={chanFormData.fromName || channelConfig.email.fromName}
+                        onChange={e => setChanFormData(p => ({ ...p, fromName:e.target.value }))} />
+                    </div>
+                    <div>
+                      <label style={S.label}>From Email</label>
+                      <input style={S.input} type="email" value={chanFormData.fromEmail || channelConfig.email.fromEmail}
+                        onChange={e => setChanFormData(p => ({ ...p, fromEmail:e.target.value }))} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              {editChannel === "sms" && (
+                <div>
+                  <div style={{ marginBottom:12 }}>
+                    <label style={S.label}>Provider</label>
+                    <select style={S.input} value={chanFormData.provider || channelConfig.sms.provider}
+                      onChange={e => setChanFormData(p => ({ ...p, provider:e.target.value }))}>
+                      {["MSG91","Twilio","TextLocal","Kaleyra"].map(p => <option key={p}>{p}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ marginBottom:12 }}>
+                    <label style={S.label}>API Key</label>
+                    <input style={S.input} type="password" placeholder="••••••••••••••••"
+                      onChange={e => setChanFormData(p => ({ ...p, apiKey:e.target.value }))} />
+                  </div>
+                  <div style={{ marginBottom:12 }}>
+                    <label style={S.label}>Sender ID</label>
+                    <input style={S.input} value={chanFormData.senderId || channelConfig.sms.senderId}
+                      onChange={e => setChanFormData(p => ({ ...p, senderId:e.target.value }))} placeholder="SPCEDU" />
+                  </div>
+                </div>
+              )}
+              {editChannel === "whatsapp" && (
+                <div>
+                  <div style={{ background:"#dcfce7", border:"1px solid #86efac", borderRadius:10, padding:"10px 14px", marginBottom:14, fontSize:12, color:"#166534" }}>
+                    💚 WhatsApp Business API — requires Meta Business account verification.
+                  </div>
+                  <div style={{ marginBottom:12 }}>
+                    <label style={S.label}>Access Token</label>
+                    <input style={S.input} type="password" placeholder="••••••••••••••••"
+                      onChange={e => setChanFormData(p => ({ ...p, token:e.target.value }))} />
+                  </div>
+                  <div style={{ marginBottom:12 }}>
+                    <label style={S.label}>Phone Number ID</label>
+                    <input style={S.input} value={chanFormData.phoneNumberId || channelConfig.whatsapp.phoneNumberId}
+                      onChange={e => setChanFormData(p => ({ ...p, phoneNumberId:e.target.value }))} />
+                  </div>
+                </div>
+              )}
+              {editChannel === "in-app" && (
+                <div style={{ textAlign:"center", padding:20 }}>
+                  <div style={{ fontSize:36, marginBottom:10 }}>🔔</div>
+                  <div style={{ fontSize:13, color:"#374151", fontWeight:600, marginBottom:6 }}>Built-in Push Notifications</div>
+                  <div style={{ fontSize:12, color:"#9ca3af" }}>In-app notifications are handled natively. No external configuration required.</div>
+                </div>
+              )}
+              <div style={{ display:"flex", gap:10, marginTop:16 }}>
+                <button onClick={() => {
+                  setChannelConfig(p => ({ ...p, [editChannel]: { ...p[editChannel], ...chanFormData, connected:true } }));
+                  setEditChannel(null);
+                  setChanFormData({});
+                  setToast({ msg:`${CHANNEL_META[editChannel]?.label} channel configured!`, type:"success" });
+                }} style={{ ...NT_BTN_PRIMARY, flex:1 }}>💾 Save Configuration</button>
+                <button onClick={() => { setEditChannel(null); setChanFormData({}); }} style={{ ...NT_BTN_GHOST, flex:1 }}>Cancel</button>
+              </div>
+            </div>
           </div>
-          <div style={{ marginBottom:12 }}>
-            <label style={S.label}>Subject</label>
-            <input style={S.input} value={subject} onChange={e=>setSubject(e.target.value)} placeholder="Notification subject"/>
+        </div>
+      )}
+ 
+      {/* Header */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+        <div>
+          <h1 style={S.pageTitle}>Notifications Management</h1>
+          <p style={S.pageSub}>Email · SMS · In-App · WhatsApp — templates, bulk messaging & delivery reports</p>
+        </div>
+      </div>
+ 
+      {/* KPI Cards */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))", gap:12, marginBottom:20 }}>
+        {[
+          { icon:"📤", label:"Sent",      val:deliveryStats.sent,      color:"#f59e0b", bg:"#fef9c3" },
+          { icon:"✅", label:"Delivered", val:deliveryStats.delivered, color:"#10b981", bg:"#d1fae5" },
+          { icon:"👁", label:"Open Rate", val:`${openRate}%`,          color:"#3b82f6", bg:"#dbeafe" },
+          { icon:"🖱", label:"Click Rate",val:`${clickRate}%`,         color:"#8b5cf6", bg:"#ede9fe" },
+          { icon:"⚠️", label:"Bounced",   val:deliveryStats.bounced,   color:"#ef4444", bg:"#fee2e2" },
+        ].map((k,i) => (
+          <div key={i} style={{ background:"white", borderRadius:12, padding:"12px 14px", border:`1px solid ${k.color}30`, borderLeft:`3px solid ${k.color}`, boxShadow:"0 1px 4px rgba(0,0,0,0.04)" }}>
+            <div style={{ fontSize:18, marginBottom:4 }}>{k.icon}</div>
+            <div style={{ fontSize:20, fontWeight:800, color:k.color }}>{k.val}</div>
+            <div style={{ fontSize:10, color:"#9ca3af", fontWeight:600, textTransform:"uppercase", letterSpacing:".3px" }}>{k.label}</div>
           </div>
-          <div style={{ marginBottom:16 }}>
-            <label style={S.label}>Message</label>
-            <textarea style={{ ...S.input, height:100, resize:"none" }} value={body} onChange={e=>setBody(e.target.value)} placeholder="Write your message..."/>
+        ))}
+      </div>
+ 
+      {/* Sub Tabs */}
+      <div style={{ display:"flex", gap:4, marginBottom:18, borderBottom:"2px solid #f3f4f6" }}>
+        {[
+          { key:"compose",   label:"✉️ Compose & Send"    },
+          { key:"templates", label:"📋 Templates"         },
+          { key:"channels",  label:"⚙️ Channel Config"    },
+          { key:"reports",   label:"📊 Delivery Reports"  },
+        ].map(t => (
+          <button key={t.key} onClick={() => setActiveTab(t.key)}
+            style={{ padding:"10px 18px", border:"none", borderBottom:`2px solid ${activeTab===t.key?"#f59e0b":"transparent"}`, background:"none", color:activeTab===t.key?"#92400e":"#9ca3af", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"inherit", marginBottom:-2 }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+ 
+      {/* ── COMPOSE TAB ── */}
+      {activeTab === "compose" && (
+        <div style={{ display:"grid", gridTemplateColumns:"1.3fr 1fr", gap:20 }}>
+          {/* Compose form */}
+          <div style={{ background:"white", borderRadius:16, padding:22, border:"1px solid #f1f5f9", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
+            <div style={{ fontSize:14, fontWeight:800, color:"#0f172a", marginBottom:16 }}>✉️ New Notification</div>
+ 
+            {/* Channel selector */}
+            <div style={{ marginBottom:16 }}>
+              <label style={S.label}>Send via (select multiple)</label>
+              <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                {Object.entries(CHANNEL_META).map(([ch, meta]) => {
+                  const cfg = channelConfig[ch === "in-app" ? "inapp" : ch];
+                  const connected = ch === "in-app" ? true : cfg?.connected;
+                  return (
+                    <button key={ch} onClick={() => connected && toggleChannel(ch)}
+                      title={!connected ? "Not configured — go to Channel Config" : ""}
+                      style={{ padding:"8px 14px", borderRadius:9, border:`1.5px solid ${channels.includes(ch) ? meta.color : "#e5e7eb"}`, background:channels.includes(ch) ? `${meta.color}15` : connected ? "white" : "#f9fafb", color:channels.includes(ch) ? meta.color : connected ? "#6b7280" : "#d1d5db", fontSize:12, fontWeight:700, cursor:connected ? "pointer" : "not-allowed", fontFamily:"inherit", position:"relative" }}>
+                      {meta.icon} {meta.label}
+                      {!connected && <span style={{ fontSize:9, marginLeft:4 }}>🔴</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+ 
+            {/* Audience */}
+            <div style={{ marginBottom:14 }}>
+              <label style={S.label}>Send To</label>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:8 }}>
+                {[
+                  { val:"all",      label:`All Teachers (${teachers.length})`                                        },
+                  { val:"approved", label:`Active Only (${teachers.filter(t=>t.status==="approved").length})`         },
+                  { val:"pending",  label:`Pending (${teachers.filter(t=>t.status==="pending").length})`              },
+                  { val:"course",   label:"By Course"                                                                 },
+                  { val:"batch",    label:"By Batch"                                                                  },
+                ].map(opt => (
+                  <button key={opt.val} onClick={() => setAudience(opt.val)}
+                    style={{ padding:"8px 12px", borderRadius:8, border:`1.5px solid ${audience===opt.val?"#f59e0b":"#e5e7eb"}`, background:audience===opt.val?"#fef3c7":"white", color:audience===opt.val?"#92400e":"#6b7280", fontSize:11, fontWeight:600, cursor:"pointer", fontFamily:"inherit", textAlign:"left" }}>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              {audience === "course" && (
+                <select style={{ ...S.input, marginBottom:0 }} value={courseAudience} onChange={e => setCourseAudience(e.target.value)}>
+                  <option value="">Select course...</option>
+                  {ALL_COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              )}
+              {audience === "batch" && (
+                <select style={{ ...S.input, marginBottom:0 }} value={batchAudience} onChange={e => setBatchAudience(e.target.value)}>
+                  <option value="">Select batch...</option>
+                  {ALL_BATCHES.map(b => <option key={b} value={b}>{b}</option>)}
+                </select>
+              )}
+              <div style={{ fontSize:12, color:"#9ca3af", marginTop:6 }}>
+                📨 Reaching <b style={{ color:"#f59e0b" }}>{getAudienceCount()} teachers</b>
+              </div>
+            </div>
+ 
+            {/* Subject with A/B toggle */}
+            <div style={{ marginBottom:14 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:5 }}>
+                <label style={{ ...S.label, margin:0 }}>Subject Line</label>
+                <button onClick={() => setAbTest(!abTest)}
+                  style={{ padding:"3px 10px", borderRadius:20, border:`1px solid ${abTest?"#8b5cf6":"#e5e7eb"}`, background:abTest?"#ede9fe":"white", color:abTest?"#7c3aed":"#9ca3af", fontSize:10, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+                  {abTest ? "🧪 A/B ON" : "🧪 A/B Test"}
+                </button>
+              </div>
+              <input style={{ ...S.input, marginBottom: abTest ? 8 : 0 }} value={subject} onChange={e => setSubject(e.target.value)} placeholder={abTest ? "Version A subject..." : "Notification subject..."} />
+              {abTest && (
+                <input style={{ ...S.input, marginBottom:0, borderColor:"#c4b5fd" }} value={subjectB} onChange={e => setSubjectB(e.target.value)} placeholder="Version B subject..." />
+              )}
+              {abTest && (
+                <div style={{ fontSize:10, color:"#7c3aed", marginTop:4, fontWeight:600 }}>
+                  🧪 A/B test: 50% will receive Version A, 50% Version B. Results shown in Delivery Reports.
+                </div>
+              )}
+            </div>
+ 
+            {/* Message body */}
+            <div style={{ marginBottom:14 }}>
+              <label style={S.label}>Message Body</label>
+              <textarea style={{ ...S.input, height:130, resize:"vertical", fontFamily:"inherit", lineHeight:1.6 }}
+                value={body} onChange={e => setBody(e.target.value)}
+                placeholder="Write your message... Use {{name}}, {{course}}, {{batch}} for personalisation." />
+              <div style={{ fontSize:10, color:"#9ca3af", marginTop:3 }}>
+                {body.length} chars · Variables: {"{{name}}, {{course}}, {{batch}}, {{dueDate}}"}
+              </div>
+            </div>
+ 
+            {/* Schedule */}
+            <div style={{ marginBottom:16 }}>
+              <label style={S.label}>Send</label>
+              <div style={{ display:"flex", gap:8, marginBottom:8 }}>
+                {[["now","Send Now"],["scheduled","Schedule"]].map(([val, label]) => (
+                  <button key={val} onClick={() => setScheduleMode(val)}
+                    style={{ flex:1, padding:"8px", borderRadius:8, border:`1.5px solid ${scheduleMode===val?"#f59e0b":"#e5e7eb"}`, background:scheduleMode===val?"#fef3c7":"white", color:scheduleMode===val?"#92400e":"#6b7280", fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
+                    {val === "now" ? "⚡ " : "📅 "}{label}
+                  </button>
+                ))}
+              </div>
+              {scheduleMode === "scheduled" && (
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+                  <div>
+                    <label style={S.label}>Date</label>
+                    <input type="date" style={{ ...S.input, marginBottom:0 }} value={schedDate} onChange={e => setSchedDate(e.target.value)} />
+                  </div>
+                  <div>
+                    <label style={S.label}>Time</label>
+                    <input type="time" style={{ ...S.input, marginBottom:0 }} value={schedTime} onChange={e => setSchedTime(e.target.value)} />
+                  </div>
+                </div>
+              )}
+            </div>
+ 
+            {/* Send button */}
+            {sentAnim ? (
+              <div style={{ background:"#d1fae5", border:"1px solid #86efac", borderRadius:12, padding:"16px", textAlign:"center" }}>
+                <div style={{ fontSize:28, marginBottom:4 }}>✅</div>
+                <div style={{ fontSize:13, fontWeight:800, color:"#065f46" }}>
+                  {scheduleMode === "now" ? "Sent successfully!" : "Scheduled!"}
+                </div>
+              </div>
+            ) : (
+              <button onClick={handleSend} disabled={sending}
+                style={{ ...NT_BTN_PRIMARY, width:"100%", padding:"12px", fontSize:14, opacity:sending?0.7:1 }}>
+                {sending ? "⏳ Sending..." : scheduleMode === "now" ? `📤 Send to ${getAudienceCount()} Teachers` : `📅 Schedule for ${schedDate} ${schedTime}`}
+              </button>
+            )}
           </div>
-          <button onClick={handleSend} style={{ ...S.primaryBtn, width:"100%" }}>📤 Send Now</button>
-        </SectionCard>
-
-        {/* Templates */}
-        <SectionCard title="📋 Quick Templates">
+ 
+          {/* Quick templates panel */}
+          <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
+            <div style={{ background:"white", borderRadius:16, padding:20, border:"1px solid #f1f5f9", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
+              <div style={{ fontSize:14, fontWeight:800, color:"#0f172a", marginBottom:14 }}>⚡ Quick Templates</div>
+              <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                {templates.filter(t => t.active).slice(0,6).map(t => (
+                  <div key={t.id} onClick={() => { setSubject(t.subject); setBody(t.body); setChannels(t.channel); }}
+                    style={{ padding:"12px 14px", background:"#f9fafb", borderRadius:10, cursor:"pointer", border:"1px solid #f3f4f6", transition:"all .15s" }}>
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:"#0f172a" }}>{t.type}</div>
+                      <div style={{ display:"flex", gap:4 }}>
+                        {t.channel.map(ch => (
+                          <span key={ch} style={{ fontSize:14 }}>{CHANNEL_META[ch]?.icon || "📢"}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ fontSize:11, color:"#9ca3af", marginTop:2 }}>{t.trigger}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+ 
+            {/* Channel status */}
+            <div style={{ background:"white", borderRadius:16, padding:20, border:"1px solid #f1f5f9", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
+              <div style={{ fontSize:13, fontWeight:800, color:"#0f172a", marginBottom:12 }}>⚙️ Channel Status</div>
+              {Object.entries(CHANNEL_META).map(([ch, meta]) => {
+                const cfgKey = ch === "in-app" ? "inapp" : ch;
+                const cfg = channelConfig[cfgKey];
+                const connected = ch === "in-app" ? true : cfg?.connected;
+                return (
+                  <div key={ch} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:"1px solid #f9fafb" }}>
+                    <span style={{ fontSize:18 }}>{meta.icon}</span>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:12, fontWeight:700, color:"#0f172a" }}>{meta.label}</div>
+                      <div style={{ fontSize:10, color:"#9ca3af" }}>{ch !== "in-app" ? cfg?.provider : "Built-in"}</div>
+                    </div>
+                    <span style={{ padding:"2px 9px", borderRadius:20, fontSize:10, fontWeight:700, background:connected?"#d1fae5":"#fee2e2", color:connected?"#059669":"#dc2626" }}>
+                      {connected ? "✓ Connected" : "✕ Not Connected"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+ 
+      {/* ── TEMPLATES TAB ── */}
+      {activeTab === "templates" && (
+        <div>
+          <div style={{ fontSize:13, color:"#6b7280", marginBottom:16 }}>
+            Manage auto-triggered notification templates. Click Edit to customise any template.
+          </div>
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-            {templates.map((t,i)=>(
-              <div key={i} onClick={()=>{ setSubject(t.subject); setBody(t.body); }}
-                style={{ padding:"12px 14px", background:"#f9fafb", borderRadius:10, cursor:"pointer",
-                  border:"1px solid #f3f4f6", transition:"all 0.2s" }}>
-                <div style={{ fontSize:13, fontWeight:700, color:"#1c1917" }}>{t.label}</div>
-                <div style={{ fontSize:11, color:"#9ca3af", marginTop:2 }}>{t.subject}</div>
+            {templates.map(t => (
+              <div key={t.id} style={{ background:"white", borderRadius:14, padding:"16px 20px", border:"1px solid #f1f5f9", boxShadow:"0 1px 4px rgba(0,0,0,0.04)", display:"flex", alignItems:"center", gap:16 }}>
+                <div style={{ width:44, height:44, borderRadius:12, background:t.active?"#fef3c7":"#f3f4f6", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>
+                  {t.channel[0] ? CHANNEL_META[t.channel[0]]?.icon : "📢"}
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:3 }}>
+                    <div style={{ fontSize:14, fontWeight:800, color:"#0f172a" }}>{t.type}</div>
+                    {t.channel.map(ch => (
+                      <span key={ch} style={{ padding:"1px 7px", borderRadius:20, fontSize:10, fontWeight:700, background:`${CHANNEL_META[ch]?.color}15`, color:CHANNEL_META[ch]?.color || "#6b7280" }}>
+                        {CHANNEL_META[ch]?.icon} {CHANNEL_META[ch]?.label}
+                      </span>
+                    ))}
+                  </div>
+                  <div style={{ fontSize:11, color:"#9ca3af" }}>🔁 {t.trigger}</div>
+                  <div style={{ fontSize:11, color:"#6b7280", marginTop:2 }}>Subject: {t.subject}</div>
+                </div>
+                <div style={{ textAlign:"center", flexShrink:0 }}>
+                  <div style={{ fontSize:16, fontWeight:800, color:"#0f172a" }}>{t.sentCount}</div>
+                  <div style={{ fontSize:10, color:"#9ca3af" }}>sent</div>
+                  <div style={{ fontSize:10, color:"#9ca3af" }}>{t.lastSent}</div>
+                </div>
+                <div style={{ display:"flex", gap:8, flexShrink:0 }}>
+                  {/* Toggle active */}
+                  <div onClick={() => setTemplates(p => p.map(x => x.id===t.id ? {...x,active:!x.active} : x))}
+                    style={{ width:40, height:22, borderRadius:11, background:t.active?"#10b981":"#e5e7eb", position:"relative", cursor:"pointer", transition:"background .3s", flexShrink:0 }}>
+                    <div style={{ position:"absolute", top:2, left:t.active?18:2, width:18, height:18, borderRadius:"50%", background:"white", transition:"left .3s", boxShadow:"0 1px 3px rgba(0,0,0,.2)" }}/>
+                  </div>
+                  <button onClick={() => setEditTemplate({ ...t })} style={NT_BTN_GHOST}>✏️ Edit</button>
+                  <button onClick={() => { setSubject(t.subject); setBody(t.body); setChannels(t.channel); setActiveTab("compose"); setToast({ msg:"Template loaded in Compose!", type:"success" }); }}
+                    style={NT_BTN_PRIMARY}>Use →</button>
+                </div>
               </div>
             ))}
           </div>
-        </SectionCard>
-      </div>
+        </div>
+      )}
+ 
+      {/* ── CHANNEL CONFIG TAB ── */}
+      {activeTab === "channels" && (
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:16 }}>
+          {Object.entries(CHANNEL_META).map(([ch, meta]) => {
+            const cfgKey = ch === "in-app" ? "inapp" : ch;
+            const cfg    = channelConfig[cfgKey];
+            const connected = ch === "in-app" ? true : cfg?.connected;
+            return (
+              <div key={ch} style={{ background:"white", borderRadius:16, padding:20, border:`1px solid ${meta.color}30`, boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:14 }}>
+                  <div style={{ width:48, height:48, borderRadius:14, background:`${meta.color}15`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:24 }}>{meta.icon}</div>
+                  <div>
+                    <div style={{ fontSize:15, fontWeight:800, color:"#0f172a" }}>{meta.label}</div>
+                    <div style={{ fontSize:11, color:"#9ca3af" }}>{meta.provider}</div>
+                  </div>
+                  <span style={{ marginLeft:"auto", padding:"3px 10px", borderRadius:20, fontSize:10, fontWeight:700, background:connected?"#d1fae5":"#fee2e2", color:connected?"#059669":"#dc2626" }}>
+                    {connected ? "✓ Live" : "✕ Off"}
+                  </span>
+                </div>
+ 
+                {ch !== "in-app" && cfg && (
+                  <div style={{ background:"#f9fafb", borderRadius:10, padding:"10px 12px", marginBottom:12, fontSize:11, color:"#6b7280" }}>
+                    <div>Provider: <b>{cfg.provider}</b></div>
+                    {cfg.fromEmail && <div>From: <b>{cfg.fromEmail}</b></div>}
+                    {cfg.senderId  && <div>Sender ID: <b>{cfg.senderId}</b></div>}
+                    {cfg.phoneNumberId && <div>Phone ID: <b>{cfg.phoneNumberId}</b></div>}
+                  </div>
+                )}
+ 
+                {ch === "whatsapp" && !connected && (
+                  <div style={{ background:"#dcfce7", border:"1px solid #86efac", borderRadius:8, padding:"8px 12px", marginBottom:12, fontSize:11, color:"#166534" }}>
+                    💚 Optional advanced feature. Requires Meta Business verification.
+                  </div>
+                )}
+ 
+                <div style={{ display:"flex", gap:8 }}>
+                  <button onClick={() => { setEditChannel(ch); setChanFormData({}); }}
+                    style={{ ...NT_BTN_PRIMARY, flex:1 }}>{connected ? "⚙️ Reconfigure" : "🔗 Connect"}</button>
+                  {connected && ch !== "in-app" && (
+                    <button onClick={() => {
+                      setChannelConfig(p => ({ ...p, [cfgKey]: { ...p[cfgKey], connected:false } }));
+                      setToast({ msg:`${meta.label} disconnected.`, type:"error" });
+                    }} style={{ ...NT_BTN_GHOST, color:"#dc2626", borderColor:"#fca5a5" }}>Disconnect</button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+ 
+      {/* ── DELIVERY REPORTS TAB ── */}
+      {activeTab === "reports" && (
+        <div style={{ display:"flex", flexDirection:"column", gap:18 }}>
+          {/* Summary bars */}
+          <div style={{ background:"white", borderRadius:16, padding:20, border:"1px solid #f1f5f9", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
+            <div style={{ fontSize:14, fontWeight:800, color:"#0f172a", marginBottom:16 }}>📊 Delivery Performance</div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:16 }}>
+              {[
+                { label:"Delivery Rate", val:deliveryStats.delivered, total:deliveryStats.sent,      pct:Math.round((deliveryStats.delivered/Math.max(deliveryStats.sent,1))*100), color:"#10b981" },
+                { label:"Open Rate",     val:deliveryStats.opened,    total:deliveryStats.delivered, pct:openRate,  color:"#3b82f6" },
+                { label:"Click Rate",    val:deliveryStats.clicked,   total:deliveryStats.opened,    pct:clickRate, color:"#8b5cf6" },
+                { label:"Bounce Rate",   val:deliveryStats.bounced,   total:deliveryStats.sent,      pct:Math.round((deliveryStats.bounced/Math.max(deliveryStats.sent,1))*100), color:"#ef4444" },
+              ].map((stat,i) => (
+                <div key={i} style={{ padding:14, background:"#f9fafb", borderRadius:12, border:"1px solid #f3f4f6" }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:8 }}>
+                    <span style={{ fontSize:12, fontWeight:700, color:"#374151" }}>{stat.label}</span>
+                    <span style={{ fontSize:16, fontWeight:900, color:stat.color }}>{stat.pct}%</span>
+                  </div>
+                  <div style={{ height:6, background:"#e5e7eb", borderRadius:4, overflow:"hidden", marginBottom:4 }}>
+                    <div style={{ height:"100%", width:`${stat.pct}%`, background:stat.color, borderRadius:4 }} />
+                  </div>
+                  <div style={{ fontSize:10, color:"#9ca3af" }}>{stat.val} of {stat.total}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+ 
+          {/* A/B Test results simulation */}
+          <div style={{ background:"white", borderRadius:16, padding:20, border:"1px solid #f1f5f9", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
+            <div style={{ fontSize:14, fontWeight:800, color:"#0f172a", marginBottom:14 }}>🧪 A/B Test Results</div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+              {[
+                { label:"Version A", subject:"Live Session Tomorrow: Classroom Management", openRate:68, clickRate:42, sent:Math.floor(getAudienceCount()/2), winner:true  },
+                { label:"Version B", subject:"Don't Miss Tomorrow's Live Session!",         openRate:54, clickRate:35, sent:Math.ceil(getAudienceCount()/2),  winner:false },
+              ].map((v,i) => (
+                <div key={i} style={{ padding:16, background:v.winner?"#ecfdf5":"#f9fafb", borderRadius:12, border:`1.5px solid ${v.winner?"#86efac":"#f3f4f6"}` }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                    <span style={{ fontSize:13, fontWeight:800, color:"#0f172a" }}>{v.label}</span>
+                    {v.winner && <span style={{ padding:"2px 9px", borderRadius:20, fontSize:10, fontWeight:700, background:"#d1fae5", color:"#059669" }}>🏆 Winner</span>}
+                  </div>
+                  <div style={{ fontSize:11, color:"#6b7280", marginBottom:10, fontStyle:"italic" }}>"{v.subject}"</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
+                    {[{l:"Sent",v:v.sent,c:"#374151"},{l:"Open Rate",v:`${v.openRate}%`,c:"#3b82f6"},{l:"Click Rate",v:`${v.clickRate}%`,c:"#8b5cf6"}].map((s,j) => (
+                      <div key={j} style={{ textAlign:"center", background:"white", borderRadius:8, padding:"8px 4px" }}>
+                        <div style={{ fontSize:14, fontWeight:800, color:s.c }}>{s.v}</div>
+                        <div style={{ fontSize:9, color:"#9ca3af", fontWeight:600, textTransform:"uppercase" }}>{s.l}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+ 
+          {/* Notification log table */}
+          <div style={{ background:"white", borderRadius:16, border:"1px solid #f1f5f9", overflow:"hidden", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
+            <div style={{ padding:"14px 18px", borderBottom:"1px solid #f3f4f6", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div style={{ fontSize:13, fontWeight:800, color:"#0f172a" }}>📋 Notification Log ({notifLog.length})</div>
+              <button onClick={() => {
+                const csv = [["Recipient","Type","Channel","Subject","Sent At","Status","Opened","Clicked"],
+                  ...notifLog.map(n => [n.recipient,n.type,n.channel,n.subject,n.sentAt,n.status,n.opened?"Yes":"No",n.clicked?"Yes":"No"])
+                ].map(r => r.map(v=>`"${v}"`).join(",")).join("\n");
+                const a = document.createElement("a"); a.href="data:text/csv;charset=utf-8,"+encodeURI(csv); a.download="notification_log.csv"; a.click();
+                setToast({ msg:"Log exported!", type:"success" });
+              }} style={NT_BTN_GHOST}>⬇ Export CSV</button>
+            </div>
+            <div style={{ overflowX:"auto" }}>
+              <table style={{ width:"100%", borderCollapse:"collapse" }}>
+                <thead>
+                  <tr style={{ background:"#f9fafb", borderBottom:"1px solid #f1f5f9" }}>
+                    {["Recipient","Type","Channel","Subject","Sent At","Status","Opened","Clicked"].map(h => (
+                      <th key={h} style={{ padding:"10px 12px", fontSize:10.5, fontWeight:700, color:"#9ca3af", textAlign:"left", textTransform:"uppercase", letterSpacing:".4px", whiteSpace:"nowrap" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {notifLog.map((n,i) => (
+                    <tr key={n.id} style={{ borderBottom:"1px solid #f9fafb", background:i%2===0?"white":"#fafafa" }}>
+                      <td style={{ padding:"10px 12px", fontSize:13, fontWeight:700, color:"#0f172a" }}>{n.recipient}</td>
+                      <td style={{ padding:"10px 12px", fontSize:11, color:"#6b7280" }}>{n.type}</td>
+                      <td style={{ padding:"10px 12px" }}>
+                        <span style={{ fontSize:14 }}>{CHANNEL_META[n.channel]?.icon || "📢"}</span>
+                        <span style={{ fontSize:11, color:"#6b7280", marginLeft:4 }}>{CHANNEL_META[n.channel]?.label || n.channel}</span>
+                      </td>
+                      <td style={{ padding:"10px 12px", fontSize:11, color:"#374151", maxWidth:160, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{n.subject}</td>
+                      <td style={{ padding:"10px 12px", fontSize:11, color:"#9ca3af" }}>{n.sentAt}</td>
+                      <td style={{ padding:"10px 12px" }}>
+                        <span style={{ padding:"2px 9px", borderRadius:20, fontSize:10, fontWeight:700, background:n.status==="delivered"?"#d1fae5":"#fee2e2", color:n.status==="delivered"?"#059669":"#dc2626" }}>
+                          {n.status}
+                        </span>
+                      </td>
+                      <td style={{ padding:"10px 12px", textAlign:"center" }}>
+                        <span style={{ fontSize:14 }}>{n.opened ? "👁" : "—"}</span>
+                      </td>
+                      <td style={{ padding:"10px 12px", textAlign:"center" }}>
+                        <span style={{ fontSize:14 }}>{n.clicked ? "🖱" : "—"}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+ 
 
 /* ── A11: Settings ── */
 function SettingsTab() {
@@ -5042,17 +6895,26 @@ export default function AdminDashboard({ user, onLogout }) {
     { key:"certificates", label:"Certificates",          icon:"🏅" },
     { key:"feedback",     label:"Feedback",              icon:"💬" },
   ];
+  const persistTeachers = (updater) => {
+  setTeachers(prev => {
+    const next = typeof updater === "function" ? updater(prev) : updater;
+    const toStore = next.filter(t => t.password);
+    localStorage.setItem("spaceece_teachers", JSON.stringify(toStore));
+    return next;
+  });
+};
+
 
   const renderContent = () => {
     switch(activeTab) {
       case "overview":     return <OverviewTab teachers={teachers} courses={courses} batches={batches} sessions={sessions}/>;
-      case "teachers":     return <TeacherManagementTab teachers={teachers} setTeachers={setTeachers} setToast={setToast}/>;
+      case "teachers": return <TeacherManagementTab teachers={teachers} setTeachers={persistTeachers} setToast={setToast}/>;
       case "courses":      return <CourseManagementTab courses={courses} setCourses={setCourses} categories={categories} setCategories={setCategories} setToast={setToast}/>;
       case "batches": return <BatchManagementTab batches={batches} setBatches={setBatches} teachers={teachers} setToast={setToast}/>;
       case "trainers": return <TrainerManagementTab trainers={trainers} setTrainers={setTrainers} batches={batches} setToast={setToast}/>;
       case "assignments":  return <AssignmentReviewTab assignments={assignments} setAssignments={setAssignments} setToast={setToast}/>;
       case "attendance":   return <AttendanceTab teachers={teachers} sessions={sessions}/>;
-      case "sessions":     return <LiveSessionsTab sessions={sessions} setSessions={setSessions} setToast={setToast}/>;
+      case "sessions": return <LiveSessionsTab sessions={sessions} setSessions={setSessions} teachers={teachers} batches={batches} setToast={setToast}/>;
       case "reports":      return <ReportsTab teachers={teachers} courses={courses} batches={batches}/>;
       case "notifications":return <NotificationsTab teachers={teachers} setToast={setToast}/>;
       case "settings":     return <SettingsTab/>;
@@ -5064,16 +6926,14 @@ export default function AdminDashboard({ user, onLogout }) {
     }
   };
   useEffect(() => {
-  const storedTeachers = JSON.parse(
-    localStorage.getItem("spaceece_teachers") || "[]"
-  );
-
-  const mergedTeachers = [
-    ...MOCK_TEACHERS,
-    ...storedTeachers
+  const stored = JSON.parse(localStorage.getItem("spaceece_teachers") || "[]");
+  // Stored teachers (registered via form) take priority — merge with mocks
+  const storedIds = new Set(stored.map(t => t.email));
+  const merged = [
+    ...MOCK_TEACHERS.filter(t => !storedIds.has(t.email)),
+    ...stored,
   ];
-
-  setTeachers(mergedTeachers);
+  setTeachers(merged);
 }, []);
 
   return (
@@ -6182,173 +8042,565 @@ function CertificateManagementTab({ certificates, setCertificates, setToast }) {
 }
 
 function FeedbackManagementTab({ feedbacks, setFeedbacks, setToast }) {
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [activeTab,     setActiveTab]     = useState("reviews");
+  const [search,        setSearch]        = useState("");
+  const [ratingFilter,  setRatingFilter]  = useState("all");
+  const [courseFilter,  setCourseFilter]  = useState("all");
+  const [batchFilter,   setBatchFilter]   = useState("all");
+  const [dateFrom,      setDateFrom]      = useState("");
+  const [dateTo,        setDateTo]        = useState("");
+  const [statusFilter,  setStatusFilter]  = useState("all");
+  const [tagFilter,     setTagFilter]     = useState("all");
+  const [responseModal, setResponseModal] = useState(null);
+  const [shareModal,    setShareModal]    = useState(null);
+  const [responseText,  setResponseText]  = useState("");
 
-  const filtered = feedbacks.filter(f => {
-    const matchSearch =
-      f.learner.toLowerCase().includes(search.toLowerCase()) ||
-      f.course.toLowerCase().includes(search.toLowerCase()) ||
-      f.trainer.toLowerCase().includes(search.toLowerCase()) ||
-      f.tag.toLowerCase().includes(search.toLowerCase());
-
-    const matchFilter = filter === "all" || f.status === filter;
-    return matchSearch && matchFilter;
-  });
-
-  const avgCourseRating = feedbacks.length
-    ? (feedbacks.reduce((a,f)=>a+f.rating,0) / feedbacks.length).toFixed(1)
-    : "0.0";
-
-  const avgTrainerRating = feedbacks.length
-    ? (feedbacks.reduce((a,f)=>a+f.trainerRating,0) / feedbacks.length).toFixed(1)
-    : "0.0";
-
-  const trainerMap = {};
-  feedbacks.forEach(f => {
-    if (!trainerMap[f.trainer]) trainerMap[f.trainer] = { trainer:f.trainer, total:0, count:0 };
-    trainerMap[f.trainer].total += f.trainerRating;
-    trainerMap[f.trainer].count += 1;
-  });
-
-  const trainerStats = Object.values(trainerMap)
-    .map(t => ({ ...t, avg:(t.total / t.count).toFixed(1) }))
-    .sort((a,b)=>Number(b.avg)-Number(a.avg));
-
-  const tagMap = {};
-  feedbacks.forEach(f => {
-    tagMap[f.tag] = (tagMap[f.tag] || 0) + 1;
-  });
-
-  const topTags = Object.entries(tagMap)
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,5);
-
-  const resolveFeedback = (id) => {
-    setFeedbacks(prev => prev.map(f => f.id===id ? { ...f, status:"resolved" } : f));
-    setToast({ msg:"Feedback marked as resolved!", type:"success" });
+  const TAGS = ["Content Quality", "Platform UX", "Trainer", "Schedule", "Price"];
+  const TAG_COLOR = {
+    "Content Quality": { bg:"#dbeafe", color:"#1d4ed8" },
+    "Platform UX":     { bg:"#ede9fe", color:"#6d28d9" },
+    "Trainer":         { bg:"#d1fae5", color:"#065f46" },
+    "Schedule":        { bg:"#fef3c7", color:"#92400e" },
+    "Price":           { bg:"#fee2e2", color:"#991b1b" },
   };
 
-  const stars = (n) => "⭐".repeat(Math.round(n));
+  const allCourses = ["all", ...new Set(feedbacks.map(f => f.course))];
+  const allBatches = ["all", ...new Set(feedbacks.map(f => f.batch))];
+
+  // ── Filtered ──
+  const filtered = feedbacks.filter(f => {
+    const q = search.toLowerCase();
+    const matchSearch  = f.learner.toLowerCase().includes(q) || f.course.toLowerCase().includes(q) || f.suggestion.toLowerCase().includes(q);
+    const matchRating  = ratingFilter === "all" || f.rating === Number(ratingFilter);
+    const matchCourse  = courseFilter === "all" || f.course === courseFilter;
+    const matchBatch   = batchFilter  === "all" || f.batch  === batchFilter;
+    const matchStatus  = statusFilter === "all" || f.status === statusFilter;
+    const matchTag     = tagFilter    === "all" || f.tag    === tagFilter;
+    const matchFrom    = !dateFrom || new Date(f.date.split("/").reverse().join("-")) >= new Date(dateFrom);
+    const matchTo      = !dateTo   || new Date(f.date.split("/").reverse().join("-")) <= new Date(dateTo);
+    return matchSearch && matchRating && matchCourse && matchBatch && matchStatus && matchTag && matchFrom && matchTo;
+  });
+
+  // ── Actions ──
+  const updateFeedback = (id, changes) =>
+    setFeedbacks(prev => prev.map(f => f.id === id ? { ...f, ...changes } : f));
+
+  const approve = id => { updateFeedback(id, { status:"approved" }); setToast({ msg:"Review approved!", type:"success" }); };
+  const reject  = id => { updateFeedback(id, { status:"rejected" }); setToast({ msg:"Review rejected.", type:"error" }); };
+
+  const submitResponse = (id) => {
+    if (!responseText.trim()) { setToast({ msg:"Response cannot be empty.", type:"error" }); return; }
+    updateFeedback(id, { adminResponse: responseText });
+    setToast({ msg:"Response saved!", type:"success" });
+    setResponseModal(null);
+    setResponseText("");
+  };
+
+  const shareWithTrainer = (id) => {
+    updateFeedback(id, { sharedWithTrainer: true });
+    setToast({ msg:"Review shared with trainer as motivation!", type:"success" });
+    setShareModal(null);
+  };
+
+  // ── Weighted average ──
+  const weightedAvg = (arr) => {
+    if (!arr.length) return 0;
+    const weights = { 5:5, 4:4, 3:3, 2:2, 1:1 };
+    const total   = arr.reduce((a, f) => a + weights[f.rating], 0);
+    return (total / arr.length).toFixed(1);
+  };
+
+  // ── Per-course aggregates ──
+  const courseStats = [...new Set(feedbacks.map(f => f.course))].map(course => {
+    const cf      = feedbacks.filter(f => f.course === course);
+    const avg     = weightedAvg(cf);
+    const dist    = [5,4,3,2,1].map(r => ({ star:r, count:cf.filter(f=>f.rating===r).length }));
+    const approved= cf.filter(f=>f.status==="approved").length;
+    return { course, avg, dist, total:cf.length, approved };
+  });
+
+  // ── Per-trainer NPS ──
+  const trainerStats = [...new Set(feedbacks.map(f => f.trainer))].map(trainer => {
+    const tf        = feedbacks.filter(f => f.trainer === trainer);
+    const avg       = (tf.reduce((a,f)=>a+f.trainerRating,0)/tf.length).toFixed(1);
+    const promoters = tf.filter(f=>f.trainerRating>=4).length;
+    const detractors= tf.filter(f=>f.trainerRating<=2).length;
+    const nps       = Math.round(((promoters - detractors) / tf.length) * 100);
+    const byCourse  = [...new Set(tf.map(f=>f.course))].map(c => ({
+      course: c,
+      avg: (tf.filter(f=>f.course===c).reduce((a,f)=>a+f.trainerRating,0) / tf.filter(f=>f.course===c).length).toFixed(1),
+      count: tf.filter(f=>f.course===c).length,
+    }));
+    const positives = tf.filter(f=>f.trainerRating>=4 && f.tag==="Trainer");
+    return { trainer, avg, nps, total:tf.length, promoters, detractors, byCourse, positives };
+  });
+
+  // ── Tag frequency for priority matrix ──
+  const tagStats = TAGS.map(tag => {
+    const tagged = feedbacks.filter(f => f.tag === tag);
+    const freq   = tagged.length;
+    const impact = Math.round(tagged.reduce((a,f)=>a+f.rating,0) / Math.max(1,tagged.length) * 20);
+    return { tag, freq, impact, items: tagged };
+  }).sort((a,b) => b.freq - a.freq);
+
+  // ── Export ──
+  const exportCSV = () => {
+    const headers = ["Learner","Course","Batch","Trainer","Rating","Trainer Rating","Tag","Suggestion","Status","Date","Anonymous"];
+    const rows = feedbacks.map(f => [f.anonymous?"Anonymous":f.learner, f.course, f.batch, f.trainer, f.rating, f.trainerRating, f.tag, `"${f.suggestion}"`, f.status, f.date, f.anonymous?"Yes":"No"]);
+    const csv  = [headers, ...rows].map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type:"text/csv" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a"); a.href=url; a.download="feedback_export.csv"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const stars = (n, size=13) => Array.from({length:5},(_,i)=>(
+    <span key={i} style={{ fontSize:size, color:i<n?"#f59e0b":"#e5e7eb" }}>★</span>
+  ));
+
+  const tabs = [
+    { key:"reviews",     label:"⭐ Course Reviews"         },
+    { key:"trainers",    label:"🎓 Trainer Ratings"        },
+    { key:"suggestions", label:"💡 Improvement Suggestions"},
+  ];
 
   return (
     <div style={{ animation:"fadeIn 0.3s ease" }}>
-      <div style={{ marginBottom:20 }}>
-        <h1 style={S.pageTitle}>Feedback Management</h1>
-        <p style={S.pageSub}>Course reviews, trainer ratings, and improvement suggestions</p>
-      </div>
 
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(170px,1fr))", gap:16, marginBottom:20 }}>
-        <StatCard icon="💬" label="Reviews" val={feedbacks.length} color="#f59e0b" bg="#fef3c7" />
-        <StatCard icon="⭐" label="Course Rating" val={avgCourseRating} color="#10b981" bg="#d1fae5" />
-        <StatCard icon="🎓" label="Trainer Rating" val={avgTrainerRating} color="#3b82f6" bg="#dbeafe" />
-        <StatCard icon="⚠️" label="Open Feedback" val={feedbacks.filter(f=>f.status==="open").length} color="#ef4444" bg="#fee2e2" />
-      </div>
+      {/* Response Modal */}
+      {responseModal && (
+        <Modal title={`💬 Admin Response — ${responseModal.learner}`} onClose={()=>{ setResponseModal(null); setResponseText(""); }}>
+          <div style={{ background:"#f9fafb", borderRadius:10, padding:"12px 14px", marginBottom:14, fontSize:12, color:"#6b7280" }}>
+            <div style={{ fontWeight:700, marginBottom:4 }}>Review:</div>
+            <div style={{ fontStyle:"italic" }}>"{responseModal.suggestion}"</div>
+          </div>
+          <label style={S.label}>Your Response *</label>
+          <textarea
+            style={{ ...S.input, height:100, resize:"none", marginBottom:16 }}
+            value={responseText}
+            onChange={e=>setResponseText(e.target.value)}
+            placeholder="Write a public response to this review..."
+          />
+          {/* Quick templates */}
+          <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:16 }}>
+            {[
+              "Thank you for your feedback! We will work on this.",
+              "We appreciate your suggestion and have noted it.",
+              "This has been forwarded to the course team.",
+            ].map((t,i)=>(
+              <button key={i} onClick={()=>setResponseText(t)}
+                style={{ ...S.tblBtn, fontSize:10 }}>{t.substring(0,30)}...</button>
+            ))}
+          </div>
+          <button onClick={()=>submitResponse(responseModal.id)} style={{ ...S.primaryBtn, width:"100%" }}>
+            📤 Post Response
+          </button>
+        </Modal>
+      )}
 
-      <div style={{ display:"flex", gap:10, marginBottom:16, flexWrap:"wrap" }}>
-        <SearchBar value={search} onChange={setSearch} placeholder="Search learner, trainer, course, suggestion..." />
-        <div style={{ display:"flex", gap:8 }}>
-          {["all","open","resolved"].map(f=>(
-            <button
-              key={f}
-              onClick={()=>setFilter(f)}
-              style={{
-                padding:"8px 14px",
-                borderRadius:8,
-                border:`1.5px solid ${filter===f?"#f59e0b":"#e5e7eb"}`,
-                background:filter===f?"#fef3c7":"white",
-                color:filter===f?"#92400e":"#6b7280",
-                fontSize:12,
-                fontWeight:600,
-                cursor:"pointer",
-                fontFamily:"inherit",
-                textTransform:"capitalize"
-              }}
-            >
-              {f}
-            </button>
-          ))}
+      {/* Share Modal */}
+      {shareModal && (
+        <Modal title={`🌟 Share with Trainer — ${shareModal.trainer}`} onClose={()=>setShareModal(null)}>
+          <div style={{ background:"#d1fae5", border:"1px solid #6ee7b7", borderRadius:10, padding:"12px 14px", marginBottom:14 }}>
+            <div style={{ fontSize:13, fontWeight:700, color:"#065f46", marginBottom:6 }}>Positive Review to Share:</div>
+            <div style={{ display:"flex", gap:4, marginBottom:6 }}>{stars(shareModal.rating)}</div>
+            <div style={{ fontSize:12, color:"#065f46", fontStyle:"italic" }}>"{shareModal.suggestion}"</div>
+            <div style={{ fontSize:11, color:"#9ca3af", marginTop:6 }}>— {shareModal.anonymous ? "Anonymous" : shareModal.learner}</div>
+          </div>
+          <div style={{ fontSize:12, color:"#6b7280", marginBottom:16 }}>
+            This review will be sent to <b>{shareModal.trainer}</b> as motivational feedback via in-app notification.
+          </div>
+          <button onClick={()=>shareWithTrainer(shareModal.id)} style={{ ...S.primaryBtn, width:"100%" }}>
+            🌟 Share as Motivation
+          </button>
+        </Modal>
+      )}
+
+      {/* Header */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+        <div>
+          <h1 style={S.pageTitle}>Feedback Management</h1>
+          <p style={S.pageSub}>Course reviews · Trainer ratings · Improvement suggestions</p>
         </div>
+        <button onClick={exportCSV} style={S.exportBtn}>⬇ Export CSV</button>
       </div>
 
-      <div style={{ display:"grid", gridTemplateColumns:"1.2fr 0.8fr", gap:20 }}>
-        <SectionCard title="🗣️ Feedback Inbox">
-          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-            {filtered.map(f=>(
-              <div key={f.id} style={{ background:"white", border:"1px solid #f1f5f9", borderRadius:14, padding:"16px" }}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:12 }}>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:13, fontWeight:800, color:"#1c1917" }}>{f.learner}</div>
-                    <div style={{ fontSize:11, color:"#9ca3af", marginTop:3 }}>{f.course} · {f.trainer} · {f.date}</div>
+      {/* KPI Cards */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(155px,1fr))", gap:14, marginBottom:20 }}>
+        <StatCard icon="💬" label="Total Reviews"   val={feedbacks.length}                                             color="#f59e0b" bg="#fef3c7"/>
+        <StatCard icon="⭐" label="Weighted Avg"    val={weightedAvg(feedbacks)}                                       color="#10b981" bg="#d1fae5"/>
+        <StatCard icon="⏳" label="Pending Approval" val={feedbacks.filter(f=>f.status==="pending").length}            color="#f59e0b" bg="#fef3c7"/>
+        <StatCard icon="✅" label="Approved"         val={feedbacks.filter(f=>f.status==="approved").length}           color="#10b981" bg="#d1fae5"/>
+        <StatCard icon="🚫" label="Rejected"         val={feedbacks.filter(f=>f.status==="rejected").length}           color="#ef4444" bg="#fee2e2"/>
+        <StatCard icon="🔒" label="Anonymous"        val={feedbacks.filter(f=>f.anonymous).length}                     color="#6366f1" bg="#ede9fe"/>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display:"flex", gap:4, marginBottom:18, borderBottom:"2px solid #f3f4f6" }}>
+        {tabs.map(t=>(
+          <button key={t.key} onClick={()=>setActiveTab(t.key)}
+            style={{ padding:"10px 18px", border:"none", borderBottom:`2px solid ${activeTab===t.key?"#f59e0b":"transparent"}`, background:"none", color:activeTab===t.key?"#92400e":"#9ca3af", fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"inherit", marginBottom:-2 }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ══ TAB: COURSE REVIEWS (A14.1) ══ */}
+      {activeTab === "reviews" && (
+        <div>
+          {/* Filters */}
+          <div style={{ background:"white", borderRadius:14, padding:"14px 18px", border:"1px solid #f1f5f9", marginBottom:16, boxShadow:"0 1px 4px rgba(0,0,0,0.04)" }}>
+            <div style={{ display:"flex", gap:10, flexWrap:"wrap", marginBottom:10 }}>
+              <div style={{ flex:1, minWidth:200, position:"relative" }}>
+                <span style={{ position:"absolute", left:11, top:"50%", transform:"translateY(-50%)", fontSize:14 }}>🔍</span>
+                <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search learner, course, review text..."
+                  style={{ ...S.input, paddingLeft:34, marginBottom:0 }}/>
+              </div>
+              {/* Rating filter */}
+              <div style={{ display:"flex", gap:6 }}>
+                {["all","5","4","3","2","1"].map(r=>(
+                  <button key={r} onClick={()=>setRatingFilter(r)}
+                    style={{ padding:"7px 12px", borderRadius:8, border:`1.5px solid ${ratingFilter===r?"#f59e0b":"#e5e7eb"}`, background:ratingFilter===r?"#fef3c7":"white", color:ratingFilter===r?"#92400e":"#6b7280", fontSize:11, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+                    {r==="all"?"All":r==="5"?"⭐⭐⭐⭐⭐":r==="4"?"⭐⭐⭐⭐":r==="3"?"⭐⭐⭐":r==="2"?"⭐⭐":"⭐"}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ display:"flex", gap:10, flexWrap:"wrap", alignItems:"center" }}>
+              <select value={courseFilter} onChange={e=>setCourseFilter(e.target.value)} style={{ ...S.input, width:220, marginBottom:0 }}>
+                {allCourses.map(c=><option key={c} value={c}>{c==="all"?"All Courses":c.substring(0,30)}</option>)}
+              </select>
+              <select value={batchFilter} onChange={e=>setBatchFilter(e.target.value)} style={{ ...S.input, width:150, marginBottom:0 }}>
+                {allBatches.map(b=><option key={b} value={b}>{b==="all"?"All Batches":b}</option>)}
+              </select>
+              <select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} style={{ ...S.input, width:150, marginBottom:0 }}>
+                {["all","pending","approved","rejected"].map(s=><option key={s} value={s}>{s==="all"?"All Status":s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
+              </select>
+              <div style={{ display:"flex", gap:6, alignItems:"center" }}>
+                <span style={{ fontSize:12, color:"#6b7280", fontWeight:600 }}>From:</span>
+                <input type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)} style={{ ...S.input, width:140, marginBottom:0 }}/>
+              </div>
+              <div style={{ display:"flex", gap:6, alignItems:"center" }}>
+                <span style={{ fontSize:12, color:"#6b7280", fontWeight:600 }}>To:</span>
+                <input type="date" value={dateTo} onChange={e=>setDateTo(e.target.value)} style={{ ...S.input, width:140, marginBottom:0 }}/>
+              </div>
+              {(search||ratingFilter!=="all"||courseFilter!=="all"||batchFilter!=="all"||statusFilter!=="all"||dateFrom||dateTo) && (
+                <button onClick={()=>{ setSearch(""); setRatingFilter("all"); setCourseFilter("all"); setBatchFilter("all"); setStatusFilter("all"); setDateFrom(""); setDateTo(""); }}
+                  style={{ ...S.tblBtn, color:"#ef4444", borderColor:"#fca5a5" }}>✕ Clear</button>
+              )}
+            </div>
+          </div>
+
+          {/* Aggregate rating per course */}
+          <SectionCard title="📊 Aggregate Ratings by Course">
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))", gap:14 }}>
+              {courseStats.map((cs,i)=>(
+                <div key={i} style={{ background:"#f9fafb", borderRadius:14, padding:"14px 16px", border:"1px solid #f3f4f6" }}>
+                  <div style={{ fontSize:12, fontWeight:700, color:"#1c1917", marginBottom:6, lineHeight:1.3 }}>{cs.course.substring(0,35)}</div>
+                  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
+                    <span style={{ fontSize:28, fontWeight:900, color:"#f59e0b" }}>{cs.avg}</span>
+                    <div>
+                      <div style={{ display:"flex", gap:2 }}>{stars(Math.round(Number(cs.avg)))}</div>
+                      <div style={{ fontSize:10, color:"#9ca3af" }}>{cs.total} reviews · {cs.approved} approved</div>
+                    </div>
                   </div>
-                  <StatusBadge status={f.status} />
+                  {/* Star distribution bars */}
+                  {cs.dist.map(d=>(
+                    <div key={d.star} style={{ display:"flex", alignItems:"center", gap:6, marginBottom:3 }}>
+                      <span style={{ fontSize:10, color:"#9ca3af", width:12 }}>{d.star}★</span>
+                      <div style={{ flex:1, height:5, background:"#e5e7eb", borderRadius:3, overflow:"hidden" }}>
+                        <div style={{ height:"100%", width:`${cs.total>0?(d.count/cs.total)*100:0}%`, background:"#f59e0b", borderRadius:3 }}/>
+                      </div>
+                      <span style={{ fontSize:10, color:"#9ca3af", width:14 }}>{d.count}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+
+          {/* Reviews inbox */}
+          <div style={{ fontSize:12, color:"#9ca3af", marginBottom:10 }}>Showing {filtered.length} of {feedbacks.length} reviews</div>
+          <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+            {filtered.map(f=>(
+              <div key={f.id} style={{ background:"white", borderRadius:14, padding:"16px 20px", border:`1px solid ${f.status==="pending"?"#fbbf24":f.status==="rejected"?"#fca5a5":"#f1f5f9"}`, boxShadow:"0 1px 4px rgba(0,0,0,0.04)" }}>
+                <div style={{ display:"flex", alignItems:"flex-start", gap:14 }}>
+                  {/* Avatar */}
+                  <div style={{ width:40, height:40, borderRadius:11, background:"linear-gradient(135deg,#f59e0b,#d97706)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:15, fontWeight:800, color:"white", flexShrink:0 }}>
+                    {f.anonymous ? "?" : f.learner[0]}
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:10, flexWrap:"wrap" }}>
+                      <div>
+                        <div style={{ fontSize:13, fontWeight:800, color:"#1c1917" }}>
+                          {f.anonymous ? "Anonymous Learner" : f.learner}
+                          {f.anonymous && <span style={{ marginLeft:8, fontSize:10, fontWeight:700, color:"#6366f1", background:"#ede9fe", padding:"2px 8px", borderRadius:20 }}>🔒 Anonymous</span>}
+                        </div>
+                        <div style={{ fontSize:11, color:"#9ca3af", marginTop:2 }}>{f.course} · {f.batch} · {f.date}</div>
+                      </div>
+                      <StatusBadge status={f.status}/>
+                    </div>
+
+                    {/* Ratings row */}
+                    <div style={{ display:"flex", gap:16, marginTop:8, flexWrap:"wrap" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                        <span style={{ fontSize:11, color:"#6b7280" }}>Course:</span>
+                        <div style={{ display:"flex", gap:2 }}>{stars(f.rating)}</div>
+                        <span style={{ fontSize:12, fontWeight:700, color:"#f59e0b" }}>({f.rating})</span>
+                      </div>
+                      <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                        <span style={{ fontSize:11, color:"#6b7280" }}>Trainer:</span>
+                        <div style={{ display:"flex", gap:2 }}>{stars(f.trainerRating)}</div>
+                        <span style={{ fontSize:12, fontWeight:700, color:"#f59e0b" }}>({f.trainerRating})</span>
+                      </div>
+                      <span style={{ padding:"2px 10px", borderRadius:20, fontSize:10, fontWeight:700,
+                        background:TAG_COLOR[f.tag]?.bg||"#f3f4f6", color:TAG_COLOR[f.tag]?.color||"#6b7280" }}>
+                        {f.tag}
+                      </span>
+                      {f.sharedWithTrainer && <span style={{ fontSize:10, color:"#059669", fontWeight:700 }}>🌟 Shared with trainer</span>}
+                    </div>
+
+                    {/* Review text */}
+                    <p style={{ fontSize:13, color:"#374151", margin:"10px 0 0", lineHeight:1.6, fontStyle:"italic" }}>
+                      "{f.suggestion}"
+                    </p>
+
+                    {/* Admin response */}
+                    {f.adminResponse && (
+                      <div style={{ marginTop:10, padding:"10px 14px", background:"#f0f9ff", borderRadius:10, border:"1px solid #bae6fd" }}>
+                        <div style={{ fontSize:11, fontWeight:700, color:"#0369a1", marginBottom:4 }}>💬 Admin Response:</div>
+                        <div style={{ fontSize:12, color:"#0369a1" }}>{f.adminResponse}</div>
+                      </div>
+                    )}
+
+                    {/* Action buttons */}
+                    <div style={{ display:"flex", gap:8, marginTop:12, flexWrap:"wrap" }}>
+                      {f.status === "pending" && <>
+                        <button onClick={()=>approve(f.id)} style={{ ...S.btnGreen, fontSize:11, padding:"5px 12px" }}>✓ Approve</button>
+                        <button onClick={()=>reject(f.id)}  style={{ ...S.btnRed,   fontSize:11, padding:"5px 12px" }}>✕ Reject</button>
+                      </>}
+                      {f.status === "approved" && (
+                        <button onClick={()=>reject(f.id)} style={{ ...S.tblBtn, color:"#dc2626", borderColor:"#fca5a5", fontSize:11 }}>Unpublish</button>
+                      )}
+                      <button onClick={()=>{ setResponseModal(f); setResponseText(f.adminResponse||""); }}
+                        style={{ ...S.tblBtn, color:"#2563eb", borderColor:"#93c5fd", fontSize:11 }}>
+                        💬 {f.adminResponse ? "Edit Response" : "Respond"}
+                      </button>
+                      {f.rating >= 4 && (
+                        <button onClick={()=>setShareModal(f)}
+                          style={{ ...S.tblBtn, color:"#059669", borderColor:"#6ee7b7", fontSize:11 }}>
+                          🌟 Share with Trainer
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {filtered.length === 0 && (
+              <div style={{ textAlign:"center", padding:50, color:"#9ca3af" }}>
+                <div style={{ fontSize:36, marginBottom:10 }}>💬</div>
+                <div style={{ fontSize:14, fontWeight:700 }}>No reviews found</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ══ TAB: TRAINER RATINGS (A14.2) ══ */}
+      {activeTab === "trainers" && (
+        <div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))", gap:16 }}>
+            {trainerStats.map((t,i)=>(
+              <div key={i} style={{ background:"white", borderRadius:18, padding:"20px", border:"1px solid #f1f5f9", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
+                {/* Trainer header */}
+                <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16, paddingBottom:14, borderBottom:"1px solid #f3f4f6" }}>
+                  <div style={{ width:48, height:48, borderRadius:14, background:"linear-gradient(135deg,#6366f1,#4f46e5)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, fontWeight:800, color:"white", flexShrink:0 }}>
+                    {t.trainer[0]}
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:14, fontWeight:800, color:"#1c1917" }}>{t.trainer}</div>
+                    <div style={{ fontSize:11, color:"#9ca3af" }}>{t.total} reviews total</div>
+                  </div>
+                  <div style={{ textAlign:"right" }}>
+                    <div style={{ fontSize:22, fontWeight:900, color:"#f59e0b" }}>{t.avg}</div>
+                    <div style={{ display:"flex", gap:2 }}>{stars(Math.round(Number(t.avg)))}</div>
+                  </div>
                 </div>
 
-                <div style={{ display:"flex", gap:16, marginTop:10, fontSize:12 }}>
-                  <span style={{ color:"#f59e0b", fontWeight:700 }}>Course: {stars(f.rating)} ({f.rating})</span>
-                  <span style={{ color:"#3b82f6", fontWeight:700 }}>Trainer: {stars(f.trainerRating)} ({f.trainerRating})</span>
+                {/* NPS Score */}
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:14 }}>
+                  <div style={{ textAlign:"center", padding:"10px 8px", background:`${t.nps>=50?"#d1fae5":t.nps>=0?"#fef3c7":"#fee2e2"}`, borderRadius:10 }}>
+                    <div style={{ fontSize:18, fontWeight:900, color:t.nps>=50?"#059669":t.nps>=0?"#d97706":"#dc2626" }}>{t.nps}</div>
+                    <div style={{ fontSize:9, fontWeight:700, color:"#6b7280", textTransform:"uppercase" }}>NPS Score</div>
+                  </div>
+                  <div style={{ textAlign:"center", padding:"10px 8px", background:"#d1fae5", borderRadius:10 }}>
+                    <div style={{ fontSize:18, fontWeight:900, color:"#059669" }}>{t.promoters}</div>
+                    <div style={{ fontSize:9, fontWeight:700, color:"#6b7280", textTransform:"uppercase" }}>Promoters</div>
+                  </div>
+                  <div style={{ textAlign:"center", padding:"10px 8px", background:"#fee2e2", borderRadius:10 }}>
+                    <div style={{ fontSize:18, fontWeight:900, color:"#dc2626" }}>{t.detractors}</div>
+                    <div style={{ fontSize:9, fontWeight:700, color:"#6b7280", textTransform:"uppercase" }}>Detractors</div>
+                  </div>
                 </div>
 
-                <div style={{ marginTop:10 }}>
-                  <span style={{ padding:"3px 10px", borderRadius:20, fontSize:10, fontWeight:700, background:"#ede9fe", color:"#6d28d9" }}>
-                    {f.tag}
-                  </span>
+                {/* NPS bar */}
+                <div style={{ marginBottom:14 }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", fontSize:10, color:"#9ca3af", marginBottom:4 }}>
+                    <span>NPS: {t.nps >= 50 ? "Excellent" : t.nps >= 0 ? "Good" : "Needs Work"}</span>
+                    <span>{t.nps >= 0 ? "+" : ""}{t.nps}</span>
+                  </div>
+                  <div style={{ height:6, background:"#f3f4f6", borderRadius:4, overflow:"hidden" }}>
+                    <div style={{ height:"100%", width:`${Math.min(100, Math.max(0, t.nps + 50))}%`, background:t.nps>=50?"#10b981":t.nps>=0?"#f59e0b":"#ef4444", borderRadius:4 }}/>
+                  </div>
                 </div>
 
-                <p style={{ margin:"10px 0 0", fontSize:12, color:"#4b5563", lineHeight:1.6 }}>
-                  {f.suggestion}
-                </p>
+                {/* Breakdown by course */}
+                <div style={{ fontSize:12, fontWeight:700, color:"#374151", marginBottom:8 }}>By Course</div>
+                {t.byCourse.map((bc,j)=>(
+                  <div key={j} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"6px 10px", background:"#f9fafb", borderRadius:8, marginBottom:5, border:"1px solid #f3f4f6" }}>
+                    <span style={{ fontSize:11, color:"#374151", flex:1, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{bc.course.substring(0,28)}</span>
+                    <div style={{ display:"flex", gap:4, alignItems:"center", flexShrink:0 }}>
+                      <span style={{ fontSize:11, fontWeight:700, color:"#f59e0b" }}>⭐ {bc.avg}</span>
+                      <span style={{ fontSize:10, color:"#9ca3af" }}>({bc.count})</span>
+                    </div>
+                  </div>
+                ))}
 
-                {f.status==="open" && (
-                  <div style={{ marginTop:12 }}>
-                    <button onClick={()=>resolveFeedback(f.id)} style={S.btnGreen}>✓ Mark Resolved</button>
+                {/* Anonymous note */}
+                <div style={{ marginTop:10, padding:"8px 12px", background:"#ede9fe", borderRadius:8, fontSize:11, color:"#6d28d9", border:"1px solid #c4b5fd" }}>
+                  🔒 Anonymous reviews included in stats — visible to admin only
+                </div>
+
+                {/* Share positive reviews */}
+                {t.positives.length > 0 && (
+                  <div style={{ marginTop:10 }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:"#374151", marginBottom:6 }}>🌟 Positive Reviews to Share</div>
+                    {t.positives.slice(0,2).map((p,j)=>(
+                      <div key={j} style={{ padding:"8px 10px", background:"#ecfdf5", borderRadius:8, marginBottom:6, border:"1px solid #6ee7b7" }}>
+                        <div style={{ fontSize:11, color:"#065f46", fontStyle:"italic", marginBottom:4 }}>"{p.suggestion.substring(0,70)}..."</div>
+                        <button onClick={()=>setShareModal(p)} style={{ ...S.btnGreen, fontSize:10, padding:"3px 10px" }}>
+                          🌟 Share as Motivation
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
             ))}
           </div>
-        </SectionCard>
+        </div>
+      )}
 
+      {/* ══ TAB: IMPROVEMENT SUGGESTIONS (A14.3) ══ */}
+      {activeTab === "suggestions" && (
         <div>
-          <SectionCard title="🏆 Trainer Ratings">
-            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-              {trainerStats.map((t,i)=>(
-                <div key={i} style={{ background:"#f9fafb", border:"1px solid #f3f4f6", borderRadius:10, padding:"12px 14px" }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
-                    <span style={{ fontSize:12, fontWeight:700, color:"#1c1917" }}>{t.trainer}</span>
-                    <span style={{ fontSize:12, fontWeight:800, color:"#f59e0b" }}>⭐ {t.avg}</span>
+          {/* Tag filter */}
+          <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
+            <button onClick={()=>setTagFilter("all")}
+              style={{ padding:"7px 14px", borderRadius:8, border:`1.5px solid ${tagFilter==="all"?"#f59e0b":"#e5e7eb"}`, background:tagFilter==="all"?"#fef3c7":"white", color:tagFilter==="all"?"#92400e":"#6b7280", fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
+              All Tags
+            </button>
+            {TAGS.map(tag=>(
+              <button key={tag} onClick={()=>setTagFilter(tag)}
+                style={{ padding:"7px 14px", borderRadius:8, border:`1.5px solid ${tagFilter===tag?TAG_COLOR[tag]?.color||"#f59e0b":"#e5e7eb"}`, background:tagFilter===tag?TAG_COLOR[tag]?.bg||"#fef3c7":"white", color:tagFilter===tag?TAG_COLOR[tag]?.color||"#92400e":"#6b7280", fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
+                {tag}
+              </button>
+            ))}
+          </div>
+
+          {/* Priority Matrix */}
+          <SectionCard title="🎯 Priority Matrix — Frequency vs Impact">
+            <div style={{ fontSize:12, color:"#6b7280", marginBottom:14 }}>
+              Bubble size = number of suggestions · Position = frequency (x) vs impact (y)
+            </div>
+            <div style={{ position:"relative", height:220, background:"#f9fafb", borderRadius:12, border:"1px solid #f3f4f6", overflow:"hidden" }}>
+              {/* Quadrant labels */}
+              <div style={{ position:"absolute", top:8,  left:8,  fontSize:10, color:"#d1d5db", fontWeight:700 }}>HIGH IMPACT · LOW FREQUENCY</div>
+              <div style={{ position:"absolute", top:8,  right:8, fontSize:10, color:"#d1d5db", fontWeight:700 }}>HIGH IMPACT · HIGH FREQUENCY</div>
+              <div style={{ position:"absolute", bottom:8, left:8,  fontSize:10, color:"#d1d5db", fontWeight:700 }}>LOW IMPACT · LOW FREQUENCY</div>
+              <div style={{ position:"absolute", bottom:8, right:8, fontSize:10, color:"#d1d5db", fontWeight:700 }}>LOW IMPACT · HIGH FREQUENCY</div>
+              {/* Center lines */}
+              <div style={{ position:"absolute", top:"50%", left:0, right:0, height:1, background:"#e5e7eb" }}/>
+              <div style={{ position:"absolute", left:"50%", top:0, bottom:0, width:1, background:"#e5e7eb" }}/>
+              {/* Bubbles */}
+              {tagStats.map((ts,i)=>{
+                const maxFreq = Math.max(...tagStats.map(x=>x.freq));
+                const x = maxFreq > 0 ? (ts.freq / maxFreq) * 75 + 5 : 5;
+                const y = 85 - ((ts.impact / 100) * 75);
+                const size = 24 + (ts.freq / maxFreq) * 32;
+                return (
+                  <div key={i} style={{ position:"absolute", left:`${x}%`, top:`${y}%`, transform:"translate(-50%,-50%)", width:size, height:size, borderRadius:"50%", background:TAG_COLOR[ts.tag]?.bg||"#fef3c7", border:`2px solid ${TAG_COLOR[ts.tag]?.color||"#f59e0b"}`, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", zIndex:2 }}
+                    title={`${ts.tag}: ${ts.freq} suggestions`}>
+                    <span style={{ fontSize:9, fontWeight:800, color:TAG_COLOR[ts.tag]?.color||"#92400e", textAlign:"center", lineHeight:1.2 }}>{ts.freq}</span>
                   </div>
-                  <div style={{ fontSize:11, color:"#9ca3af" }}>{t.count} review(s)</div>
+                );
+              })}
+            </div>
+            {/* Legend */}
+            <div style={{ display:"flex", gap:12, marginTop:12, flexWrap:"wrap" }}>
+              {tagStats.map((ts,i)=>(
+                <div key={i} style={{ display:"flex", alignItems:"center", gap:6 }}>
+                  <div style={{ width:12, height:12, borderRadius:"50%", background:TAG_COLOR[ts.tag]?.bg, border:`1.5px solid ${TAG_COLOR[ts.tag]?.color}` }}/>
+                  <span style={{ fontSize:11, color:"#6b7280" }}>{ts.tag} ({ts.freq})</span>
                 </div>
               ))}
             </div>
           </SectionCard>
 
-          <SectionCard title="💡 Improvement Suggestions">
-            <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
-              {topTags.map(([tag, count], i)=>(
-                <span
-                  key={i}
-                  style={{
-                    padding:"6px 12px",
-                    borderRadius:20,
-                    background:"#fef3c7",
-                    color:"#92400e",
-                    border:"1px solid #fbbf24",
-                    fontSize:11,
-                    fontWeight:700
-                  }}
-                >
-                  {tag} ({count})
-                </span>
-              ))}
+          {/* Tag breakdown cards */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:14, marginBottom:20 }}>
+            {tagStats.filter(ts=>tagFilter==="all"||ts.tag===tagFilter).map((ts,i)=>(
+              <div key={i} style={{ background:"white", borderRadius:14, padding:"16px", border:`1px solid ${TAG_COLOR[ts.tag]?.color||"#e5e7eb"}30`, boxShadow:"0 1px 4px rgba(0,0,0,0.04)" }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+                  <span style={{ padding:"4px 12px", borderRadius:20, fontSize:12, fontWeight:700, background:TAG_COLOR[ts.tag]?.bg||"#f3f4f6", color:TAG_COLOR[ts.tag]?.color||"#6b7280" }}>{ts.tag}</span>
+                  <div style={{ textAlign:"right" }}>
+                    <div style={{ fontSize:20, fontWeight:900, color:TAG_COLOR[ts.tag]?.color||"#6b7280" }}>{ts.freq}</div>
+                    <div style={{ fontSize:10, color:"#9ca3af" }}>suggestions</div>
+                  </div>
+                </div>
+                <div style={{ display:"flex", gap:12, marginBottom:12, fontSize:12 }}>
+                  <div style={{ background:"#f9fafb", borderRadius:8, padding:"6px 10px", flex:1, textAlign:"center" }}>
+                    <div style={{ fontWeight:700, color:"#1c1917" }}>{ts.impact}%</div>
+                    <div style={{ fontSize:10, color:"#9ca3af" }}>Impact Score</div>
+                  </div>
+                  <div style={{ background:"#f9fafb", borderRadius:8, padding:"6px 10px", flex:1, textAlign:"center" }}>
+                    <div style={{ fontWeight:700, color:"#1c1917" }}>{ts.items.filter(x=>x.status==="pending").length}</div>
+                    <div style={{ fontSize:10, color:"#9ca3af" }}>Pending</div>
+                  </div>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                  {ts.items.slice(0,3).map((item,j)=>(
+                    <div key={j} style={{ fontSize:11, color:"#6b7280", padding:"6px 8px", background:"#f9fafb", borderRadius:6, lineHeight:1.4 }}>
+                      "{item.suggestion.substring(0,65)}..."
+                    </div>
+                  ))}
+                </div>
+                {/* Export to backlog */}
+                <button onClick={()=>setToast({ msg:`${ts.tag} suggestions exported to backlog!`, type:"success" })}
+                  style={{ ...S.exportBtn, width:"100%", marginTop:10, fontSize:11 }}>
+                  📋 Export to Backlog
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Jira integration note */}
+          <div style={{ background:"#f0f9ff", border:"1px solid #bae6fd", borderRadius:12, padding:"14px 18px", display:"flex", alignItems:"center", gap:12 }}>
+            <span style={{ fontSize:22 }}>🔗</span>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:"#0369a1" }}>Jira / Product Backlog Integration</div>
+              <div style={{ fontSize:12, color:"#6b7280", marginTop:2 }}>Connect your Jira workspace to automatically push tagged suggestions as tickets.</div>
             </div>
-          </SectionCard>
+            <button onClick={()=>setToast({ msg:"Jira integration coming soon!", type:"success" })} style={S.primaryBtn}>
+              Connect Jira →
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
-};
+}
 
 
 
