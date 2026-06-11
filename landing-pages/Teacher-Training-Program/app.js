@@ -258,7 +258,127 @@ const EXTRA_RESOURCES = [
   { title: "Activity Booklet", link: "https://drive.google.com/drive/folders/1YQcZ0odEUnQn9iphRRMss_cjHEJkgqOW?usp=drive_link", icon: "fa-cut", desc: "Hands-on printable activity booklets for classroom use." },
   { title: "Kids Worksheet", link: "https://drive.google.com/drive/folders/13Z6xay62qXBFgJpDUgxDiMVNRAMp11ke?usp=drive_link", icon: "fa-pencil-alt", desc: "Age-appropriate worksheets for preschool children." },
   { title: "Parents Capacity Building", link: "https://drive.google.com/file/d/1C6Kh7dB5_OfdDA0DPx3GydCPZXb-SSm6/view?usp=drive_link", icon: "fa-users", desc: "Materials for parent workshops and family engagement." },
-  { title: "Nursery Booklets", link: "https://drive.google.com/drive/folders/1MHnIiGab301a02uh-kUnx7wdmtG6he7K?usp=drive_link", icon: "fa-child", desc: "Nursery-level learning booklets for young learners." }
+  { title: "Nursery Booklets", link: "https://drive.google.com/drive/folders/1MHnIiGab301a02uh-kUnx7wdmtG6he7K?usp=drive_link", icon: "fa-child", desc: "Nursery-level learning booklets for young learners." },
+  { title: "Station Worksheets", link: "https://www.facebook.com/share/r/1CuE3GA3yX/", icon: "fa-clipboard-list", desc: "In-class and take-home worksheets for each learning station. One per station per week." },
+  { title: "20 Habits Before Age 2", link: "https://drive.google.com/YOUR_PDF_LINK_HERE", icon: "fa-baby", desc: "Marathi/English parent guide based on CDC & WHO 24-month milestones. Use at PTMs and parent meetings." }
+];
+
+/* Station Activity Bank — FB links from Sachin Sir */
+const STATION_ACTIVITIES = [
+  {
+    title: "Art Station",
+    icon: "fa-palette",
+    color: "#FFF0F3",
+    iconColor: "#E11D48",
+    links: [
+      { label: "Art Station Example 1", url: "https://www.facebook.com/share/r/1No37r1ZjS/" },
+      { label: "Art Station Setup", url: "https://www.facebook.com/share/r/1KRc6PB9UJ/" },
+      { label: "Art Corner Video", url: "https://www.facebook.com/share/v/14cn5V7E7SK/" },
+      { label: "Art Corner Ref", url: "https://www.facebook.com/share/r/1CqTfkLair/" },
+      { label: "Fine Motor Skills", url: "https://www.facebook.com/share/r/1GQggwcBh7/" }
+    ]
+  },
+  {
+    title: "Sports Station",
+    icon: "fa-futbol",
+    color: "#ECFDF5",
+    iconColor: "#059669",
+    links: [
+      { label: "Sports Station Fun", url: "https://www.facebook.com/share/r/1BLQAEWY6x/" },
+      { label: "Sports Activity Ref", url: "https://www.facebook.com/share/r/1BVAb8KSfY/" },
+      { label: "Sports is Fun", url: "https://www.facebook.com/share/r/1Cbi9sCHPP/" },
+      { label: "Sports Station 2", url: "https://www.facebook.com/share/r/18d9vu84s3/" },
+      { label: "Gross Motor Dev.", url: "https://www.facebook.com/share/r/1HQTXmp3VP/" }
+    ]
+  },
+  {
+    title: "Music Station",
+    icon: "fa-music",
+    color: "#FFF8E0",
+    iconColor: "#D97706",
+    links: [
+      { label: "Bits and Rhythm", url: "https://www.facebook.com/share/r/17VM1LdcM5/" },
+      { label: "Introducing Beats", url: "https://www.facebook.com/share/r/17ZUaLpryv/" },
+      { label: "Different Instruments", url: "https://www.facebook.com/share/r/1H2TqJKoGB/" },
+      { label: "Music Activity Ref", url: "https://www.facebook.com/share/r/1DVoEgsoVG/" }
+    ]
+  },
+  {
+    title: "Performing Arts Station",
+    icon: "fa-theater-masks",
+    color: "#EFF6FF",
+    iconColor: "#2563EB",
+    links: [
+      { label: "Performing Arts Ref", url: "https://www.facebook.com/share/r/1BD8TxCjgq/" },
+      { label: "Dance for Toddlers", url: "https://www.facebook.com/share/r/18rXQiiAWR/" },
+      { label: "Dance and Fun (Video)", url: "https://www.facebook.com/share/v/1L4ARYZtCx/" },
+      { label: "Dance Activities", url: "https://www.facebook.com/share/r/1C8vKSsamC/" },
+      { label: "Introduce Dance 1", url: "https://www.facebook.com/share/r/19TmDB4SMb/" },
+      { label: "Introduce Dance 2", url: "https://www.facebook.com/share/r/1CrVvFzQah/" },
+      { label: "Introduce Dance 3", url: "https://www.facebook.com/share/r/1J7XNmB5x6/" },
+      { label: "Dance Video", url: "https://www.facebook.com/share/v/1BC7BYijoe/" }
+    ]
+  },
+  {
+    title: "Logic & Numeracy Station",
+    icon: "fa-calculator",
+    color: "#FFF4EC",
+    iconColor: "#F56A00",
+    links: [
+      { label: "Grouping & Colour ID", url: "https://www.facebook.com/share/r/1EKazFUv1H/" },
+      { label: "Numeracy Activity", url: "https://www.facebook.com/share/r/1GCeTc84R9/" },
+      { label: "Collaborative Work", url: "https://www.facebook.com/share/r/1CcDavg92o/" }
+    ]
+  },
+  {
+    title: "Nature Station",
+    icon: "fa-leaf",
+    color: "#ECFDF5",
+    iconColor: "#059669",
+    links: [
+      { label: "Nature Walk", url: "https://www.facebook.com/share/r/1BiQaj9mjJ/" },
+      { label: "TLM Preparation", url: "https://www.facebook.com/share/r/18jmS1SSsh/" },
+      { label: "Engaging with Nature 1", url: "https://www.facebook.com/share/r/1CjcBgztCy/" },
+      { label: "Engaging with Nature 2", url: "https://www.facebook.com/share/r/1RJGSTJWGS/" },
+      { label: "TLM Ideas", url: "https://www.facebook.com/share/r/1BELuJh8xN/" }
+    ]
+  },
+  {
+    title: "Literacy Station",
+    icon: "fa-book-open",
+    color: "#EFF6FF",
+    iconColor: "#2563EB",
+    links: [
+      { label: "Reading Time Setup", url: "https://www.facebook.com/share/r/1DrffZRLop/" },
+      { label: "Rhymes Ref", url: "https://www.facebook.com/share/r/1LFdJAbfhG/" },
+      { label: "Innovative Rhymes", url: "https://www.facebook.com/share/r/18kHh2xCtk/" },
+      { label: "No Means No (Safety)", url: "https://www.facebook.com/share/r/18YbrGRYzc/" }
+    ]
+  },
+  {
+    title: "Innovative Classroom",
+    icon: "fa-lightbulb",
+    color: "#FFF8E0",
+    iconColor: "#D97706",
+    links: [
+      { label: "Innovative Classroom", url: "https://www.facebook.com/share/r/1DDpGRYdhB/" },
+      { label: "Innovative Attendance", url: "https://www.facebook.com/share/r/1Bdo9yfLb9/" },
+      { label: "Station Starter Ideas", url: "https://www.facebook.com/share/r/18btsS6fHb/" },
+      { label: "Exciting Classroom 1", url: "https://www.facebook.com/share/r/1MK87MCahC/" },
+      { label: "Exciting Classroom 2", url: "https://www.facebook.com/share/r/1DjZHAMXgS/" },
+      { label: "Activity Categories", url: "https://www.facebook.com/share/r/1GUArkj1Sr/" }
+    ]
+  },
+  {
+    title: "Food & Nutrition",
+    icon: "fa-apple-alt",
+    color: "#ECFDF5",
+    iconColor: "#059669",
+    links: [
+      { label: "Food & Nutrition Ref", url: "https://www.facebook.com/share/r/1JGj4nhQU9/" },
+      { label: "Breakfast Time", url: "https://www.facebook.com/share/r/1RQMoPCTWq/" }
+    ]
+  }
 ];
 
 const COURSES_DATA = [
@@ -842,8 +962,31 @@ function renderResources() {
       <h4>${r.title}</h4>
       <p>${r.desc}</p>
       <a href="${r.link}" target="_blank" rel="noopener noreferrer">
-        Open Folder <i class="fas fa-external-link-alt"></i>
+        Open <i class="fas fa-external-link-alt"></i>
       </a>
+    </div>
+  `).join('');
+
+  /* Station Activity Bank */
+  const stationWrap = document.getElementById('station-activity-bank');
+  if (!stationWrap) return;
+  stationWrap.innerHTML = STATION_ACTIVITIES.map(s => `
+    <div class="card station-card fade-in">
+      <div class="station-card-header">
+        <div class="station-icon-wrap" style="background:${s.color};color:${s.iconColor};">
+          <i class="fas ${s.icon}"></i>
+        </div>
+        <h4>${s.title}</h4>
+      </div>
+      <div class="station-links">
+        ${s.links.map(l => `
+          <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="station-link">
+            <i class="fab fa-facebook" style="color:#1877F2;font-size:12px;"></i>
+            <span>${l.label}</span>
+            <i class="fas fa-external-link-alt" style="margin-left:auto;font-size:10px;color:var(--muted);"></i>
+          </a>
+        `).join('')}
+      </div>
     </div>
   `).join('');
 }
