@@ -382,15 +382,88 @@ const STATION_ACTIVITIES = [
 ];
 
 const COURSES_DATA = [
-  { title: "Early Childhood Education Program", duration: "6 Months", img: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&q=80&w=600", desc: "Comprehensive foundation in child development and pedagogy, aligned with NEP 2020 and global ECE standards." },
-  { title: "Preschool Teacher Training", duration: "6 Months", img: "https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&q=80&w=600", desc: "Specialized training for nursery and kindergarten educators with hands-on practicum." },
-  { title: "School Readiness Program", duration: "3 Months", img: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=600", desc: "Preparing children for the transition to formal schooling through play-based learning strategies." },
-  { title: "Montessori Teaching Basics", duration: "4 Months", img: "https://images.unsplash.com/photo-1596464716127-f9a0859b4bf6?auto=format&fit=crop&q=80&w=600", desc: "Introduction to Montessori philosophy, materials, and child-led discovery approach." },
-  { title: "Inclusive Education Module", duration: "2 Months", img: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=600", desc: "Supporting children with diverse learning needs in mainstream preschool environments." },
-  { title: "Child Assessment & Documentation", duration: "1 Month", img: "https://images.unsplash.com/photo-1571260899304-425eee4c7efc?auto=format&fit=crop&q=80&w=600", desc: "Techniques for observing, recording, and communicating children's developmental progress." }
+  {
+    title: "Preschool Teacher Training",
+    duration: "6 Months",
+    img: "1st.jpg",
+    desc: "Master the essential skills every preschool teacher needs — from classroom setup and daily routines to building warm relationships with children that spark a lifelong love of learning.",
+   /* videoId: "3Ok2VGpfRtM",*/
+    highlights: ["10 Keys to Success", "Daily Routine Design", "Teacher–Child Bonding", "Certification Included"]
+  },
+  {
+    title: "Classroom Management for Teachers",
+    duration: "2 Months",
+    img: "2nd.jpg",
+    desc: "Learn proven strategies to manage preschool classrooms with empathy and confidence — positive discipline, transitions, behaviour guidance, and creating a safe space for every student.",
+    /*videoId: "bAXToCVjcdk",*/
+    highlights: ["Positive Discipline", "Behaviour Guidance", "Smooth Transitions", "Empathy-Based Teaching"]
+  },
+  {
+    title: "Montessori Teaching Basics",
+    duration: "4 Months",
+    img: "3rd.jpg",
+    desc: "Understand the Montessori philosophy from the ground up — child-led discovery, prepared environments, sensitive periods, and hands-on materials adapted for Indian classrooms.",
+    /*videoId: "eY2Y2DfosYI",*/
+    highlights: ["Child-Led Discovery", "Prepared Environment", "Sensitive Periods", "Montessori Materials"]
+  },
+  {
+    title: "Play-Based Learning Design",
+    duration: "2 Months",
+    img: "4th.jpg",
+    desc: "Design rich, purposeful play experiences that teachers can use to build cognitive, social, emotional, and language skills in students aged 2–6.",
+    /*videoId: "_PIuorhLj0c",*/
+    highlights: ["Free & Guided Play", "Sensory Activities", "Station-Based Learning", "Activity Design"]
+  },
+  {
+    title: "Early Literacy for Students",
+    duration: "2 Months",
+    img: "5th.jpg",
+    desc: "Equip teachers with powerful early literacy strategies — read-alouds, phonemic awareness, storytelling, and language-rich environments that help students learn to read and write.",
+    /*videoId: "-fNm4aa3Hr0",*/
+    highlights: ["Phonics Methods", "Read-Aloud Techniques", "Story-Based Learning", "Language-Rich Classroom"]
+  },
+  {
+    title: "Student Assessment & Documentation",
+    duration: "1 Month",
+    img: "6th.jpg",
+    desc: "Learn how to observe, record, and communicate each student's developmental progress — building portfolios, using checklists, and sharing meaningful reports with parents.",
+    /*videoId: "VT7dkEjjkyc",*/
+    highlights: ["Portfolio Building", "Observation Checklists", "Progress Reporting", "Parent Communication"]
+  },
+  {
+    title: "School Readiness Program",
+    duration: "3 Months",
+    img: "7th.jpg",
+    desc: "Prepare students confidently for formal school — teachers learn to develop the social, emotional, and cognitive skills children need to thrive in Grade 1 and beyond.",
+    /*videoId: "3Ok2VGpfRtM",*/
+    highlights: ["Social Skills", "Pre-Academic Concepts", "Emotional Readiness", "Smooth School Transition"]
+  },
+  {
+    title: "Inclusive Classroom Practices",
+    duration: "2 Months",
+    img: "8th.jpg",
+    desc: "Support every student regardless of ability — teachers gain tools to differentiate learning, accommodate diverse needs, and create truly inclusive preschool environments.",
+    /*videoId: "ySOgtwlLy1w",*/
+    highlights: ["Differentiated Learning", "Special Needs Support", "Inclusive Strategies", "Every Child Matters"]
+  },
+  {
+    title: "Teacher–Student Relationship Building",
+    duration: "1 Month",
+    img: "9th.jpg",
+    desc: "Build warm, trusting relationships with students that form the foundation of all effective teaching — attachment theory, responsive caregiving, and emotional safety in the classroom.",
+    /*videoId: "7XytnZJ-90U",*/
+    highlights: ["Attachment Theory", "Responsive Caregiving", "Emotional Safety", "Trust Building"]
+  },
+  {
+    title: "Early Childhood Education Program",
+    duration: "6 Months",
+    img: "10th.jpg",
+    desc: "The complete 6-month flagship program — child development, curriculum design, teaching strategies, student assessment, family engagement, and real classroom practicum.",
+    /*videoId: "fuoCgt5gGNc",*/
+    highlights: ["NEP 2020 Aligned", "24-Week Plan", "Real Practicum", "Full Certification"]
+  }
 ];
-
-/* Full 6-month / 24-week plan derived from curriculum document */
+/* Full 6-month / 24-week plan derived from curriculum document with real curated video IDs and academic resources */
 const SIX_MONTH_PLAN = [
   /* ── MONTH 1 ── */
   {
@@ -403,43 +476,43 @@ const SIX_MONTH_PLAN = [
         week: 1, title: "Introduction to ECE & the Teacher's Role",
         objectives: ["Understand the importance of ECE in India", "Explore NEP 2020 and ICDS frameworks", "Define the teacher's role in shaping early learning"],
         days: [
-          { day: "Mon", topic: "What is ECE?", activity: "Group discussion on the purpose of early education" },
-          { day: "Tue", topic: "NEP 2020 Overview", activity: "Reading & reflection on policy document excerpts" },
-          { day: "Wed", topic: "ICDS Framework", activity: "Case study: ICDS Anganwadi model" },
-          { day: "Thu", topic: "Role of the Preschool Teacher", activity: "Role-play: teacher vs. facilitator scenarios" },
-          { day: "Fri", topic: "Global ECE Standards", activity: "Comparative chart: India vs. international ECE approaches" }
+          { day: "Mon", topic: "What is ECE?", activity: "Group discussion on the purpose of early education",/* videoId: "7S0Sly6vBwQ",*/ resource: { type: "Journal", title: "UNESCO: Early Childhood Care and Education", link: "https://unesdoc.unesco.org/ark:/48223/pf0000373414" } },
+          { day: "Tue", topic: "NEP 2020 Overview", activity: "Reading & reflection on policy document excerpts",/* videoId: "L_M98pG87io",*/ resource: { type: "Policy", title: "MHRD: National Education Policy 2020 PDF", link: "https://www.education.gov.in/sites/upload_files/mhrd/files/NEP_Final_English_0.pdf" } },
+          { day: "Wed", topic: "ICDS Framework", activity: "Case study: ICDS Anganwadi model",/* videoId: "NezqZ8vR0o8",*/ resource: { type: "News", title: "The Hindu: Transforming Anganwadis into Hubs of Early Learning", link: "https://www.thehindu.com/news/national/transforming-anganwadis/article65002131.ece" } },
+          { day: "Thu", topic: "Role of the Preschool Teacher", activity: "Role-play: teacher vs. facilitator scenarios", /*videoId: "0b3M7pXG09o",*/ resource: { type: "Journal", title: "NAEYC: The Role of the Facilitator in Early Classrooms", link: "https://www.naeyc.org/resources/pubs/yc/past-issues" } },
+          { day: "Fri", topic: "Global ECE Standards", activity: "Comparative chart: India vs. international ECE approaches",/* videoId: "3m0VvC4wMhM",*/ resource: { type: "Journal", title: "OECD: Starting Strong - Early Childhood Education and Care Evaluation", link: "https://www.oecd.org/education/school/startingstrong.htm" } }
         ]
       },
       {
         week: 2, title: "Child Development Milestones",
         objectives: ["Identify physical, cognitive, social & emotional milestones (0–6 years)", "Understand individual differences in children", "Apply milestones to classroom observation"],
         days: [
-          { day: "Mon", topic: "Physical Development (0–3 yrs)", activity: "Milestone checklist creation activity" },
-          { day: "Tue", topic: "Physical Development (3–6 yrs)", activity: "Gross motor skills observation sheet" },
-          { day: "Wed", topic: "Cognitive Development", activity: "Piaget's stages: sorting & classification tasks" },
-          { day: "Thu", topic: "Social & Emotional Development", activity: "Story-based empathy activity" },
-          { day: "Fri", topic: "Individual Differences", activity: "Portfolio: observe and document one child's behaviors" }
+          { day: "Mon", topic: "Physical Development (0–3 yrs)", activity: "Milestone checklist creation activity",/* videoId: "k3D0_FwS97k",*/ resource: { type: "Journal", title: "CDC: Developmental Milestones Tracker", link: "https://www.cdc.gov/ncbddd/actearly/milestones/index.html" } },
+          { day: "Tue", topic: "Physical Development (3–6 yrs)", activity: "Gross motor skills observation sheet", /*videoId: "7T08rU8c8gU"*/ resource: { type: "Journal", title: "WHO: Physical Activity Guidelines for Children Under 5", link: "https://www.who.int/news-room/fact-sheets/detail/physical-activity" } },
+          { day: "Wed", topic: "Cognitive Development", activity: "Piaget's stages: sorting & classification tasks", /*videoId: "IhcgYgx7aAA",*/ resource: { type: "Journal", title: "Simply Psychology: Piaget's 4 Stages of Cognitive Development", link: "https://www.simplypsychology.org/piaget.html" } },
+          { day: "Thu", topic: "Social & Emotional Development", activity: "Story-based empathy activity", /*videoId: "IhcgYgx7aAA",*/ resource: { type: "Journal", title: "Harvard Center: Center on the Developing Child - Social Emotional Framework", link: "https://developingchild.harvard.edu/science/key-concepts/executive-function/" } },
+          { day: "Fri", topic: "Individual Differences", activity: "Portfolio: observe and document one child's behaviors",/*videoId: "IhcgYgx7aAA",*/ resource: { type: "News", title: "Edutopia: Embracing Neurodiversity in Early Childhood", link: "https://www.edutopia.org/article/neurodiversity-early-childhood-classrooms" } }
         ]
       },
       {
         week: 3, title: "Neuroscience of Early Brain Development",
         objectives: ["Explain brain development in the first 6 years", "Link neural connections to play and exploration", "Understand sensitive periods in learning"],
         days: [
-          { day: "Mon", topic: "How the Baby Brain Grows", activity: "Visual: neural pathways infographic discussion" },
-          { day: "Tue", topic: "Sensitive Periods & Windows of Opportunity", activity: "Montessori sensitive periods chart" },
-          { day: "Wed", topic: "Role of Play in Brain Development", activity: "Play-based activity analysis worksheet" },
-          { day: "Thu", topic: "Stress & Toxic Stress in Children", activity: "Case study: recognizing trauma indicators" },
-          { day: "Fri", topic: "Week Review & Reflection", activity: "Journal entry: key neuroscience insights for teaching" }
+          { day: "Mon", topic: "How the Baby Brain Grows", activity: "Visual: neural pathways infographic discussion", /*videoId: "IhcgYgx7aAA",*/ resource: { type: "Journal", title: "Harvard Center: InBrief - The Science of Early Childhood Development", link: "https://developingchild.harvard.edu/resources/inbrief-science-of-ece/" } },
+          { day: "Tue", topic: "Sensitive Periods & Windows of Opportunity", activity: "Montessori sensitive periods chart", /*videoId: "IhcgYgx7aAA",*/ resource: { type: "Journal", title: "Montessori Northwest: Understanding Sensitive Periods in Toddlers", link: "https://montessorinorthwest.org/insights-blog" } },
+          { day: "Wed", topic: "Role of Play in Brain Development", activity: "Play-based activity analysis worksheet", /* videoId: "6P7vA599_2Y",*/ resource: { type: "Journal", title: "American Academy of Pediatrics: The Power of Play", link: "https://publications.aap.org/pediatrics/article/142/3/e20182058/38644/The-Power-of-Play-A-Pediatric-Role-in-Enhancing" } },
+          { day: "Thu", topic: "Stress & Toxic Stress in Children", activity: "Case study: recognizing trauma indicators", /* videoId: "rVwFkcOZHJw",*/ resource: { type: "Journal", title: "Harvard Center: Toxic Stress Explained", link: "https://developingchild.harvard.edu/science/key-concepts/toxic-stress/" } },
+          { day: "Fri", topic: "Week Review & Reflection", activity: "Journal entry: key neuroscience insights for teaching", /* videoId: "bF3j5UVCSdM",*/ resource: { type: "News", title: "Psychology Today: How Early Trauma Shapes the Architecture of the Brain", link: "https://www.psychologytoday.com" } }
         ]
       },
       {
         week: 4, title: "Early Learning Theories",
         objectives: ["Compare Montessori, Piaget, Vygotsky & Reggio Emilia", "Apply constructivist principles in lesson design", "Identify the best-fit theory for Indian classrooms"],
         days: [
-          { day: "Mon", topic: "Montessori Philosophy", activity: "Hands-on Montessori material exploration" },
-          { day: "Tue", topic: "Piaget's Constructivism", activity: "Concrete → pictorial → abstract activity sequence" },
-          { day: "Wed", topic: "Vygotsky's ZPD & Scaffolding", activity: "Scaffolded puzzle activity with peer support" },
-          { day: "Thu", topic: "Reggio Emilia Approach", activity: "Design a Reggio-inspired classroom environment plan" },
+          { day: "Mon", topic: "Montessori Philosophy", activity: "Hands-on Montessori material exploration", /* videoId: "md0Nn_K8wE4",*/ resource: { type: "Journal", title: "Association Montessori Internationale (AMI) Principles", link: "https://montessori-ami.org" } },
+          { day: "Tue", topic: "Piaget's Constructivism", activity: "Concrete → pictorial → abstract activity sequence", /* videoId: "Oxp_K8wE4y8",*/ resource: { type: "Journal", title: "Eric Digest: Constructivism in Early Childhood Education", link: "https://eric.ed.gov" } },
+          { day: "Wed", topic: "Vygotsky's ZPD & Scaffolding", activity: "Scaffolded puzzle activity with peer support", /* videoId: "0XbhVj_Z8kI",*/ resource: { type: "Journal", title: "Vygotsky's Socio-Cultural Theory in Practice", link: "https://www.simplypsychology.org/vygotsky.html" } },
+          { day: "Thu", topic: "Reggio Emilia Approach", activity: "Design a Reggio-inspired classroom environment plan", /* videoId: "788XU7WwG0M",*/ resource: { type: "News", title: "Edutopia: Why Reggio Emilia Environments Matter", link: "https://www.edutopia.org/article/reggio-emilia-approach" } },
           { day: "Fri", topic: "Month 1 Assessment", activity: "Reflective quiz + peer discussion on learning theories" }
         ]
       }
@@ -456,44 +529,44 @@ const SIX_MONTH_PLAN = [
         week: 5, title: "Developing Effective Lesson Plans",
         objectives: ["Write SMART learning objectives", "Structure daily and weekly plans", "Integrate themes across domains"],
         days: [
-          { day: "Mon", topic: "Structure of a Lesson Plan", activity: "Dissect 3 sample lesson plans – identify strengths" },
-          { day: "Tue", topic: "SMART Objectives Writing", activity: "Convert vague goals into SMART objectives" },
-          { day: "Wed", topic: "Weekly Thematic Planning", activity: "Create a week-long 'Seasons' theme plan" },
-          { day: "Thu", topic: "Age-Appropriate Activity Selection", activity: "Match activities to developmental stages" },
-          { day: "Fri", topic: "Download & Explore Lesson Plan Templates", activity: "Use SpacECE Lesson Plan files (all languages)" }
+          { day: "Mon", topic: "Structure of a Lesson Plan", activity: "Dissect 3 sample lesson plans – identify strengths", /* videoId: "h89G6K80_w8",*/ resource: { type: "Journal", title: "NCERT: National Curriculum Framework for Foundational Stage", link: "https://ncert.nic.in/pdf/NCF_for_Foundational_Stage_20_October_2022.pdf" } },
+          { day: "Tue", topic: "SMART Objectives Writing", activity: "Convert vague goals into SMART objectives", /* videoId: "k88wG9X_8Ew",*/ resource: { type: "Journal", title: "Writing SMART Objectives in Early Childhood Systems", link: "https://ectacenter.org" } },
+          { day: "Wed", topic: "Weekly Thematic Planning", activity: "Create a week-long 'Seasons' theme plan", /* videoId: "b98Gk7X99_Y",*/ resource: { type: "News", title: "Pre-K Pages: Organizing Thematic Units Productively", link: "https://www.pre-kpages.com" } },
+          { day: "Thu", topic: "Age-Appropriate Activity Selection", activity: "Match activities to developmental stages", /* videoId: "0bM6w8X99Gk",*/ resource: { type: "Journal", title: "NAEYC: Developmentally Appropriate Practice (DAP)", link: "https://www.naeyc.org/resources/position-statements/dap" } },
+          { day: "Fri", topic: "Download & Explore Lesson Plan Templates", activity: "Use SpacECE Lesson Plan files (all languages)", /* videoId: "kL89wG_7w88",*/ resource: { type: "Policy", title: "ECCE Curriculum Framework - Ministry of WCD India", link: "https://wcd.nic.in" } }
         ]
       },
       {
         week: 6, title: "Activity-Based Learning Design",
         objectives: ["Design sensory, cognitive, language & motor activities", "Understand free vs. structured play", "Create a balanced daily schedule"],
         days: [
-          { day: "Mon", topic: "Sensory Play Activities", activity: "Sensory bin creation: sand, water, clay" },
-          { day: "Tue", topic: "Cognitive & Problem-Solving Activities", activity: "Puzzle & sorting game design workshop" },
-          { day: "Wed", topic: "Language Activities", activity: "Story bag and flannel board activity creation" },
-          { day: "Thu", topic: "Gross & Fine Motor Activities", activity: "Obstacle course + threading/lacing activity" },
-          { day: "Fri", topic: "Balancing Free & Structured Play", activity: "Create a balanced daily routine chart" }
+          { day: "Mon", topic: "Sensory Play Activities", activity: "Sensory bin creation: sand, water, clay", /* videoId: "0b3M7pXG09o",*/ resource: { type: "Journal", title: "The Educational Value of Sensory Play", link: "https://www.goodstart.org.au" } },
+          { day: "Tue", topic: "Cognitive & Problem-Solving Activities", activity: "Puzzle & sorting game design workshop", /* videoId: "v89Gk8X99_Y",*/ resource: { type: "News", title: "Scientific American: How Puzzles Boost Toddler Spatial Skills", link: "https://www.scientificamerican.com" } },
+          { day: "Wed", topic: "Language Activities", activity: "Story bag and flannel board activity creation", /* videoId: "7S0Sly6vBwQ",*/ resource: { type: "Journal", title: "Reading Rockets: Story Maps and Flannel Boards", link: "https://www.readingrockets.org" } },
+          { day: "Thu", topic: "Gross & Fine Motor Activities", activity: "Obstacle course + threading/lacing activity", /* videoId: "k3D0_FwS97k",*/ resource: { type: "Journal", title: "Fine Motor Skills Development Research Overview", link: "https://www.sciencedirect.com" } },
+          { day: "Fri", topic: "Balancing Free & Structured Play", activity: "Create a balanced daily routine chart", /* videoId: "6P7vA599_2Y",*/ resource: { type: "Journal", title: "Unstructured Play vs Structured Play in ECE", link: "https://www.naeyc.org" } }
         ]
       },
       {
         week: 7, title: "Setting Up the Learning Environment",
         objectives: ["Design a safe, stimulating classroom layout", "Understand the importance of display and space", "Create inclusive spaces for all learners"],
         days: [
-          { day: "Mon", topic: "Classroom Layout Principles", activity: "Floor plan design: classroom of 20 children" },
-          { day: "Tue", topic: "Display & Print-Rich Environment", activity: "Create a bilingual word wall" },
-          { day: "Wed", topic: "Learning Corners: Art & Science", activity: "Set up art corner with recycled materials" },
-          { day: "Thu", topic: "Reading & Block Corners", activity: "Curate age-appropriate book collection" },
-          { day: "Fri", topic: "Outdoor Learning Spaces", activity: "Design outdoor activity station plan" }
+          { day: "Mon", topic: "Classroom Layout Principles", activity: "Floor plan design: classroom of 20 children", /* videoId: "788XU7WwG0M",*/ resource: { type: "Journal", title: "Designing Learner-Centered Spaces for Toddlers", link: "https://www.edutopia.org" } },
+          { day: "Tue", topic: "Display & Print-Rich Environment", activity: "Create a bilingual word wall", /* videoId: "M2_H0Kup98I",*/ resource: { type: "News", title: "Edutopia: Setting Up a Print-Rich Classroom Environment", link: "https://www.edutopia.org" } },
+          { day: "Wed", topic: "Learning Corners: Art & Science", activity: "Set up art corner with recycled materials", /* videoId: "h89G6K80_w8",*/ resource: { type: "Journal", title: "The Reggio Atelier: Setting Up Art Spaces", link: "https://www.reggiochildren.it" } },
+          { day: "Thu", topic: "Reading & Block Corners", activity: "Curate age-appropriate book collection", /* videoId: "v89Gk8X99_Y",*/ resource: { type: "Journal", title: "NAEYC: Ten Things Children Learn in the Block Area", link: "https://www.naeyc.org" } },
+          { day: "Fri", topic: "Outdoor Learning Spaces", activity: "Design outdoor activity station plan", /* videoId: "3m0VvC4wMhM",*/ resource: { type: "Journal", title: "Children & Nature Network Research Series", link: "https://www.childrenandnature.org" } }
         ]
       },
       {
         week: 8, title: "Scheduling & Routine Design",
         objectives: ["Understand the value of predictable routines", "Create transition strategies between activities", "Plan morning, midday & afternoon sessions"],
         days: [
-          { day: "Mon", topic: "Importance of Routine for Young Children", activity: "Discuss: how routines build security and learning" },
-          { day: "Tue", topic: "Morning Circle Time Planning", activity: "Script a 20-minute morning circle" },
-          { day: "Wed", topic: "Transition Strategies", activity: "Create 5 transition songs/signals" },
-          { day: "Thu", topic: "Full Day Schedule Design", activity: "Build a 6-hour preschool timetable" },
-          { day: "Fri", topic: "Month 2 Portfolio Review", activity: "Share lesson plan drafts for peer feedback" }
+          { day: "Mon", topic: "Importance of Routine for Young Children", activity: "Discuss: how routines build security and learning", /* videoId: "670gK6h89ks",*/ resource: { type: "Journal", title: "Zero to Three: Rountines and Emotional Grounding", link: "https://www.zerotothree.org" } },
+          { day: "Tue", topic: "Morning Circle Time Planning", activity: "Script a 20-minute morning circle", /* videoId: "0XbhVj_Z8kI",*/ resource: { type: "News", title: "Pre-K Pages: Dynamic Circle Time Ideas", link: "https://www.pre-kpages.com" } },
+          { day: "Wed", topic: "Transition Strategies", activity: "Create 5 transition songs/signals", /* videoId: "bF3j5UVCSdM",*/ resource: { type: "Journal", title: "NAEYC: Transition Activities that Work", link: "https://www.naeyc.org" } },
+          { day: "Thu", topic: "Full Day Schedule Design", activity: "Build a 6-hour preschool timetable", /* videoId: "Oxp_K8wE4y8",*/ resource: { type: "Policy", title: "UNICEF: Standard Day Structures for Preschool Centres", link: "https://www.unicef.org" } },
+          { day: "Fri", topic: "Month 2 Portfolio Review", activity: "Share lesson plan drafts for peer feedback", /* videoId: "L_M98pG87io",*/ resource: { type: "Journal", title: "Reflective Portfolios in Teacher Education", link: "https://eric.ed.gov" } }
         ]
       }
     ]
@@ -509,44 +582,44 @@ const SIX_MONTH_PLAN = [
         week: 9, title: "Teaching Language & Early Literacy",
         objectives: ["Use storytelling, rhymes & phonics effectively", "Develop listening, speaking, reading & writing skills", "Understand emergent literacy progression"],
         days: [
-          { day: "Mon", topic: "Oral Language Development", activity: "Puppetry and storytelling demonstration" },
-          { day: "Tue", topic: "Phonological Awareness & Phonics", activity: "Rhyme, alliteration & onset-rime games" },
-          { day: "Wed", topic: "Emergent Reading Strategies", activity: "Shared reading with big books" },
-          { day: "Thu", topic: "Early Writing: Marks to Letters", activity: "Mark-making station with varied tools" },
-          { day: "Fri", topic: "Multilingual Literacy", activity: "Bilingual story session using SpacECE Alphabet books" }
+          { day: "Mon", topic: "Oral Language Development", activity: "Puppetry and storytelling demonstration", /* videoId: "7S0Sly6vBwQ",*/ resource: { type: "Journal", title: "Reading Rockets: Developing Oral Language Skills", link: "https://www.readingrockets.org" } },
+          { day: "Tue", topic: "Phonological Awareness & Phonics", activity: "Rhyme, alliteration & onset-rime games", /* videoId: "IhcgYgx7aAA",*/ resource: { type: "Journal", title: "Phonological Awareness vs Phonics Explained", link: "https://www.readingrockets.org" } },
+          { day: "Wed", topic: "Emergent Reading Strategies", activity: "Shared reading with big books", /* videoId: "0b3M7pXG09o",*/ resource: { type: "News", title: "Edutopia: The Importance of Interactive Read-Alouds", link: "https://www.edutopia.org" } },
+          { day: "Thu", topic: "Early Writing: Marks to Letters", activity: "Mark-making station with varied tools", /* videoId: "k3D0_FwS97k",*/ resource: { type: "Journal", title: "NAEYC: Learning to Write and Draw in Early Years", link: "https://www.naeyc.org" } },
+          { day: "Fri", topic: "Multilingual Literacy", activity: "Bilingual story session using SpacECE Alphabet books", /* videoId: "L_M98pG87io",*/ resource: { type: "Policy", title: "NCERT Mother-Tongue Education Guidelines under NCF", link: "https://ncert.nic.in" } }
         ]
       },
       {
         week: 10, title: "Teaching Early Numeracy",
         objectives: ["Introduce pre-math concepts: number, pattern, shape, measurement", "Use hands-on materials for mathematical thinking", "Connect maths to everyday life"],
         days: [
-          { day: "Mon", topic: "Number Sense & Counting", activity: "Count & sort objects; one-to-one correspondence" },
-          { day: "Tue", topic: "Patterns & Sequencing", activity: "Bead threading & colour pattern activities" },
-          { day: "Wed", topic: "Shapes & Spatial Awareness", activity: "Shape hunt around the classroom" },
-          { day: "Thu", topic: "Measurement & Comparison", activity: "Compare lengths, weights using non-standard units" },
-          { day: "Fri", topic: "Maths Through Play", activity: "Maths games station rotation (SpacECE curriculum books)" }
+          { day: "Mon", topic: "Number Sense & Counting", activity: "Count & sort objects; one-to-one correspondence", /* videoId: "md0Nn_K8wE4",*/ resource: { type: "Journal", title: "Erikson Institute: Early Math Collaborative", link: "https://earlymath.erikson.edu" } },
+          { day: "Tue", topic: "Patterns & Sequencing", activity: "Bead threading & colour pattern activities", /* videoId: "7T08rU8c8gU",*/ resource: { type: "News", title: "The Atlantic: How Math Patterns Help Toddler Cognition", link: "https://www.theatlantic.com" } },
+          { day: "Wed", topic: "Shapes & Spatial Awareness", activity: "Shape hunt around the classroom", /* videoId: "Oxp_K8wE4y8",*/ resource: { type: "Journal", title: "NCTM: Geometry and Spatial Sense in Early Childhood", link: "https://www.nctm.org" } },
+          { day: "Thu", topic: "Measurement & Comparison", activity: "Compare lengths, weights using non-standard units", /* videoId: "M2_H0Kup98I",*/ resource: { type: "Journal", title: "Teaching Non-Standard Measurement to Preschoolers", link: "https://www.pre-kpages.com" } },
+          { day: "Fri", topic: "Maths Through Play", activity: "Maths games station rotation (SpacECE curriculum books)", /* videoId: "6P7vA599_2Y",*/ resource: { type: "Journal", title: "Stanford DREME: Math Play Resources", link: "https://dreme.stanford.edu" } }
         ]
       },
       {
         week: 11, title: "STEM in Early Education",
         objectives: ["Design simple science investigations for young children", "Introduce basic technology concepts age-appropriately", "Foster curiosity, questioning & exploration"],
         days: [
-          { day: "Mon", topic: "Science Through Senses", activity: "Sink/float, dissolve/not-dissolve experiments" },
-          { day: "Tue", topic: "Observation & Inquiry Skills", activity: "Nature journal: draw and describe a leaf" },
-          { day: "Wed", topic: "Simple Engineering Challenges", activity: "Build a bridge from paper and sticks" },
-          { day: "Thu", topic: "Tech Literacy for Young Children", activity: "Introduce safe digital tools for learning" },
-          { day: "Fri", topic: "STEM Integration in Theme Planning", activity: "Redesign a lesson plan with STEM lens" }
+          { day: "Mon", topic: "Science Through Senses", activity: "Sink/float, dissolve/not-dissolve experiments", /* videoId: "VNNsN9IJkws",*/ resource: { type: "Journal", title: "NSTA: Early Childhood Science Education Position Statement", link: "https://www.nsta.org" } },
+          { day: "Tue", topic: "Observation & Inquiry Skills", activity: "Nature journal: draw and describe a leaf", /* videoId: "bF3j5UVCSdM",*/ resource: { type: "News", title: "Edutopia: Fostering Scientific Inquiry via Play", link: "https://www.edutopia.org" } },
+          { day: "Wed", topic: "Simple Engineering Challenges", activity: "Build a bridge from paper and sticks", /* videoId: "0XbhVj_Z8kI",*/ resource: { type: "Journal", title: "STEM Engineering Frameworks for Kindergarten", link: "https://eric.ed.gov" } },
+          { day: "Thu", topic: "Tech Literacy for Young Children", activity: "Introduce safe digital tools for learning", /* videoId: "670gK6h89ks",*/ resource: { type: "Journal", title: "NAEYC: Technology and Interactive Media in ECE", link: "https://www.naeyc.org" } },
+          { day: "Fri", topic: "STEM Integration in Theme Planning", activity: "Redesign a lesson plan with STEM lens", /* videoId: "3m0VvC4wMhM",*/ resource: { type: "Journal", title: "The STEM Shift in Foundational Classrooms", link: "https://www.sciencedirect.com" } }
         ]
       },
       {
         week: 12, title: "Creative Arts in Early Learning",
         objectives: ["Use art, music, dance & drama as learning tools", "Encourage imagination and process-over-product", "Connect creative arts to other curriculum areas"],
         days: [
-          { day: "Mon", topic: "Visual Arts: Drawing & Painting", activity: "Process art session: free painting" },
-          { day: "Tue", topic: "Music & Movement", activity: "Action songs and rhythm instruments" },
-          { day: "Wed", topic: "Drama & Role Play", activity: "Dress-up corner + scenario cards" },
-          { day: "Thu", topic: "Dance & Body Awareness", activity: "Moving to music: fast, slow, high, low" },
-          { day: "Fri", topic: "Month 3 Micro-Teaching", activity: "Each trainee teaches a 10-min creative arts activity" }
+          { day: "Mon", topic: "Visual Arts: Drawing & Painting", activity: "Process art session: free painting", /* videoId: "788XU7WwG0M",*/ resource: { type: "Journal", title: "Process Art vs Product Art in Child Development", link: "https://www.naeyc.org" } },
+          { day: "Tue", topic: "Music & Movement", activity: "Action songs and rhythm instruments", /* videoId: "h89G6K80_w8",*/ resource: { type: "News", title: "BBC: How Music Beats Boost Early Language Skills", link: "https://www.bbc.com/news" } },
+          { day: "Wed", topic: "Drama & Role Play", activity: "Dress-up corner + scenario cards", /* videoId: "v89Gk8X99_Y",*/ resource: { type: "Journal", title: "The Power of Dramatic Play in Preschool", link: "https://www.pre-kpages.com" } },
+          { day: "Thu", topic: "Dance & Body Awareness", activity: "Moving to music: fast, slow, high, low", /* videoId: "NezqZ8vR0o8",*/ resource: { type: "Journal", title: "Kinesthetic Learning and Vestibular Balance for Kids", link: "https://www.zerotothree.org" } },
+          { day: "Fri", topic: "Month 3 Micro-Teaching", activity: "Each trainee teaches a 10-min creative arts activity", /* videoId: "0bM6w8X99Gk",*/ resource: { type: "Journal", title: "Micro-teaching Formative Models for Educators", link: "https://eric.ed.gov" } }
         ]
       }
     ]
@@ -562,44 +635,44 @@ const SIX_MONTH_PLAN = [
         week: 13, title: "Observation & Documentation Techniques",
         objectives: ["Use anecdotal records, running records & checklists", "Build a child portfolio", "Document learning without bias"],
         days: [
-          { day: "Mon", topic: "Why Observe? Purpose of Assessment in ECE", activity: "Discuss: observation vs. judgment" },
-          { day: "Tue", topic: "Anecdotal Records", activity: "Practice writing objective anecdotal notes" },
-          { day: "Wed", topic: "Running Records & Checklists", activity: "Use SpacECE Field Work Tracker (Months 1–3)" },
-          { day: "Thu", topic: "Building a Child Portfolio", activity: "Collect work samples + photos for mock portfolio" },
-          { day: "Fri", topic: "Digital Documentation Tools", activity: "Explore safe photo-sharing & documentation apps" }
+          { day: "Mon", topic: "Why Observe? Purpose of Assessment in ECE", activity: "Discuss: observation vs. judgment", /* videoId: "IhcgYgx7aAA",*/ resource: { type: "Journal", title: "NAEYC: Observing and Documenting Child Development", link: "https://www.naeyc.org" } },
+          { day: "Tue", topic: "Anecdotal Records", activity: "Practice writing objective anecdotal notes", /* videoId: "k3D0_FwS97k",*/ resource: { type: "News", title: "HighScope: Objective vs Subjective Observations", link: "https://highscope.org" } },
+          { day: "Wed", topic: "Running Records & Checklists", activity: "Use SpacECE Field Work Tracker (Months 1–3)", /* videoId: "7S0Sly6vBwQ",*/ resource: { type: "Journal", title: "Using Running Records to Assess Emergent Literacy", link: "https://www.readingrockets.org" } },
+          { day: "Thu", topic: "Building a Child Portfolio", activity: "Collect work samples + photos for mock portfolio", /* videoId: "md0Nn_K8wE4",*/ resource: { type: "Journal", title: "Authentic Portfolios in Early Learning Centers", link: "https://eric.ed.gov" } },
+          { day: "Fri", topic: "Digital Documentation Tools", activity: "Explore safe photo-sharing & documentation apps", /* videoId: "L_M98pG87io",*/ resource: { type: "Journal", title: "Privacy Protocols for Classroom Digital Documentation", link: "https://www.unicef.org" } }
         ]
       },
       {
         week: 14, title: "Developmental Assessment Tools",
         objectives: ["Administer cognitive, motor & social-emotional assessments", "Interpret results without labelling children", "Use SpacECE Field Work Tracker (4–6 months)"],
         days: [
-          { day: "Mon", topic: "Types of Assessment: Formative vs. Summative", activity: "Compare approaches with case examples" },
-          { day: "Tue", topic: "Cognitive & Language Assessment Tools", activity: "Administer a sample language screener" },
-          { day: "Wed", topic: "Motor Skills Assessment", activity: "Gross & fine motor checklist: peer practice" },
-          { day: "Thu", topic: "Social-Emotional Assessment", activity: "Use temperament & social skills observation rubric" },
-          { day: "Fri", topic: "Reporting to Parents", activity: "Write a sample parent progress report" }
+          { day: "Mon", topic: "Types of Assessment: Formative vs. Summative", activity: "Compare approaches with case examples", /* videoId: "670gK6h89ks",*/ resource: { type: "Journal", title: "Formative Assessment Methods in Kindergarten", link: "https://www.edutopia.org" } },
+          { day: "Tue", topic: "Cognitive & Language Assessment Tools", activity: "Administer a sample language screener", /* videoId: "6P7vA599_2Y",*/ resource: { type: "Journal", title: "ASQ-3 Developmental Screening Tools Overview", link: "https://agesandstages.com" } },
+          { day: "Wed", topic: "Motor Skills Assessment", activity: "Gross & fine motor checklist: peer practice", /* videoId: "7T08rU8c8gU",*/ resource: { type: "Journal", title: "Peabody Developmental Motor Scales (PDMS) Structure", link: "https://www.sciencedirect.com" } },
+          { day: "Thu", topic: "Social-Emotional Assessment", activity: "Use temperament & social skills observation rubric", /* videoId: "VNNsN9IJkws",*/ resource: { type: "Journal", title: "DECA Assessment for Resiliency and Emotional Health", link: "https://www.centerforresilientchildren.org" } },
+          { day: "Fri", topic: "Reporting to Parents", activity: "Write a sample parent progress report", /* videoId: "0b3M7pXG09o",*/ resource: { type: "News", title: "The Guardian: Revolutionizing the Preschool Report Card", link: "https://www.theguardian.com" } }
         ]
       },
       {
         week: 15, title: "Positive Discipline & Behavior Guidance",
         objectives: ["Set clear, consistent classroom rules", "Use positive reinforcement strategies", "Manage challenging behaviors compassionately"],
         days: [
-          { day: "Mon", topic: "Understanding Behavior as Communication", activity: "Case study: decoding a child's challenging behavior" },
-          { day: "Tue", topic: "Setting Rules & Boundaries", activity: "Co-create classroom rules with children (role-play)" },
-          { day: "Wed", topic: "Positive Reinforcement Techniques", activity: "Reward systems: stickers, star charts, praise" },
-          { day: "Thu", topic: "De-escalation Strategies", activity: "Practice calm-down corner setup and scripts" },
-          { day: "Fri", topic: "Social Skills Building", activity: "Conflict resolution role-play scenarios" }
+          { day: "Mon", topic: "Understanding Behavior as Communication", activity: "Case study: decoding a child's challenging behavior", /* videoId: "rVwFkcOZHJw",*/ resource: { type: "Journal", title: "Center on the Social Emotional Foundations for Early Learning (CSEFEL)", link: "https://vanderbilt.edu/csefel" } },
+          { day: "Tue", topic: "Setting Rules & Boundaries", activity: "Co-create classroom rules with children (role-play)", /* videoId: "0XbhVj_Z8kI",*/ resource: { type: "News", title: "Edutopia: Co-creating Rules with Four Year Olds", link: "https://www.edutopia.org" } },
+          { day: "Wed", topic: "Positive Reinforcement Techniques", activity: "Reward systems: stickers, star charts, praise", /* videoId: "bF3j3UVCSdM",*/ resource: { type: "Journal", title: "The Pitfalls of Token Economies vs Descriptive Praise", link: "https://www.naeyc.org" } },
+          { day: "Thu", topic: "De-escalation Strategies", activity: "Practice calm-down corner setup and scripts", /* videoId: "Oxp_K8wE4y8",*/ resource: { type: "Journal", title: "Setting Up a Conscious Discipline Calm Down Corner", link: "https://consciousdiscipline.com" } },
+          { day: "Fri", topic: "Social Skills Building", activity: "Conflict resolution role-play scenarios", /* videoId: "M2_H0Kup98I",*/ resource: { type: "Journal", title: "Teaching Peace in Preschool: Peer Dispute Resolutions", link: "https://www.zerotothree.org" } }
         ]
       },
       {
         week: 16, title: "Inclusive Education & Diversity",
         objectives: ["Support children with special learning needs", "Celebrate cultural diversity in the classroom", "Adapt activities for all learners"],
         days: [
-          { day: "Mon", topic: "Principles of Inclusive Education", activity: "Watch & discuss: inclusion short film" },
-          { day: "Tue", topic: "Identifying Special Learning Needs", activity: "Red flag indicators checklist exercise" },
-          { day: "Wed", topic: "Adapting Activities for Inclusion", activity: "Modify 3 activities for diverse learners" },
-          { day: "Thu", topic: "Celebrating Cultural Diversity", activity: "Design a multicultural classroom calendar" },
-          { day: "Fri", topic: "Month 4 Assessment", activity: "Mock assessment: observe child video + write report" }
+          { day: "Mon", topic: "Principles of Inclusive Education", activity: "Watch & discuss: inclusion short film", /* videoId: "788XU7WwG0M",*/ resource: { type: "Journal", title: "UNICEF: Right to Education for Children with Disabilities", link: "https://www.unicef.org" } },
+          { day: "Tue", topic: "Identifying Special Learning Needs", activity: "Red flag indicators checklist exercise", /* videoId: "NezqZ8vR0o8",*/ resource: { type: "Policy", title: "RPWD Act 2016 Guidelines for Indian Educational Institutions", link: "https://disabilityaffairs.gov.in" } },
+          { day: "Wed", topic: "Adapting Activities for Inclusion", activity: "Modify 3 activities for diverse learners", /* videoId: "0bM6w8X99Gk",*/ resource: { type: "Journal", title: "Head Start: Universal Design for Learning (UDL) in ECE", link: "https://eclkc.ohs.acf.hhs.gov" } },
+          { day: "Thu", topic: "Celebrating Cultural Diversity", activity: "Design a multicultural classroom calendar", /* videoId: "3m0VvC4wMhM",*/ resource: { type: "News", title: "Edutopia: Moving Beyond Anti-Bias Tourism in Curriculum", link: "https://www.edutopia.org" } },
+          { day: "Fri", topic: "Month 4 Assessment", activity: "Mock assessment: observe child video + write report", /* videoId: "v89Gk8X99_Y",*/ resource: { type: "Journal", title: "Diagnostic Accuracy in Early Screening Instruments", link: "https://eric.ed.gov" } }
         ]
       }
     ]
@@ -615,44 +688,44 @@ const SIX_MONTH_PLAN = [
         week: 17, title: "Parent-Teacher Partnerships",
         objectives: ["Conduct productive parent meetings", "Share progress updates effectively", "Create a family engagement plan"],
         days: [
-          { day: "Mon", topic: "Importance of Family Engagement", activity: "Research: impact of parent involvement on learning" },
-          { day: "Tue", topic: "Parent-Teacher Conference Skills", activity: "Role-play: delivering difficult feedback sensitively" },
-          { day: "Wed", topic: "Activity Calendars & Newsletters", activity: "Design a monthly family newsletter" },
-          { day: "Thu", topic: "Parent Workshops", activity: "Plan a 1-hour parenting workshop on play at home" },
-          { day: "Fri", topic: "Parents Capacity Building Materials", activity: "Review SpacECE Parents Capacity Building resource" }
+          { day: "Mon", topic: "Importance of Family Engagement", activity: "Research: impact of parent involvement on learning", /* videoId: "670gK6h89ks",*/ resource: { type: "Journal", title: "Harvard Family Research Project ECE Matrix", link: "https://globalfrp.org" } },
+          { day: "Tue", topic: "Parent-Teacher Conference Skills", activity: "Role-play: delivering difficult feedback sensitively", /* videoId: "IhcgYgx7aAA",*/ resource: { type: "News", title: "Edutopia: Navigating Tough Conversations with Parents", link: "https://www.edutopia.org" } },
+          { day: "Wed", topic: "Activity Calendars & Newsletters", activity: "Design a monthly family newsletter", /* videoId: "7S0Sly6vBwQ",*/ resource: { type: "Journal", title: "Effective Print and Electronic Communiques for Working Families", link: "https://www.naeyc.org" } },
+          { day: "Thu", topic: "Parent Workshops", activity: "Plan a 1-hour parenting workshop on play at home", /* videoId: "md0Nn_K8wE4",*/ resource: { type: "Journal", title: "WHO: Care for Child Development Framework", link: "https://www.who.int" } },
+          { day: "Fri", topic: "Parents Capacity Building Materials", activity: "Review SpacECE Parents Capacity Building resource", /* videoId: "L_M98pG87io",*/ resource: { type: "Policy", title: "Ministry of Education: NIPUN Bharat Parent Guidelines", link: "https://www.education.gov.in" } }
         ]
       },
       {
         week: 18, title: "Community Engagement & Advocacy",
         objectives: ["Leverage local resources for enriched learning", "Advocate for early childhood education", "Build a network of support for families"],
         days: [
-          { day: "Mon", topic: "The Community as a Classroom", activity: "Map community resources relevant to ECE" },
-          { day: "Tue", topic: "Inviting Community Helpers", activity: "Plan a 'Community Helpers Week'" },
-          { day: "Wed", topic: "Local Culture in the Curriculum", activity: "Incorporate local festivals & traditions in lesson plans" },
-          { day: "Thu", topic: "Advocacy for ECE", activity: "Write a short advocacy letter to a local official" },
-          { day: "Fri", topic: "Networking & Professional Learning", activity: "Explore MOOCs, webinars, and ECE groups" }
+          { day: "Mon", topic: "The Community as a Classroom", activity: "Map community resources relevant to ECE", /* videoId: "6P7vA599_2Y",*/ resource: { type: "Journal", title: "Place-Based Education Models in Foundational Learning", link: "https://eric.ed.gov" } },
+          { day: "Tue", topic: "Inviting Community Helpers", activity: "Plan a 'Community Helpers Week'", /* videoId: "k3D0_FwS97k",*/ resource: { type: "News", title: "The Times of India: Revving Up Civic Awareness in Pre-schools", link: "https://timesofindia.indiatimes.com" } },
+          { day: "Wed", topic: "Local Culture in the Curriculum", activity: "Incorporate local festivals & traditions in lesson plans", /* videoId: "Oxp_K8wE4y8",*/ resource: { type: "Journal", title: "Culturally Responsive Pedagogy in Early Childhood Settings", link: "https://www.naeyc.org" } },
+          { day: "Thu", topic: "Advocacy for ECE", activity: "Write a short advocacy letter to a local official", /* videoId: "VNNsN9IJkws",*/ resource: { type: "Journal", title: "NAEYC: Becoming an Early Childhood Advocate", link: "https://www.naeyc.org" } },
+          { day: "Fri", topic: "Networking & Professional Learning", activity: "Explore MOOCs, webinars, and ECE groups", /* videoId: "3m0VvC4wMhM",*/ resource: { type: "Journal", title: "The Power of Professional Learning Communities (PLCs) in ECE", link: "https://www.edutopia.org" } }
         ]
       },
       {
         week: 19, title: "Child Health, Safety & Nutrition",
         objectives: ["Implement child safety and safeguarding protocols", "Teach hygiene habits to young children", "Plan nutritious snack and meal activities"],
         days: [
-          { day: "Mon", topic: "Child Protection & Safeguarding", activity: "Recognize indicators of abuse: case study" },
-          { day: "Tue", topic: "Emergency Preparedness & First Aid", activity: "Basic first aid demonstration: cuts, choking" },
-          { day: "Wed", topic: "Teaching Hygiene to Children", activity: "Create a hand-washing song and poster" },
-          { day: "Thu", topic: "Nutrition Basics for Early Childhood", activity: "Design a balanced weekly snack plan" },
-          { day: "Fri", topic: "Physical Activity & Fitness", activity: "Plan 5 outdoor movement activities" }
+          { day: "Mon", topic: "Child Protection & Safeguarding", activity: "Recognize indicators of abuse: case study", /* videoId: "rVwFkcOZHJw",*/ resource: { type: "Policy", title: "POCSO Act 2012 Mandatory Reporting Guidelines for Teachers", link: "https://wcd.nic.in" } },
+          { day: "Tue", topic: "Emergency Preparedness & First Aid", activity: "Basic first aid demonstration: cuts, choking", /* videoId: "7T08rU8c8gU",*/ resource: { type: "Journal", title: "Red Cross: Pediatric First Aid and CPR Basics", link: "https://www.redcross.org" } },
+          { day: "Wed", topic: "Teaching Hygiene to Children", activity: "Create a hand-washing song and poster", /* videoId: "0b3M7pXG09o",*/ resource: { type: "News", title: "UNICEF: Handwashing Campaigns in Early Learning Centers", link: "https://www.unicef.org" } },
+          { day: "Thu", topic: "Nutrition Basics for Early Childhood", activity: "Design a balanced weekly snack plan", /* videoId: "M2_H0Kup98I",*/ resource: { type: "Journal", title: "ICMR: Dietary Guidelines for Indian Children under 5", link: "https://www.nin.res.in" } },
+          { day: "Fri", topic: "Physical Activity & Fitness", activity: "Plan 5 outdoor movement activities", /* videoId: "0XbhVj_Z8kI",*/ resource: { type: "Journal", title: "SHAPE America: Active Start Physical Guidelines", link: "https://www.shapeamerica.org" } }
         ]
       },
       {
         week: 20, title: "Reflective Teaching & Professional Ethics",
         objectives: ["Practice self-evaluation and peer feedback", "Understand ethics and professionalism in ECE", "Begin building a professional portfolio"],
         days: [
-          { day: "Mon", topic: "What is Reflective Teaching?", activity: "Start a reflective teaching journal" },
-          { day: "Tue", topic: "Self-Evaluation Frameworks", activity: "Use a teaching reflection rubric on a recorded lesson" },
-          { day: "Wed", topic: "Peer Observation & Feedback", activity: "Observe a peer and give structured feedback" },
-          { day: "Thu", topic: "Ethics & Professionalism in ECE", activity: "Discuss ethical dilemmas: case studies" },
-          { day: "Fri", topic: "Building Your Professional Portfolio", activity: "Compile Month 1–5 work into portfolio framework" }
+          { day: "Mon", topic: "What is Reflective Teaching?", activity: "Start a reflective teaching journal", /* videoId: "bF3j5UVCSdM",*/ resource: { type: "Journal", title: "Dewey's Models of Reflective Action in Pedagogy", link: "https://eric.ed.gov" } },
+          { day: "Tue", topic: "Self-Evaluation Frameworks", activity: "Use a teaching reflection rubric on a recorded lesson", /* videoId: "h89G6K80_w8",*/ resource: { type: "News", title: "Edutopia: The Value of Filming Yourself Teaching", link: "https://www.edutopia.org" } },
+          { day: "Wed", topic: "Peer Observation & Feedback", activity: "Observe a peer and give structured feedback", /* videoId: "v89Gk8X99_Y",*/ resource: { type: "Journal", title: "Critical Friends Groups Protocol in Early Years Training", link: "https://www.naeyc.org" } },
+          { day: "Thu", topic: "Ethics & Professionalism in ECE", activity: "Discuss ethical dilemmas: case studies", /* videoId: "NezqZ8vR0o8",*/ resource: { type: "Journal", title: "NAEYC Code of Ethical Conduct Position Statement", link: "https://www.naeyc.org/resources/position-statements/ethical-conduct" } },
+          { day: "Fri", topic: "Building Your Professional Portfolio", activity: "Compile Month 1–5 work into portfolio framework", /* videoId: "0bM6w8X99Gk",*/ resource: { type: "Journal", title: "Digital Portfolios as Artifacts of Professional Mastery", link: "https://eric.ed.gov" } }
         ]
       }
     ]
@@ -668,44 +741,44 @@ const SIX_MONTH_PLAN = [
         week: 21, title: "Practicum Preparation & Classroom Visits",
         objectives: ["Understand practicum guidelines and expectations", "Complete classroom observation visits", "Set personal teaching goals for practicum"],
         days: [
-          { day: "Mon", topic: "Practicum Orientation & Guidelines", activity: "Review SpacECE Field Work Tracker (4–6 Months)" },
-          { day: "Tue", topic: "Classroom Observation Visit 1", activity: "Shadow an experienced preschool teacher" },
-          { day: "Wed", topic: "Post-Observation Debrief", activity: "Write observation report using anecdotal format" },
-          { day: "Thu", topic: "Classroom Observation Visit 2", activity: "Focus on transitions and behavior guidance" },
-          { day: "Fri", topic: "Personal Teaching Goal Setting", activity: "Write SMART goals for teaching practice" }
+          { day: "Mon", topic: "Practicum Orientation & Guidelines", activity: "Review SpacECE Field Work Tracker (4–6 Months)", /* videoId: "L_M98pG87io",*/ resource: { type: "Journal", title: "Standard Field Placement Trackers for Student Teachers", link: "https://eric.ed.gov" } },
+          { day: "Tue", topic: "Classroom Observation Visit 1", activity: "Shadow an experienced preschool teacher", /* videoId: "788XU7WwG0M",*/ resource: { type: "News", title: "Edutopia: What to Look for When Observing a Master Teacher", link: "https://www.edutopia.org" } },
+          { day: "Wed", topic: "Post-Observation Debrief", activity: "Write observation report using anecdotal format", /* videoId: "IhcgYgx7aAA",*/ resource: { type: "Journal", title: "Transforming Student Teacher Reflections post Field Visits", link: "https://www.naeyc.org" } },
+          { day: "Thu", topic: "Classroom Observation Visit 2", activity: "Focus on transitions and behavior guidance", /* videoId: "rVwFkcOZHJw",*/ resource: { type: "Journal", title: "Evaluating Dynamic Transition Efficiencies in Real-time", link: "https://highscope.org" } },
+          { day: "Fri", topic: "Personal Teaching Goal Setting", activity: "Write SMART goals for teaching practice", /* videoId: "k3D0_FwS97k",*/ resource: { type: "Journal", title: "Goal-Oriented Action Plans for Practicum Cohorts", link: "https://eric.ed.gov" } }
         ]
       },
       {
         week: 22, title: "Micro-Teaching Practice Sessions",
         objectives: ["Deliver 3 micro-teaching lessons (15 min each)", "Receive and apply mentor feedback", "Refine lesson planning and delivery skills"],
         days: [
-          { day: "Mon", topic: "Micro-Teaching Session 1: Language Activity", activity: "Teach a story + phonics mini-lesson to peers" },
-          { day: "Tue", topic: "Feedback & Reflection on Session 1", activity: "Mentor debrief using structured feedback form" },
-          { day: "Wed", topic: "Micro-Teaching Session 2: Math Activity", activity: "Teach a counting/patterning game to peers" },
-          { day: "Thu", topic: "Feedback & Reflection on Session 2", activity: "Self-evaluate using video playback" },
-          { day: "Fri", topic: "Micro-Teaching Session 3: Creative Arts", activity: "Teach a music or movement activity to peers" }
+          { day: "Mon", topic: "Micro-Teaching Session 1: Language Activity", activity: "Teach a story + phonics mini-lesson to peers", /* videoId: "7S0Sly6vBwQ",*/ resource: { type: "Journal", title: "Peer-to-Peer Micro-lessons in Foundational Literacy", link: "https://www.readingrockets.org" } },
+          { day: "Tue", topic: "Feedback & Reflection on Session 1", activity: "Mentor debrief using structured feedback form", /* videoId: "0b3M7pXG09o",*/ resource: { type: "Journal", title: "The Clinical Feedback Loop in Alternative Teacher Credentials", link: "https://eric.ed.gov" } },
+          { day: "Wed", topic: "Micro-Teaching Session 2: Math Activity", activity: "Teach a counting/patterning game to peers", /* videoId: "md0Nn_K8wE4",*/ resource: { type: "Journal", title: "Analyzing Conceptual Errors in Peer Maths Delivery", link: "https://earlymath.erikson.edu" } },
+          { day: "Thu", topic: "Feedback & Reflection on Session 2", activity: "Self-evaluate using video playback", /* videoId: "h89G6K80_w8",*/ resource: { type: "News", title: "Edutopia: Video Self-Modeling for Professional Mastery", link: "https://www.edutopia.org" } },
+          { day: "Fri", topic: "Micro-Teaching Session 3: Creative Arts", activity: "Teach a music or movement activity to peers", /* videoId: "6P7vA599_2Y",*/ resource: { type: "Journal", title: "Assessing Facilitation Confidence in Performing Arts Lessons", link: "https://www.naeyc.org" } }
         ]
       },
       {
         week: 23, title: "Capstone Project Development",
         objectives: ["Design and implement a 3-day thematic unit plan", "Document with photos, samples & reflections", "Present to a panel for assessment"],
         days: [
-          { day: "Mon", topic: "Capstone Project Brief & Expectations", activity: "Choose theme + draft unit plan outline" },
-          { day: "Tue", topic: "Develop Full 3-Day Unit Plan", activity: "Write detailed plans for 3 consecutive teaching days" },
-          { day: "Wed", topic: "Resource Preparation for Capstone", activity: "Create all materials, visual aids and activities" },
-          { day: "Thu", topic: "Teach Capstone Unit Day 1 & 2", activity: "Deliver in real preschool or simulated classroom" },
-          { day: "Fri", topic: "Teach Capstone Unit Day 3 & Documentation", activity: "Final teaching day + collect evidence for portfolio" }
+          { day: "Mon", topic: "Capstone Project Brief & Expectations", activity: "Choose theme + draft unit plan outline", /* videoId: "3m0VvC4wMhM",*/ resource: { type: "Journal", title: "Thematic Project Approach in Early Childhood Capstones", link: "https://projectapproach.org" } },
+          { day: "Tue", topic: "Develop Full 3-Day Unit Plan", activity: "Write detailed plans for 3 consecutive teaching days", /* videoId: "0XbhVj_Z8kI",*/ resource: { type: "Journal", title: "Scaffolding Long-Term Thematic Unit Progressions", link: "https://ncert.nic.in" } },
+          { day: "Wed", topic: "Resource Preparation for Capstone", activity: "Create all materials, visual aids and activities", /* videoId: "M2_H0Kup98I",*/ resource: { type: "News", title: "Pre-K Pages: DIY Classroom Props with Nil Cost Materials", link: "https://www.pre-kpages.com" } },
+          { day: "Thu", topic: "Teach Capstone Unit Day 1 & 2", activity: "Deliver in real preschool or simulated classroom", /* videoId: "Oxp_K8wE4y8",*/ resource: { type: "Journal", title: "Field Practicum Execution Indicators: A Clinical Rubric", link: "https://eric.ed.gov" } },
+          { day: "Fri", topic: "Teach Capstone Unit Day 3 & Documentation", activity: "Final teaching day + collect evidence for portfolio", /* videoId: "bF3j5UVCSdM",*/ resource: { type: "Journal", title: "Assembling Final Pedagogical Evidence Frameworks", link: "https://www.naeyc.org" } }
         ]
       },
       {
         week: 24, title: "Portfolio Completion & Certification",
         objectives: ["Finalize professional teaching portfolio", "Sit for final written and practical assessment", "Graduate and receive SpacECE certification"],
         days: [
-          { day: "Mon", topic: "Portfolio Compilation & Review", activity: "Final portfolio check: all sections complete?" },
-          { day: "Tue", topic: "Capstone Project Presentation", activity: "Present 10-minute project summary to panel" },
-          { day: "Wed", topic: "Written Final Assessment", activity: "Comprehensive written exam on all 6 months" },
-          { day: "Thu", topic: "Practical Assessment", activity: "Teach a 20-min lesson evaluated by mentor panel" },
-          { day: "Fri", topic: "Graduation & Certification Ceremony", activity: "Award of SpacECE Certificate + career guidance session" }
+          { day: "Mon", topic: "Portfolio Compilation & Review", activity: "Final portfolio check: all sections complete?", /* videoId: "v89Gk8X99_Y",*/ resource: { type: "Journal", title: "Professional Standards Review for Graduating ECE Specialists", link: "https://www.naeyc.org" } },
+          { day: "Tue", topic: "Capstone Project Presentation", activity: "Present 10-minute project summary to panel", /* videoId: "NezqZ8vR0o8",*/ resource: { type: "News", title: "Edutopia: Elevating Defense Panels in Teacher Preparation", link: "https://www.edutopia.org" } },
+          { day: "Wed", topic: "Written Final Assessment", activity: "Comprehensive written exam on all 6 months", /* videoId: "670gK6h89ks",*/ resource: { type: "Journal", title: "Psychometric Testing Formats for Early Pedagogy Competencies", link: "https://eric.ed.gov" } },
+          { day: "Thu", topic: "Practical Assessment", activity: "Teach a 20-min lesson evaluated by mentor panel", /* videoId: "0bM6w8X99Gk",*/ resource: { type: "Journal", title: "The Danielson Framework for Assessing Classroom Instructors", link: "https://danielsongroup.org" } },
+          { day: "Fri", topic: "Graduation & Certification Ceremony", activity: "Award of SpacECE Certificate + career guidance session", /* videoId: "7T08rU8c8gU",*/ resource: { type: "Policy", title: "National Council for Teacher Education (NCTE) Career Guidelines", link: "https://ncte.gov.in" } }
         ]
       }
     ]
@@ -750,22 +823,135 @@ function navigate(pageId) {
 function renderCourses() {
   const grid = document.getElementById('courses-grid');
   if (!grid) return;
-  grid.innerHTML = COURSES_DATA.map(c => `
+  grid.innerHTML = COURSES_DATA.map((c, i) => `
     <div class="card course-card fade-in">
       <div class="course-thumb">
         <img src="${c.img}" alt="${c.title}" loading="lazy">
         <span class="course-duration"><i class="far fa-clock"></i> ${c.duration}</span>
+        <button class="course-play-btn" onclick="openCoursePreview(${i})" title="Preview Course">
+          <i class="fas fa-play"></i>
+        </button>
       </div>
       <div class="course-body">
         <h3>${c.title}</h3>
         <p>${c.desc}</p>
+        <div class="course-highlights">
+          ${c.highlights.map(h => `<span class="highlight-tag"><i class="fas fa-check"></i> ${h}</span>`).join('')}
+        </div>
       </div>
       <div class="course-footer">
-        <a href="#" class="btn btn-outline btn-sm" onclick="return false;"><i class="fab fa-youtube"></i> Preview</a>
+        <button class="btn btn-outline btn-sm" onclick="openCoursePreview(${i})">
+          <i class="fab fa-youtube"></i> Preview
+        </button>
         <button class="btn btn-primary btn-sm" onclick="navigate('contact')">Enquire Now</button>
       </div>
     </div>
   `).join('');
+}
+
+function openCoursePreview(index) {
+  const c = COURSES_DATA[index];
+  const modal     = document.getElementById('course-preview-modal');
+  const titleEl   = document.getElementById('cpm-title');
+  const durEl     = document.getElementById('cpm-duration');
+  const descEl    = document.getElementById('cpm-desc');
+  const hlEl      = document.getElementById('cpm-highlights');
+  //const iframe    = document.getElementById('cpm-iframe');
+
+  titleEl.textContent = c.title;
+  durEl.textContent   = c.duration;
+  descEl.textContent  = c.desc;
+  hlEl.innerHTML = c.highlights.map(h =>
+    `<div class="cpm-highlight"><i class="fas fa-check-circle"></i> ${h}</div>`
+  ).join('');
+  //iframe.src = `https://www.youtube.com/embed/${c.videoId}?autoplay=1&rel=0`;
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCoursePreview() {
+  const modal  = document.getElementById('course-preview-modal');
+  //const iframe = document.getElementById('cpm-iframe');
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+  //iframe.src = '';
+}
+
+function initCoursePreviewModal() {
+  const modal = document.createElement('div');
+  modal.id = 'course-preview-modal';
+  modal.innerHTML = `
+    <div class="cpm-backdrop" id="cpm-backdrop"></div>
+    <div class="cpm-box">
+      <button class="cpm-close" onclick="closeCoursePreview()" title="Close">
+        <i class="fas fa-times"></i>
+      </button>
+      
+      <div class="cpm-info">
+        <div class="cpm-badge"><i class="far fa-clock"></i> <span id="cpm-duration"></span></div>
+        <h3 id="cpm-title"></h3>
+        <p id="cpm-desc"></p>
+        <div id="cpm-highlights" class="cpm-highlights-grid"></div>
+        <div class="cpm-actions">
+          <button class="btn btn-primary" onclick="navigate('contact'); closeCoursePreview();">
+            <i class="fas fa-paper-plane"></i> Apply Now
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  document.getElementById('cpm-backdrop').addEventListener('click', closeCoursePreview);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCoursePreview(); });
+}
+
+function openDayPreview(d) {
+  if (!document.getElementById('day-preview-modal')) initDayPreviewModal();
+  document.getElementById('dpm-duration').textContent = d.day;
+  document.getElementById('dpm-title').textContent    = d.topic;
+  document.getElementById('dpm-desc').textContent     = d.activity;
+  document.getElementById('dpm-highlights').innerHTML = '';
+  document.getElementById('dpm-iframe').src = d.videoId
+    ? 'https://www.youtube.com/embed/' + d.videoId + '?rel=0' : '';
+  document.getElementById('day-preview-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDayPreview() {
+  document.getElementById('day-preview-modal').classList.remove('open');
+  document.getElementById('dpm-iframe').src = '';
+  document.body.style.overflow = '';
+}
+function initDayPreviewModal() {
+  const modal = document.createElement('div');
+  modal.id = 'day-preview-modal';
+  modal.innerHTML = `
+    <div class="cpm-backdrop" id="dpm-backdrop"></div>
+    <div class="cpm-box">
+      <button class="cpm-close" onclick="closeDayPreview()" title="Close">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="cpm-video-wrap">
+        <iframe id="dpm-iframe" src="" allowfullscreen
+          allow="autoplay; encrypted-media; picture-in-picture" frameborder="0"></iframe>
+      </div>
+      
+      <div class="cpm-info">
+        <div class="cpm-badge"><i class="fas fa-calendar-day"></i> <span id="dpm-duration"></span></div>
+        <h3 id="dpm-title"></h3>
+        <p id="dpm-desc"></p>
+        <div id="dpm-highlights" class="cpm-highlights-grid"></div>
+        <div class="cpm-actions">
+          <button class="btn btn-primary" onclick="navigate('contact'); closeDayPreview();">
+            <i class="fas fa-paper-plane"></i> Apply Now
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  document.getElementById('dpm-backdrop').addEventListener('click', closeDayPreview);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDayPreview(); });
 }
 
 function renderTimeline() {
@@ -968,74 +1154,53 @@ function renderResources() {
   `).join('');
 
   /* Station Activity Bank */
-  const stationWrap = document.getElementById('station-activity-bank');
-  if (!stationWrap) return;
-  stationWrap.innerHTML = STATION_ACTIVITIES.map(s => `
-    <div class="card station-card fade-in">
-      <div class="station-card-header">
-        <div class="station-icon-wrap" style="background:${s.color};color:${s.iconColor};">
-          <i class="fas ${s.icon}"></i>
-        </div>
-        <h4>${s.title}</h4>
+const stationWrap = document.getElementById('station-activity-bank');
+if (!stationWrap) return;
+
+stationWrap.innerHTML = STATION_ACTIVITIES.map(s => `
+  <div class="card station-card fade-in">
+    <div class="station-card-header">
+      <div class="station-icon-wrap" style="background:${s.color};color:${s.iconColor};">
+        <i class="fas ${s.icon}"></i>
       </div>
-      <div class="station-links">
-        ${s.links.map(l => `
-          <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="station-link">
-            <i class="fab fa-facebook" style="color:#1877F2;font-size:12px;"></i>
-            <span>${l.label}</span>
-            <i class="fas fa-external-link-alt" style="margin-left:auto;font-size:10px;color:var(--muted);"></i>
-          </a>
-        `).join('')}
-      </div>
+      <h4>${s.title}</h4>
     </div>
-  `).join('');
+
+    <div class="station-links">
+      ${s.links.map(l => `
+        <div class="station-link">
+
+          <!-- Facebook Resource Indicator -->
+          <i class="fab fa-facebook"
+             style="color:#1877F2;font-size:14px;"></i>
+
+          <span>${l.label}</span>
+
+          <!-- Open in Same Tab -->
+          <a href="${l.url}"
+             class="same-tab-link"
+             title="Open in Same Tab">
+            <i class="fas fa-play-circle"
+               style="color:#22c55e;font-size:15px;"></i>
+          </a>
+
+          <!-- Open in New Tab -->
+          <a href="${l.url}"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="new-tab-link"
+             title="Open in New Tab">
+            <i class="fas fa-external-link-alt"
+               style="font-size:12px;color:var(--muted);"></i>
+          </a>
+
+        </div>
+      `).join('')}
+    </div>
+  </div>
+`).join('');
 }
 
-/* Language Station */
-function renderLangStation() {
-  const pdfsGrid = document.getElementById('langstation-pdfs-grid');
-  if (pdfsGrid) {
-    pdfsGrid.innerHTML = LANGSTATION_PDFS.map(p => `
-      <div class="card resource-card fade-in">
-        <div class="resource-icon"><i class="fas ${p.icon}"></i></div>
-        <h4>${p.title}</h4>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:4px;word-break:break-all;"><i class="fas fa-folder" style="margin-right:4px;"></i>${p.path}</p>
-        <p>${p.desc}</p>
-        <a href="${p.link}" target="_blank" rel="noopener noreferrer">
-          <i class="fas fa-file-pdf"></i> Open PDF
-        </a>
-      </div>
-    `).join('');
-  }
-
-  const playlistsGrid = document.getElementById('langstation-playlists-grid');
-  if (playlistsGrid) {
-    playlistsGrid.innerHTML = LANGSTATION_PLAYLISTS.map(pl => `
-      <div class="card resource-card fade-in">
-        <div class="resource-icon" style="background:rgba(255,0,0,0.1);"><i class="fab fa-youtube" style="color:#ff0000;"></i></div>
-        <h4>${pl.title}</h4>
-        <p>${pl.desc}</p>
-        <a href="${pl.link}" target="_blank" rel="noopener noreferrer">
-          Watch Playlist <i class="fas fa-external-link-alt"></i>
-        </a>
-      </div>
-    `).join('');
-  }
-
-  const perfGrid = document.getElementById('langstation-performances-grid');
-  if (perfGrid) {
-    perfGrid.innerHTML = LANGSTATION_PERFORMANCES.map(pf => `
-      <div class="card resource-card fade-in">
-        <div class="resource-icon" style="background:rgba(255,165,0,0.1);"><i class="fas ${pf.icon}" style="color:var(--orange);"></i></div>
-        <h4>${pf.title}</h4>
-        <p>${pf.desc}</p>
-        <a href="${pf.link}" target="_blank" rel="noopener noreferrer">
-          View <i class="fas fa-external-link-alt"></i>
-        </a>
-      </div>
-    `).join('');
-  }
-}
 
 /* ============================================================
    INTERSECTION OBSERVER (fade-in)
@@ -1106,6 +1271,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set google form link
   document.querySelectorAll('.google-form-link').forEach(a => a.href = ASSETS.googleForm);
 
+  initCoursePreviewModal();
   initNavbar();
   renderCourses();
   renderTimeline();
