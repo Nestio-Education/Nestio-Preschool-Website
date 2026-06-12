@@ -3,21 +3,24 @@ import { Logo, Toast, S, globalCSS } from "../components/Shared";
 import OverviewTab from "../admin/OverviewTab";
 import CenterManagementTab from "../admin/CenterManagementTab";
 import TeacherManagementTab from "../admin/TeacherManagementTab";
-//import CourseManagementTab from "../admin/CourseManagementTab";
-import BatchManagementTab from "../admin/BatchManagementTab";
+import LessonPlanManagementTab from "../admin/LessonPlanManagementTab";
+import CurriculumTrainingTab from "../admin/CurriculumTrainingTab";
+import ActivityMonitoringTab from "../admin/ActivityMonitoringTab";
+import ChildrenManagementTab from "../admin/ChildrenManagement";
 import TrainerManagementTab from "../admin/TrainerManagementTab";
 import AssignmentReviewTab from "../admin/AssignmentReviewTab";
 import AttendanceTab from "../admin/AttendanceTab";
-import LiveSessionsTab from "../admin/LiveSessionsTab";
 import ReportsTab from "../admin/ReportsTab";
 import NotificationsTab from "../admin/NotificationsTab";
 import SettingsTab from "../admin/SettingsTab";
 import LearningContentManagementTab from "../admin/LearningContentManagementTab";
-import AssessmentManagementTab from "../admin/AssessmentManagementTab";
-import CertificateManagementTab from "../admin/CertificateManagementTab";
 import FeedbackManagementTab from "../admin/FeedbackManagementTab";
 import { MOCK_TEACHERS, MOCK_COURSES, MOCK_BATCHES, MOCK_TRAINERS, MOCK_SESSIONS, MOCK_ASSIGNMENTS, MOCK_CONTENT_ITEMS, MOCK_ASSESSMENTS, MOCK_CERTIFICATES, MOCK_FEEDBACKS, MOCK_CATEGORIES } from "../data/mockData";
-
+//import CourseManagementTab from "../admin/CourseManagementTab";
+//import BatchManagementTab from "../admin/BatchManagementTab";
+//import AssessmentManagementTab from "../admin/AssessmentManagementTab";
+//import CertificateManagementTab from "../admin/CertificateManagementTab";
+//import LiveSessionsTab from "../admin/LiveSessionsTab";
 
 
 
@@ -33,16 +36,17 @@ import { MOCK_TEACHERS, MOCK_COURSES, MOCK_BATCHES, MOCK_TRAINERS, MOCK_SESSIONS
 export default function AdminDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [teachers,  setTeachers]  = useState(MOCK_TEACHERS);
-  //const [courses,   setCourses]   = useState(MOCK_COURSES);
-  const [batches,   setBatches]   = useState(MOCK_BATCHES);
   const [trainers,  setTrainers]  = useState(MOCK_TRAINERS);
-  const [sessions,  setSessions]  = useState(MOCK_SESSIONS);
+  const [feedbacks, setFeedbacks] = useState(MOCK_FEEDBACKS);
   const [assignments,setAssignments] = useState(MOCK_ASSIGNMENTS);
   const [toast, setToast] = useState({msg:"",type:""});
-  const [contentItems, setContentItems] = useState(MOCK_CONTENT_ITEMS);
-  const [assessmentsData, setAssessmentsData] = useState(MOCK_ASSESSMENTS);
-  const [certificates, setCertificates] = useState(MOCK_CERTIFICATES);
-  const [feedbacks, setFeedbacks] = useState(MOCK_FEEDBACKS);
+  
+  //const [sessions,  setSessions]  = useState(MOCK_SESSIONS);
+  //const [contentItems, setContentItems] = useState(MOCK_CONTENT_ITEMS);
+  //const [assessmentsData, setAssessmentsData] = useState(MOCK_ASSESSMENTS);
+  //const [certificates, setCertificates] = useState(MOCK_CERTIFICATES);
+  //const [courses,   setCourses]   = useState(MOCK_COURSES);
+  //const [batches,   setBatches]   = useState(MOCK_BATCHES);
   //const [categories, setCategories] = useState(MOCK_CATEGORIES);
 
   const pending = teachers.filter(t=>t.status==="pending");
@@ -51,19 +55,25 @@ export default function AdminDashboard({ user, onLogout }) {
     { key:"overview",     label:"Admin Dashboard",          icon:"📊" },
     { key:"centers",      label:"Center Management", icon:"🏫" },
     { key:"teachers",     label:"Teacher Management",icon:"👩‍🏫", badge:pending.length },
-    //{ key:"courses",      label:"Course Management", icon:"📚" },
-    { key:"batches",      label:"Batch Management",  icon:"🗂️" },
+    { key: "curriculum", label: "Course Management", icon: "📚" },
+    { key: "activities", label: "Activity Monitoring", icon: "📸" },
+    { key: "lessonplans", label: "Lesson Plans", icon: "📋" },
+    { key: "children", label: "Children & Classes", icon: "👶" },
     { key:"trainers",     label:"Trainer Management",icon:"🎓" },
     { key:"assignments",  label:"Assignment Review", icon:"📝", badge:assignments.filter(a=>a.status==="pending").length },
     { key:"attendance",   label:"Attendance",        icon:"📋" },
-    { key:"sessions",     label:"Live Sessions",     icon:"📹" },
+   
     { key:"reports",      label:"Reports & Analytics",icon:"📈" },
     { key:"notifications",label:"Notifications",     icon:"🔔" },
     { key:"settings",     label:"Settings & Roles",  icon:"⚙️" },
-    { key:"content",      label:"Learning Content",      icon:"🎬" },
-    { key:"assessments",  label:"Assessment Management", icon:"🧠" },
-    { key:"certificates", label:"Certificates",          icon:"🏅" },
     { key:"feedback",     label:"Feedback",              icon:"💬" },
+    //{ key:"courses",      label:"Course Management", icon:"📚" },
+    //{ key:"batches",      label:"Batch Management",  icon:"🗂️" },
+    // { key:"content",      label:"Learning Content",      icon:"🎬" },
+    // { key:"assessments",  label:"Assessment Management", icon:"🧠" },
+    // { key:"certificates", label:"Certificates",          icon:"🏅" },
+    //{ key:"sessions",     label:"Live Sessions",     icon:"📹" },
+    
   ];
   const persistTeachers = (updater) => {
   setTeachers(prev => {
@@ -77,22 +87,27 @@ export default function AdminDashboard({ user, onLogout }) {
 
   const renderContent = () => {
     switch(activeTab) {
-      case "overview":     return <OverviewTab teachers={teachers} courses={[]} batches={batches} sessions={sessions}/>;
+      case "overview":     return <OverviewTab teachers={teachers} courses={[]} batches={[]} sessions={[]}/>;
       case "centers": return <CenterManagementTab teachers={teachers} setToast={setToast}/>;
       case "teachers": return <TeacherManagementTab teachers={teachers} setTeachers={persistTeachers} setToast={setToast}/>;
-      //case "courses":      return <CourseManagementTab courses={courses} setCourses={setCourses} categories={categories} setCategories={setCategories} setToast={setToast}/>;
-      case "batches": return <BatchManagementTab batches={batches} setBatches={setBatches} teachers={teachers} setToast={setToast}/>;
-      case "trainers": return <TrainerManagementTab trainers={trainers} setTrainers={setTrainers} batches={batches} setToast={setToast}/>;
+      case "curriculum": return <CurriculumTrainingTab setToast={setToast}/>;
+      case "activities": return <ActivityMonitoringTab setToast={setToast}/>;
+      case "lessonplans": return <LessonPlanManagementTab setToast={setToast} />;
+      case "children": return <ChildrenManagementTab setToast={setToast}/>;
+      case "trainers": return <TrainerManagementTab trainers={trainers} setTrainers={setTrainers} batches={[]} setToast={setToast}/>;
       case "assignments":  return <AssignmentReviewTab assignments={assignments} setAssignments={setAssignments} setToast={setToast}/>;
-      case "attendance":   return <AttendanceTab teachers={teachers} sessions={sessions}/>;
-      case "sessions": return <LiveSessionsTab sessions={sessions} setSessions={setSessions} teachers={teachers} batches={batches} setToast={setToast}/>;
-      case "reports":      return <ReportsTab teachers={teachers} courses={[]} batches={batches}/>;
+      case "attendance":   return <AttendanceTab teachers={teachers} sessions={[]}/>;
+      case "reports":      return <ReportsTab teachers={teachers} courses={[]} batches={[]}/>;
       case "notifications":return <NotificationsTab teachers={teachers} setToast={setToast}/>;
       case "settings":     return <SettingsTab/>;
-      case "content":      return <LearningContentManagementTab contentItems={contentItems} setContentItems={setContentItems} setToast={setToast}/>;
-      case "assessments":  return <AssessmentManagementTab assessmentsData={assessmentsData} setAssessmentsData={setAssessmentsData} setToast={setToast}/>;
-      case "certificates": return <CertificateManagementTab certificates={certificates} setCertificates={setCertificates} setToast={setToast}/>;
       case "feedback":     return <FeedbackManagementTab feedbacks={feedbacks} setFeedbacks={setFeedbacks} setToast={setToast}/>;
+      //case "sessions": return <LiveSessionsTab sessions={sessions} setSessions={setSessions} teachers={teachers} batches={[]} setToast={setToast}/>;
+      //case "courses":      return <CourseManagementTab courses={courses} setCourses={setCourses} categories={categories} setCategories={setCategories} setToast={setToast}/>;
+      //case "batches": return <BatchManagementTab batches={batches} setBatches={setBatches} teachers={teachers} setToast={setToast}/>;
+      //case "content":      return <LearningContentManagementTab contentItems={contentItems} setContentItems={setContentItems} setToast={setToast}/>;
+      //case "assessments":  return <AssessmentManagementTab assessmentsData={assessmentsData} setAssessmentsData={setAssessmentsData} setToast={setToast}/>;
+      //case "certificates": return <CertificateManagementTab certificates={certificates} setCertificates={setCertificates} setToast={setToast}/>;
+      
       default:             return null;
     }
   };

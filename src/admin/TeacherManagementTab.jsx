@@ -584,80 +584,93 @@ export default function TeacherManagementTab({ teachers, setTeachers, setToast }
       </div>
 
       {/* Table */}
-      <div style={{ background:"white", borderRadius:16, border:"1px solid #f1f5f9", overflow:"hidden", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
-        <table style={{ width:"100%", borderCollapse:"collapse" }}>
-          <thead>
-            <tr style={{ background:"#f9fafb", borderBottom:"1px solid #f1f5f9" }}>
-              <th style={{ padding:"12px 14px", width:40 }}>
-                <input type="checkbox" checked={selectedIds.length===filtered.length&&filtered.length>0} onChange={toggleAll} style={{ cursor:"pointer" }}/>
-              </th>
-              {["Teacher","Mobile","Center","Course","Batch","Attendance","Registered","Status","Actions"].map(h=>(
-                <th key={h} style={{ padding:"12px 14px", fontSize:11, fontWeight:700, color:"#9ca3af", textAlign:"left", textTransform:"uppercase", letterSpacing:"0.5px" }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((t,i)=>(
-              <tr key={t.id} style={{ borderBottom:"1px solid #f9fafb", background:selectedIds.includes(t.id)?"#fffbeb":i%2===0?"white":"#fafafa" }}>
-                <td style={{ padding:"12px 14px" }}>
-                  <input type="checkbox" checked={selectedIds.includes(t.id)} onChange={()=>toggleOne(t.id)} style={{ cursor:"pointer" }}/>
-                </td>
-                <td style={{ padding:"12px 14px" }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                    <div style={{ width:36, height:36, borderRadius:10, background:"linear-gradient(135deg,#f59e0b,#d97706)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:15, fontWeight:800, color:"white", flexShrink:0 }}>{t.name[0]}</div>
-                    <div>
-                      <div style={{ fontSize:13, fontWeight:700, color:"#1c1917" }}>{t.name}</div>
-                      <div style={{ fontSize:11, color:"#9ca3af" }}>{t.email}</div>
-                    </div>
-                  </div>
-                </td>
-                <td style={{ padding:"12px 14px", fontSize:12, color:"#374151" }}>{t.phone}</td>
-                <td style={{ padding:"12px 14px", fontSize:12, color:"#374151" }}>{t.assignedCenter || "—"}</td>
-                <td style={{ padding:"12px 14px", fontSize:12, color:"#374151", maxWidth:160 }}>
-
-                  <span style={{ display:"block", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{t.course||<span style={{ color:"#d1d5db" }}>—</span>}</span>
-                </td>
-                <td style={{ padding:"12px 14px", fontSize:12, color:"#374151" }}>{t.batch||<span style={{ color:"#d1d5db" }}>—</span>}</td>
-                <td style={{ padding:"12px 14px" }}>
-                  {t.status==="approved"?(
-                    <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                      <div style={{ width:52, height:5, background:"#f3f4f6", borderRadius:3, overflow:"hidden" }}>
-                        <div style={{ height:"100%", width:`${t.attendance}%`, background:t.attendance>=85?"#10b981":t.attendance>=70?"#f59e0b":"#ef4444" }}/>
-                      </div>
-                      <span style={{ fontSize:11, fontWeight:700, color:t.attendance>=85?"#10b981":t.attendance>=70?"#f59e0b":"#ef4444" }}>{t.attendance}%</span>
-                    </div>
-                  ):<span style={{ fontSize:11, color:"#d1d5db" }}>—</span>}
-                </td>
-                <td style={{ padding:"12px 14px", fontSize:12, color:"#9ca3af" }}>{t.joined}</td>
-                {/* <td style={{ padding:"12px 14px" }}><StatusBadge status={t.status}/></td> */}
-                <td style={{ padding:"12px 14px" }}>
-  <StatusBadge status={t.status}/>
-  {t.blockReason && <div style={{ fontSize:9, color:"#dc2626", marginTop:2 }}>🚫 Blocked</div>}
-  {t.rejectReason && !t.blockReason && <div style={{ fontSize:9, color:"#9ca3af", marginTop:2 }}>✕ Rejected</div>}
-</td>
-                <td style={{ padding:"12px 14px" }}>
-                  <div style={{ display:"flex", gap:5 }}>
-                    <button onClick={()=>setSelected(t)} style={{ ...S.tblBtn, color:"#3b82f6", borderColor:"#93c5fd" }}>👁 View</button>
-                    {t.status==="pending" && <>
-                      <button onClick={()=>approve(t.id)} style={{ ...S.tblBtn, color:"#059669", borderColor:"#86efac" }}>✓</button>
-                      <button onClick={()=>setSelected(t)} style={{ ...S.tblBtn, color:"#dc2626", borderColor:"#fca5a5" }}>✕</button>
-                    </>}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {filtered.length===0 && (
-          <div style={{ textAlign:"center", padding:"50px", color:"#9ca3af" }}>
-            <div style={{ fontSize:40, marginBottom:10 }}>🔍</div>
-            <div style={{ fontSize:14, fontWeight:700 }}>No teachers found</div>
-            <div style={{ fontSize:12, marginTop:4 }}>Try adjusting your filters</div>
-          </div>
-        )}
-      </div>
-
-      {/* Add Teacher Modal */}
+<div style={{ background:"white", borderRadius:16, border:"1px solid #f1f5f9", overflow:"hidden", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>
+  <table style={{ width:"100%", borderCollapse:"collapse" }}>
+    <thead>
+      <tr style={{ background:"#f9fafb", borderBottom:"1px solid #f1f5f9" }}>
+        <th style={{ padding:"12px 14px", width:40 }}>
+          <input type="checkbox" checked={selectedIds.length===filtered.length&&filtered.length>0} onChange={toggleAll} style={{ cursor:"pointer" }}/>
+        </th>
+        {["Teacher","Mobile","Center","Course","Batch","Attendance","Registered","Status","Actions"].map(h=>(
+          <th key={h} style={{ padding:"12px 14px", fontSize:11, fontWeight:700, color:"#9ca3af", textAlign:"left", textTransform:"uppercase", letterSpacing:"0.5px" }}>{h}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {filtered.map((t,i)=>(
+        <tr key={t.id} style={{ borderBottom:"1px solid #f9fafb", background:selectedIds.includes(t.id)?"#fffbeb":i%2===0?"white":"#fafafa" }}>
+          <td style={{ padding:"12px 14px" }}>
+            <input type="checkbox" checked={selectedIds.includes(t.id)} onChange={()=>toggleOne(t.id)} style={{ cursor:"pointer" }}/>
+          </td>
+          <td style={{ padding:"12px 14px" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+              {/* 📸 Teacher Photo / Initial Avatar Fallback */}
+              <img 
+                src={t.photo || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(t.name)}`} 
+                alt={t.name}
+                style={{ 
+                  width: 36, 
+                  height: 36, 
+                  borderRadius: "50%", 
+                  objectFit: "cover", 
+                  border: "1.5px solid #e2e8f0",
+                  background: "#f1f5f9",
+                  flexShrink: 0 
+                }} 
+                onError={(e) => {
+                  e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(t.name)}`;
+                }}
+              />
+              <div>
+                <div style={{ fontSize:13, fontWeight:700, color:"#1c1917" }}>{t.name}</div>
+                <div style={{ fontSize:11, color:"#9ca3af" }}>{t.email}</div>
+              </div>
+            </div>
+          </td>
+          <td style={{ padding:"12px 14px", fontSize:12, color:"#374151" }}>{t.phone}</td>
+          <td style={{ padding:"12px 14px", fontSize:12, color:"#374151" }}>{t.assignedCenter || "—"}</td>
+          <td style={{ padding:"12px 14px", fontSize:12, color:"#374151", maxWidth:160 }}>
+            <span style={{ display:"block", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{t.course||<span style={{ color:"#d1d5db" }}>—</span>}</span>
+          </td>
+          <td style={{ padding:"12px 14px", fontSize:12, color:"#374151" }}>{t.batch||<span style={{ color:"#d1d5db" }}>—</span>}</td>
+          <td style={{ padding:"12px 14px" }}>
+            {t.status==="approved"?(
+              <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                <div style={{ width:52, height:5, background:"#f3f4f6", borderRadius:3, overflow:"hidden" }}>
+                  <div style={{ height:"100%", width:`${t.attendance}%`, background:t.attendance>=85?"#10b981":t.attendance>=70?"#f59e0b":"#ef4444" }}/>
+                </div>
+                <span style={{ fontSize:11, fontWeight:700, color:t.attendance>=85?"#10b981":t.attendance>=70?"#f59e0b":"#ef4444" }}>{t.attendance}%</span>
+              </div>
+            ):<span style={{ fontSize:11, color:"#d1d5db" }}>—</span>}
+          </td>
+          <td style={{ padding:"12px 14px", fontSize:12, color:"#9ca3af" }}>{t.joined}</td>
+          <td style={{ padding:"12px 14px" }}>
+            <StatusBadge status={t.status}/>
+            {t.blockReason && <div style={{ fontSize:9, color:"#dc2626", marginTop:2 }}>🚫 Blocked</div>}
+            {t.rejectReason && !t.blockReason && <div style={{ fontSize:9, color:"#9ca3af", marginTop:2 }}>✕ Rejected</div>}
+          </td>
+          <td style={{ padding:"12px 14px" }}>
+            <div style={{ display:"flex", gap:5 }}>
+              <button onClick={()=>setSelected(t)} style={{ ...S.tblBtn, color:"#3b82f6", borderColor:"#93c5fd" }}>👁 View</button>
+              {t.status==="pending" && <>
+                <button onClick={()=>approve(t.id)} style={{ ...S.tblBtn, color:"#059669", borderColor:"#86efac" }}>✓</button>
+                <button onClick={()=>setSelected(t)} style={{ ...S.tblBtn, color:"#dc2626", borderColor:"#fca5a5" }}>✕</button>
+              </>}
+            </div>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  {filtered.length===0 && (
+    <div style={{ textAlign:"center", padding:"50px", color:"#9ca3af" }}>
+      <div style={{ fontSize:40, marginBottom:10 }}>🔍</div>
+      <div style={{ fontSize:14, fontWeight:700 }}>No teachers found</div>
+      <div style={{ fontSize:12, marginTop:4 }}>Try adjusting your filters</div>
+    </div>
+  )}
+</div>  
+  {/* Add Teacher Modal */}
       {addModal && (
         <Modal title="Add New Teacher" onClose={()=>setAddModal(false)}>
           <form onSubmit={handleAdd}>
