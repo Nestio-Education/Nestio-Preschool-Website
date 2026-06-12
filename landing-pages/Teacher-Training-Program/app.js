@@ -148,6 +148,112 @@ const CURRICULUM_DATA = {
   }
 };
 
+/* ============================================================
+   LANGUAGE STATION DATA
+   ============================================================ */
+const LANGSTATION_PDFS = [
+  {
+    title: "Arts in Early Childhood",
+    filename: "arts-in-early-childhood-dec2015-rev",
+    path: "landing-pages/Teacher-Training-Program/pdf/arts-in-early-childhood-dec2015-rev",
+    icon: "fa-palette",
+    desc: "A foundational resource on integrating arts into early childhood education.",
+    link: "#"
+  },
+  {
+    title: "d05dd1cf-en",
+    filename: "d05dd1cf-en",
+    path: "landing-pages/Teacher-Training-Program/pdf/d05dd1cf-en",
+    icon: "fa-file-pdf",
+    desc: "Reference document for teacher training programme use.",
+    link: "#"
+  },
+  {
+    title: "KG Grade 1 Sentences",
+    filename: "KG Grade1 Sentences_260526_053556",
+    path: "landing-pages/Teacher-Training-Program/pdf/KG Grade1 Sentences_260526_053556",
+    icon: "fa-spell-check",
+    desc: "Sentences practice sheets for KG and Grade 1 language station activities.",
+    link: "#"
+  },
+  {
+    title: "Onboarding Welcome Packet",
+    filename: "Onboarding Welcome Packet",
+    path: "landing-pages/Teacher-Training-Program/pdf/Onboarding Welcome Packet",
+    icon: "fa-handshake",
+    desc: "Welcome packet for new SpacECE teaching staff and trainees.",
+    link: "#"
+  },
+  {
+    title: "Seeds of Success",
+    filename: "Seeds of Success",
+    path: "landing-pages/Teacher-Training-Program/pdf/Seeds of Success",
+    icon: "fa-seedling",
+    desc: "A guide to early success strategies for young learners.",
+    link: "#"
+  },
+  {
+    title: "Sensory",
+    filename: "Sensary",
+    path: "landing-pages/Teacher-Training-Program/pdf/Sensary",
+    icon: "fa-hand-paper",
+    desc: "Sensory play and learning activities for early childhood classrooms.",
+    link: "#"
+  },
+  {
+    title: "SpacECE – Essential Topics for Teaching Staff",
+    filename: "SpacECE - Essential Topics for Teaching Staff",
+    path: "landing-pages/Teacher-Training-Program/pdf/SpacECE - Essential Topics for Teaching Staff",
+    icon: "fa-chalkboard-teacher",
+    desc: "Key topics every SpacECE teaching staff member should know.",
+    link: "#"
+  },
+  {
+    title: "Station-based Design for Preschools",
+    filename: "Station-based Design for Preschools",
+    path: "landing-pages/Teacher-Training-Program/pdf/Station-based Design for Preschools",
+    icon: "fa-map-marked-alt",
+    desc: "How to design and set up learning stations in a preschool classroom.",
+    link: "#"
+  }
+];
+
+const LANGSTATION_PLAYLISTS = [
+  {
+    title: "SpacECE Playlist 1",
+    link: "https://www.youtube.com/playlist?list=PLV3Y-5-ti6T2fqt0n0h9nspL1hnC77J4c",
+    icon: "fa-play-circle",
+    desc: "Curated video playlist shared by the SpacECE team for language and classroom practice."
+  },
+  {
+    title: "SpacECE Playlist 2",
+    link: "https://www.youtube.com/playlist?list=PLV3Y-5-ti6T0g4LdcP0mKB_lhGi33mCt2",
+    icon: "fa-play-circle",
+    desc: "Second YouTube playlist with additional teacher training and activity videos."
+  },
+  {
+    title: "SpacECE Playlist 3",
+    link: "https://www.youtube.com/playlist?list=PLV3Y-5-ti6T3MtQqKPp-RjUGbZC-Zg-0o",
+    icon: "fa-play-circle",
+    desc: "Third playlist featuring extended content for classroom and language station use."
+  }
+];
+
+const LANGSTATION_PERFORMANCES = [
+  {
+    title: "Tanaya at Udaan Centre – SpacECE",
+    link: "#",
+    icon: "fa-music",
+    desc: "Tanaya performing at the Udaan Centre, SpacECE — a celebration of student talent and expression."
+  },
+  {
+    title: "Rain Theme Activity",
+    link: "#",
+    icon: "fa-cloud-rain",
+    desc: "A rain-themed classroom activity and performance. Great inspiration for seasonal language station setups."
+  }
+];
+
 const EXTRA_RESOURCES = [
   { title: "Activity Booklet", link: "https://drive.google.com/drive/folders/1YQcZ0odEUnQn9iphRRMss_cjHEJkgqOW?usp=drive_link", icon: "fa-cut", desc: "Hands-on printable activity booklets for classroom use." },
   { title: "Kids Worksheet", link: "https://drive.google.com/drive/folders/13Z6xay62qXBFgJpDUgxDiMVNRAMp11ke?usp=drive_link", icon: "fa-pencil-alt", desc: "Age-appropriate worksheets for preschool children." },
@@ -885,6 +991,52 @@ function renderResources() {
   `).join('');
 }
 
+/* Language Station */
+function renderLangStation() {
+  const pdfsGrid = document.getElementById('langstation-pdfs-grid');
+  if (pdfsGrid) {
+    pdfsGrid.innerHTML = LANGSTATION_PDFS.map(p => `
+      <div class="card resource-card fade-in">
+        <div class="resource-icon"><i class="fas ${p.icon}"></i></div>
+        <h4>${p.title}</h4>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:4px;word-break:break-all;"><i class="fas fa-folder" style="margin-right:4px;"></i>${p.path}</p>
+        <p>${p.desc}</p>
+        <a href="${p.link}" target="_blank" rel="noopener noreferrer">
+          <i class="fas fa-file-pdf"></i> Open PDF
+        </a>
+      </div>
+    `).join('');
+  }
+
+  const playlistsGrid = document.getElementById('langstation-playlists-grid');
+  if (playlistsGrid) {
+    playlistsGrid.innerHTML = LANGSTATION_PLAYLISTS.map(pl => `
+      <div class="card resource-card fade-in">
+        <div class="resource-icon" style="background:rgba(255,0,0,0.1);"><i class="fab fa-youtube" style="color:#ff0000;"></i></div>
+        <h4>${pl.title}</h4>
+        <p>${pl.desc}</p>
+        <a href="${pl.link}" target="_blank" rel="noopener noreferrer">
+          Watch Playlist <i class="fas fa-external-link-alt"></i>
+        </a>
+      </div>
+    `).join('');
+  }
+
+  const perfGrid = document.getElementById('langstation-performances-grid');
+  if (perfGrid) {
+    perfGrid.innerHTML = LANGSTATION_PERFORMANCES.map(pf => `
+      <div class="card resource-card fade-in">
+        <div class="resource-icon" style="background:rgba(255,165,0,0.1);"><i class="fas ${pf.icon}" style="color:var(--orange);"></i></div>
+        <h4>${pf.title}</h4>
+        <p>${pf.desc}</p>
+        <a href="${pf.link}" target="_blank" rel="noopener noreferrer">
+          View <i class="fas fa-external-link-alt"></i>
+        </a>
+      </div>
+    `).join('');
+  }
+}
+
 /* ============================================================
    INTERSECTION OBSERVER (fade-in)
    ============================================================ */
@@ -964,6 +1116,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderFieldWork();
   renderLessonPlanning();
   renderResources();
+  renderLangStation();
 
   navigate('home');
   setTimeout(animateCounters, 600);
