@@ -33,7 +33,9 @@
       <li><button data-page="courses"    onclick="navigate('courses')">Courses</button></li>
       <li><button data-page="weekly"     onclick="navigate('weekly')">Training Plan</button></li>
       <li><button data-page="planning"   onclick="navigate('planning')">Lesson Planning</button></li>
+
       <li><button data-page="curriculum" onclick="navigate('curriculum')">Curriculum & Resources</button></li>
+
       <li><button data-page="contact"    onclick="navigate('contact')">Contact</button></li>
     </ul>
 
@@ -828,6 +830,63 @@
 </div>
 
 <!-- ============================================================
+     PAGE: LANGUAGE STATION
+     ============================================================ -->
+<div id="page-langstation" class="page">
+  <section class="section" style="background:var(--cream);">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-label">Language Station</span>
+        <h2 class="section-title">Sentences to Practise</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Resources, videos, and reading materials shared for classroom language practice. Curated by the SpacECE team.</p>
+      </div>
+
+      <!-- PDFs -->
+      <div class="section-header" style="margin-top:40px;">
+        <span class="section-label">PDF Resources</span>
+        <h3 class="section-title" style="font-size:1.6rem;">Downloadable Documents</h3>
+        <div class="divider"></div>
+      </div>
+      <div class="grid-4" id="langstation-pdfs-grid"></div>
+
+      <!-- YouTube Playlists -->
+      <div class="section-header" style="margin-top:56px;">
+        <span class="section-label">Video Playlists</span>
+        <h3 class="section-title" style="font-size:1.6rem;">YouTube Learning Playlists</h3>
+        <div class="divider"></div>
+      </div>
+      <div class="grid-4" id="langstation-playlists-grid"></div>
+
+      <!-- Performances -->
+      <div class="section-header" style="margin-top:56px;">
+        <span class="section-label">Spotlight</span>
+        <h3 class="section-title" style="font-size:1.6rem;">Performances & Activities</h3>
+        <div class="divider"></div>
+      </div>
+      <div class="grid-4" id="langstation-performances-grid"></div>
+
+      <!-- Join Us CTA -->
+      <div class="contact-card fade-in" style="margin-top:56px;">
+        <div class="contact-icon-wrap"><i class="fas fa-users"></i></div>
+        <h3>Join the SpacECE Team!</h3>
+        <p>Passionate about early childhood education (0–8 years)? Love working with kids? We're looking for dedicated individuals to join us in shaping young minds through innovative, nurturing, and fun learning environments.</p>
+        <ul style="list-style:none;padding:0;margin:16px 0;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+          <li style="background:var(--cream);border-radius:8px;padding:8px 16px;font-size:14px;font-weight:600;"><i class="fas fa-check-circle" style="color:var(--orange);margin-right:6px;"></i> Impactful work</li>
+          <li style="background:var(--cream);border-radius:8px;padding:8px 16px;font-size:14px;font-weight:600;"><i class="fas fa-check-circle" style="color:var(--orange);margin-right:6px;"></i> Professional growth</li>
+          <li style="background:var(--cream);border-radius:8px;padding:8px 16px;font-size:14px;font-weight:600;"><i class="fas fa-check-circle" style="color:var(--orange);margin-right:6px;"></i> Creative & supportive culture</li>
+          <li style="background:var(--cream);border-radius:8px;padding:8px 16px;font-size:14px;font-weight:600;"><i class="fas fa-check-circle" style="color:var(--orange);margin-right:6px;"></i> Work-life balance</li>
+        </ul>
+        <a href="https://www.spacece.co/join-us/job-application" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg" style="display:inline-flex;width:100%;justify-content:center;max-width:400px;margin:0 auto;">
+          <i class="fas fa-arrow-right"></i> Apply on Job Portal
+        </a>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================
      PAGE: CONTACT
      ============================================================ -->
 <div id="page-contact" class="page">
@@ -887,6 +946,7 @@
           <li><button data-page="fieldwork"  onclick="navigate('fieldwork')">Field Work</button></li>
           <li><button data-page="handbook"   onclick="navigate('handbook')">Handbook</button></li>
           <li><button data-page="resources"  onclick="navigate('resources')">Downloads</button></li>
+          <li><button data-page="langstation" onclick="navigate('langstation')">Language Station</button></li>
         </ul>
       </div>
       <div class="footer-col">
