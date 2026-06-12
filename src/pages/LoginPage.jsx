@@ -37,6 +37,30 @@ function LoginIllustration() {
   );
 }
 
+/* ── Password Strength Indicator ── */
+function StrengthBar({ password }) {
+  let s = 0;
+  if (password.length >= 8) s++;
+  if (/[A-Z]/.test(password)) s++;
+  if (/[0-9]/.test(password)) s++;
+  if (/[^A-Za-z0-9]/.test(password)) s++;
+
+  const colors = ["#ef4444", "#f59e0b", "#3b82f6", "#10b981"];
+  const labels = ["Weak", "Fair", "Good", "Strong"];
+  if (!password) return null;
+
+  return (
+    <div style={{ marginTop: 6, marginBottom: 12 }}>
+      <div style={{ display: "flex", gap: 4, marginBottom: 3 }}>
+        {[0, 1, 2, 3].map(i => (
+          <div key={i} style={{ flex: 1, height: 4, borderRadius: 4, background: i < s ? colors[s - 1] : "rgba(0,0,0,0.08)", transition: "background 0.3s" }} />
+        ))}
+      </div>
+      <span style={{ fontSize: 11, color: colors[s - 1], fontWeight: 600 }}>{labels[s - 1]}</span>
+    </div>
+  );
+}
+
 /* ── Login Form ── */
 function LoginForm({ onLogin, onGoRegister, onGoForgot }) {
   const [email, setEmail]       = useState("");
@@ -68,6 +92,7 @@ function LoginForm({ onLogin, onGoRegister, onGoForgot }) {
         <span style={ls.badge}>Welcome Back</span>
         <p style={{ fontSize: 12, color: "#9ca3af", marginTop: 6, fontStyle: "italic" }}>Sign in to your account</p>
       </div>
+
       <form onSubmit={handleLogin}>
         <label style={S.label}>Email Address</label>
         <div style={{ position: "relative", marginBottom: 14 }}>
@@ -103,17 +128,16 @@ function LoginForm({ onLogin, onGoRegister, onGoForgot }) {
 
 /* ── Forgot Password Form ── */
 function ForgotPasswordForm({ onBack }) {
-  const [email, setEmail]   = useState("");
-  const [sent, setSent]     = useState(false);
-  const [toast, setToast]   = useState({ msg: "", type: "" });
-  const [mockLink, setMockLink] = useState(""); // Simulated reset link (shown in UI since no real email server)
+  const [email, setEmail]       = useState("");
+  const [sent, setSent]         = useState(false);
+  const [toast, setToast]       = useState({ msg: "", type: "" });
+  const [mockLink, setMockLink] = useState("");
 
   const handleForgot = (e) => {
     e.preventDefault();
     if (!email) { setToast({ msg: "Please enter your email address.", type: "error" }); return; }
 
-    // Check if email exists (teachers list or admin)
-    const teachers = JSON.parse(localStorage.getItem("spaceece_teachers") || "[]");
+    const teachers  = JSON.parse(localStorage.getItem("spaceece_teachers") || "[]");
     const isTeacher = teachers.find(t => t.email === email);
     const isAdmin   = email === ADMIN_CREDENTIALS.email;
 
@@ -122,13 +146,11 @@ function ForgotPasswordForm({ onBack }) {
       return;
     }
 
-    // Generate a secure random token and store it with expiry (15 minutes)
-    const token   = Math.random().toString(36).substring(2) + Date.now().toString(36);
-    const expiry  = Date.now() + 15 * 60 * 1000; // 15 min from now
+    const token     = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    const expiry    = Date.now() + 15 * 60 * 1000;
     const resetData = { email, token, expiry };
     localStorage.setItem("spaceece_reset_token", JSON.stringify(resetData));
 
-    // In a real app this URL would be emailed; here we show it so you can test the flow
     const simulatedLink = `${window.location.origin}${window.location.pathname}?reset_token=${token}`;
     setMockLink(simulatedLink);
     setSent(true);
@@ -148,7 +170,6 @@ function ForgotPasswordForm({ onBack }) {
           <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 6 }}>Link expires in 15 minutes.</p>
         </div>
 
-        {/* Dev/Demo helper — shows simulated reset link since there's no real email server */}
         <div style={{ background: "#fffbeb", border: "1px dashed #fbbf24", borderRadius: 10, padding: "12px 14px", marginBottom: 20 }}>
           <p style={{ fontSize: 11, color: "#92400e", fontWeight: 700, marginBottom: 6 }}>
             🛠️ Demo Mode — No real email server connected
@@ -213,31 +234,14 @@ function ForgotPasswordForm({ onBack }) {
   );
 }
 
-/* ── Password Strength ── */
-function StrengthBar({ password }) {
-  let s = 0;
-  if (password.length >= 8) s++; if (/[A-Z]/.test(password)) s++; if (/[0-9]/.test(password)) s++; if (/[^A-Za-z0-9]/.test(password)) s++;
-  const colors = ["#ef4444", "#f59e0b", "#3b82f6", "#10b981"];
-  const labels = ["Weak", "Fair", "Good", "Strong"];
-  if (!password) return null;
-  return (
-    <div style={{ marginTop: 6 }}>
-      <div style={{ display: "flex", gap: 4, marginBottom: 3 }}>
-        {[0, 1, 2, 3].map(i => <div key={i} style={{ flex: 1, height: 4, borderRadius: 4, background: i < s ? colors[s - 1] : "rgba(0,0,0,0.08)", transition: "background 0.3s" }} />)}
-      </div>
-      <span style={{ fontSize: 11, color: colors[s - 1], fontWeight: 600 }}>{labels[s - 1]}</span>
-    </div>
-  );
-}
-
 /* ── Reset Password Form (reached via reset link token) ── */
 function ResetPasswordForm({ token, onDone }) {
-  const [password, setPassword]         = useState("");
-  const [confirmPassword, setConfirm]   = useState("");
-  const [showPass, setShowPass]         = useState(false);
-  const [toast, setToast]               = useState({ msg: "", type: "" });
-  const [tokenValid, setTokenValid]     = useState(null); // null = checking, true/false
-  const [tokenEmail, setTokenEmail]     = useState("");
+  const [password, setPassword]       = useState("");
+  const [confirmPassword, setConfirm] = useState("");
+  const [showPass, setShowPass]       = useState(false);
+  const [toast, setToast]             = useState({ msg: "", type: "" });
+  const [tokenValid, setTokenValid]   = useState(null);
+  const [tokenEmail, setTokenEmail]   = useState("");
 
   useEffect(() => {
     const raw = localStorage.getItem("spaceece_reset_token");
@@ -261,19 +265,13 @@ function ResetPasswordForm({ token, onDone }) {
     if (password !== confirmPassword)  { setToast({ msg: "Passwords do not match.", type: "error" }); return; }
     if (password.length < 8)           { setToast({ msg: "Password must be at least 8 characters.", type: "error" }); return; }
 
-    // Update password — handle admin separately
-    if (tokenEmail === ADMIN_CREDENTIALS.email) {
-      // Admin password is hardcoded; in a real app you'd update the backend.
-      // For demo purposes just clear the token and redirect.
-    } else {
+    if (tokenEmail !== ADMIN_CREDENTIALS.email) {
       const teachers = JSON.parse(localStorage.getItem("spaceece_teachers") || "[]");
       const updated  = teachers.map(t => t.email === tokenEmail ? { ...t, password } : t);
       localStorage.setItem("spaceece_teachers", JSON.stringify(updated));
     }
 
-    // Invalidate the token
     localStorage.removeItem("spaceece_reset_token");
-
     setToast({ msg: "Password updated successfully!", type: "success" });
     setTimeout(onDone, 1800);
   };
@@ -342,7 +340,6 @@ function ResetPasswordForm({ token, onDone }) {
               placeholder="Re-enter new password"
             />
           </div>
-          {/* Live match indicator */}
           {confirmPassword && (
             <p style={{ fontSize: 11, marginTop: 4, color: password === confirmPassword ? "#10b981" : "#ef4444", fontWeight: 600 }}>
               {password === confirmPassword ? "✅ Passwords match" : "❌ Passwords do not match"}
@@ -359,9 +356,9 @@ function ResetPasswordForm({ token, onDone }) {
 
 /* ── Register Form ── */
 function RegisterForm({ onBack }) {
-  const [form, setForm]     = useState({ name: "", email: "", phone: "", address: "", subject: "", photo: "", password: "", confirmPassword: "" });
+  const [form, setForm]         = useState({ name: "", email: "", phone: "", address: "", subject: "", photo: "", password: "", confirmPassword: "" });
   const [showPass, setShowPass] = useState(false);
-  const [toast, setToast]   = useState({ msg: "", type: "" });
+  const [toast, setToast]       = useState({ msg: "", type: "" });
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
@@ -474,17 +471,14 @@ function RegisterForm({ onBack }) {
 export default function LoginPage({ onLogin }) {
   const [view, setView] = useState("login"); // login | register | forgot | reset
 
-  // On mount, check URL for a reset token — if found, go straight to reset view
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token  = params.get("reset_token");
     if (token) {
-      // Store token in state so ResetPasswordForm can use it
       setView({ type: "reset", token });
     }
   }, []);
 
-  // Clean up token param from URL after detecting it (keeps URL tidy)
   const handleResetDone = () => {
     window.history.replaceState({}, document.title, window.location.pathname);
     setView("login");
@@ -497,7 +491,7 @@ export default function LoginPage({ onLogin }) {
       <Particles />
       <style>{globalCSS}</style>
       <div style={ls.panel}>
-        {/* Left — illustration (hidden on reset/forgot for cleaner focus) */}
+        {/* Left — illustration (hidden on reset view for cleaner focus) */}
         {!isResetView && (
           <div style={ls.left}>
             <LoginIllustration />
