@@ -279,7 +279,7 @@ const COURSES_DATA = [
   {
     title: "Preschool Teacher Training",
     duration: "6 Months",
-    img: "1st.jpg",
+    img: "1st.png",
     desc: "Master the essential skills every preschool teacher needs — from classroom setup and daily routines to building warm relationships with children that spark a lifelong love of learning.",
    /* videoId: "3Ok2VGpfRtM",*/
     highlights: ["10 Keys to Success", "Daily Routine Design", "Teacher–Child Bonding", "Certification Included"]
@@ -287,7 +287,7 @@ const COURSES_DATA = [
   {
     title: "Classroom Management for Teachers",
     duration: "2 Months",
-    img: "2nd.jpg",
+    img: "2nd.jpeg",
     desc: "Learn proven strategies to manage preschool classrooms with empathy and confidence — positive discipline, transitions, behaviour guidance, and creating a safe space for every student.",
     /*videoId: "bAXToCVjcdk",*/
     highlights: ["Positive Discipline", "Behaviour Guidance", "Smooth Transitions", "Empathy-Based Teaching"]
@@ -295,7 +295,7 @@ const COURSES_DATA = [
   {
     title: "Montessori Teaching Basics",
     duration: "4 Months",
-    img: "3rd.jpg",
+    img: "3rd.jpeg",
     desc: "Understand the Montessori philosophy from the ground up — child-led discovery, prepared environments, sensitive periods, and hands-on materials adapted for Indian classrooms.",
     /*videoId: "eY2Y2DfosYI",*/
     highlights: ["Child-Led Discovery", "Prepared Environment", "Sensitive Periods", "Montessori Materials"]
@@ -303,7 +303,7 @@ const COURSES_DATA = [
   {
     title: "Play-Based Learning Design",
     duration: "2 Months",
-    img: "4th.jpg",
+    img: "4th.jpeg",
     desc: "Design rich, purposeful play experiences that teachers can use to build cognitive, social, emotional, and language skills in students aged 2–6.",
     /*videoId: "_PIuorhLj0c",*/
     highlights: ["Free & Guided Play", "Sensory Activities", "Station-Based Learning", "Activity Design"]
@@ -311,7 +311,7 @@ const COURSES_DATA = [
   {
     title: "Early Literacy for Students",
     duration: "2 Months",
-    img: "5th.jpg",
+    img: "5th.jpeg",
     desc: "Equip teachers with powerful early literacy strategies — read-alouds, phonemic awareness, storytelling, and language-rich environments that help students learn to read and write.",
     /*videoId: "-fNm4aa3Hr0",*/
     highlights: ["Phonics Methods", "Read-Aloud Techniques", "Story-Based Learning", "Language-Rich Classroom"]
@@ -319,7 +319,7 @@ const COURSES_DATA = [
   {
     title: "Student Assessment & Documentation",
     duration: "1 Month",
-    img: "6th.jpg",
+    img: "6th.jpeg",
     desc: "Learn how to observe, record, and communicate each student's developmental progress — building portfolios, using checklists, and sharing meaningful reports with parents.",
     /*videoId: "VT7dkEjjkyc",*/
     highlights: ["Portfolio Building", "Observation Checklists", "Progress Reporting", "Parent Communication"]
@@ -327,7 +327,7 @@ const COURSES_DATA = [
   {
     title: "School Readiness Program",
     duration: "3 Months",
-    img: "7th.jpg",
+    img: "7th.jpeg",
     desc: "Prepare students confidently for formal school — teachers learn to develop the social, emotional, and cognitive skills children need to thrive in Grade 1 and beyond.",
     /*videoId: "3Ok2VGpfRtM",*/
     highlights: ["Social Skills", "Pre-Academic Concepts", "Emotional Readiness", "Smooth School Transition"]
@@ -335,7 +335,7 @@ const COURSES_DATA = [
   {
     title: "Inclusive Classroom Practices",
     duration: "2 Months",
-    img: "8th.jpg",
+    img: "8th.jpeg",
     desc: "Support every student regardless of ability — teachers gain tools to differentiate learning, accommodate diverse needs, and create truly inclusive preschool environments.",
     /*videoId: "ySOgtwlLy1w",*/
     highlights: ["Differentiated Learning", "Special Needs Support", "Inclusive Strategies", "Every Child Matters"]
@@ -343,7 +343,7 @@ const COURSES_DATA = [
   {
     title: "Teacher–Student Relationship Building",
     duration: "1 Month",
-    img: "9th.jpg",
+    img: "9th.jpeg",
     desc: "Build warm, trusting relationships with students that form the foundation of all effective teaching — attachment theory, responsive caregiving, and emotional safety in the classroom.",
     /*videoId: "7XytnZJ-90U",*/
     highlights: ["Attachment Theory", "Responsive Caregiving", "Emotional Safety", "Trust Building"]
@@ -351,7 +351,7 @@ const COURSES_DATA = [
   {
     title: "Early Childhood Education Program",
     duration: "6 Months",
-    img: "10th.jpg",
+    img: "10th.png",
     desc: "The complete 6-month flagship program — child development, curriculum design, teaching strategies, student assessment, family engagement, and real classroom practicum.",
     /*videoId: "fuoCgt5gGNc",*/
     highlights: ["NEP 2020 Aligned", "24-Week Plan", "Real Practicum", "Full Certification"]

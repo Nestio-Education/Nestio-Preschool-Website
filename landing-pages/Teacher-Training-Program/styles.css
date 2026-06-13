@@ -74,7 +74,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 .nav-inner {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 32px 0 8px;
   min-height: 82px;
   display: flex;
   align-items: center;
