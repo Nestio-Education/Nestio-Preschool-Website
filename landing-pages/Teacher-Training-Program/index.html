@@ -30,18 +30,34 @@
 
     <ul class="nav-links">
       <li><button data-page="home"       onclick="navigate('home')">Home</button></li>
-      <li><button data-page="about"      onclick="navigate('about')">About</button></li>
       <li><button data-page="courses"    onclick="navigate('courses')">Courses</button></li>
-      <li><button data-page="training"   onclick="navigate('training')">6-Month Plan</button></li>
-      <li><button data-page="weekly"     onclick="navigate('weekly')">Weekly Schedule</button></li>
+      <li><button data-page="weekly"     onclick="navigate('weekly')">Training Plan</button></li>
       <li><button data-page="planning"   onclick="navigate('planning')">Lesson Planning</button></li>
-      <li><button data-page="curriculum" onclick="navigate('curriculum')">Curriculum</button></li>
-      <li><button data-page="fieldwork"  onclick="navigate('fieldwork')">Field Work</button></li>
-      <li><button data-page="handbook"   onclick="navigate('handbook')">Handbook</button></li>
-      <li><button data-page="resources"  onclick="navigate('resources')">Resources</button></li>
-      <li><button data-page="langstation" onclick="navigate('langstation')">Language Station</button></li>
+      <li><button data-page="curriculum" onclick="navigate('curriculum')">Curriculum & Resources</button></li>
       <li><button data-page="contact"    onclick="navigate('contact')">Contact</button></li>
     </ul>
+    <!-- Login Button -->
+<a href="http://localhost:5173" 
+   style="
+     background: #F56A00;
+     color: white;
+     padding: 10px 22px;
+     border-radius: 8px;
+     font-weight: 700;
+     font-size: 14px;
+     text-decoration: none;
+     display: inline-flex;
+     align-items: center;
+     gap: 8px;
+     transition: background 0.3s;
+   "
+   onmouseover="this.style.background='#d45a00'"
+   onmouseout="this.style.background='#F56A00'"
+>
+  <i class="fas fa-sign-in-alt"></i> Login
+</a>
+
+<button class="nav-hamburger" id="hamburger" aria-label="Menu">
 
     <button class="nav-hamburger" id="hamburger" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -51,17 +67,14 @@
   <!-- Mobile Menu -->
   <div class="nav-mobile" id="nav-mobile">
     <button data-page="home"       onclick="navigate('home')">Home</button>
-    <button data-page="about"      onclick="navigate('about')">About</button>
     <button data-page="courses"    onclick="navigate('courses')">Courses</button>
-    <button data-page="training"   onclick="navigate('training')">6-Month Plan</button>
-    <button data-page="weekly"     onclick="navigate('weekly')">Weekly Schedule</button>
+    <button data-page="weekly"     onclick="navigate('weekly')">Training Plan</button>
     <button data-page="planning"   onclick="navigate('planning')">Lesson Planning</button>
-    <button data-page="curriculum" onclick="navigate('curriculum')">Curriculum</button>
-    <button data-page="fieldwork"  onclick="navigate('fieldwork')">Field Work</button>
-    <button data-page="handbook"   onclick="navigate('handbook')">Handbook</button>
-    <button data-page="resources"  onclick="navigate('resources')">Resources</button>
-    <button data-page="langstation" onclick="navigate('langstation')">Language Station</button>
+    <button data-page="curriculum" onclick="navigate('curriculum')">Curriculum & Resources</button>
     <button data-page="contact"    onclick="navigate('contact')">Contact</button>
+    <a href="http://localhost:5173/" style="color:#F56A00;font-weight:700;">
+      <i class="fas fa-sign-in-alt"></i> Login
+    </a>
   </div>
 </nav>
 
@@ -182,37 +195,48 @@
         <p class="section-desc">Everything you need to become a confident, skilled, and compassionate early childhood educator.</p>
       </div>
       <div class="grid-3">
-        <div class="card fade-in" style="padding:32px;">
-          <div style="width:52px;height:52px;background:var(--orange-bg);color:var(--orange);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-seedling"></i></div>
-          <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Foundational Depth</h3>
-          <p style="color:var(--muted);font-size:14px;">Grounded in Piaget, Vygotsky, Montessori and Reggio Emilia — theory meets practice every week.</p>
-        </div>
-        <div class="card fade-in" style="padding:32px;">
-          <div style="width:52px;height:52px;background:#FFF8E0;color:var(--yellow);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-map-marked-alt"></i></div>
-          <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Weekly Structured Plan</h3>
-          <p style="color:var(--muted);font-size:14px;">24 weeks of detailed daily schedules — topic, activity, and learning objectives every single day.</p>
-        </div>
-        <div class="card fade-in" style="padding:32px;">
-          <div style="width:52px;height:52px;background:#ECFDF5;color:var(--green);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-tasks"></i></div>
-          <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Field Work Trackers</h3>
-          <p style="color:var(--muted);font-size:14px;">Structured observation logs and practicum trackers for months 1–3 and 4–6.</p>
-        </div>
-        <div class="card fade-in" style="padding:32px;">
-          <div style="width:52px;height:52px;background:#EFF6FF;color:var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-book-reader"></i></div>
-          <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Multilingual Curriculum</h3>
-          <p style="color:var(--muted);font-size:14px;">Complete curriculum books, alphabet resources and lesson plans in English, Hindi, Marathi and Gujarati.</p>
-        </div>
-        <div class="card fade-in" style="padding:32px;">
-          <div style="width:52px;height:52px;background:var(--orange-bg);color:var(--orange);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-users"></i></div>
-          <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Family Engagement</h3>
-          <p style="color:var(--muted);font-size:14px;">Parent capacity-building materials and workshop resources to strengthen home–school connections.</p>
-        </div>
-        <div class="card fade-in" style="padding:32px;">
-          <div style="width:52px;height:52px;background:#FFF0F3;color:#E11D48;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-heartbeat"></i></div>
-          <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Health & Safety</h3>
-          <p style="color:var(--muted);font-size:14px;">Child protection, first aid, nutrition planning, and hygiene modules built into Month 5.</p>
-        </div>
-      </div>
+  <!-- Card 1 -->
+  <a href="feature-foundational.html" target="_blank" class="card fade-in" style="padding:32px;">
+    <div style="width:52px;height:52px;background:var(--orange-bg);color:var(--orange);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-seedling"></i></div>
+    <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Foundational Depth</h3>
+    <p style="color:var(--muted);font-size:14px;">Grounded in Piaget, Vygotsky, Montessori and Reggio Emilia — theory meets practice every week.</p>
+  </a>
+
+  <!-- Card 2 -->
+  <a href="feature-weekly.html" target="_blank" class="card fade-in" style="padding:32px;">
+    <div style="width:52px;height:52px;background:#FFF8E0;color:var(--yellow);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-map-marked-alt"></i></div>
+    <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Weekly Structured Plan</h3>
+    <p style="color:var(--muted);font-size:14px;">24 weeks of detailed daily schedules — topic, activity, and learning objectives every single day.</p>
+  </a>
+
+  <!-- Card 3 -->
+  <a href="feature-fieldwork.html" target="_blank" class="card fade-in" style="padding:32px;">
+    <div style="width:52px;height:52px;background:#ECFDF5;color:var(--green);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-tasks"></i></div>
+    <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Field Work Trackers</h3>
+    <p style="color:var(--muted);font-size:14px;">Structured observation logs and practicum trackers for months 1–3 and 4–6.</p>
+  </a>
+
+  <!-- Card 4 -->
+  <a href="feature-multilingual.html" target="_blank" class="card fade-in" style="padding:32px;">
+    <div style="width:52px;height:52px;background:#EFF6FF;color:var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-book-reader"></i></div>
+    <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Multilingual Curriculum</h3>
+    <p style="color:var(--muted);font-size:14px;">Complete curriculum books, alphabet resources and lesson plans in English, Hindi, Marathi and Gujarati.</p>
+  </a>
+
+  <!-- Card 5 -->
+  <a href="feature-family.html" target="_blank" class="card fade-in" style="padding:32px;">
+    <div style="width:52px;height:52px;background:var(--orange-bg);color:var(--orange);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-users"></i></div>
+    <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Family Engagement</h3>
+    <p style="color:var(--muted);font-size:14px;">Parent capacity-building materials and workshop resources to strengthen home–school connections.</p>
+  </a>
+
+  <!-- Card 6 -->
+  <a href="feature-health.html" target="_blank" class="card fade-in" style="padding:32px;">
+    <div style="width:52px;height:52px;background:#FFF0F3;color:#E11D48;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;"><i class="fas fa-heartbeat"></i></div>
+    <h3 style="font-family:var(--font-display);font-size:19px;font-weight:700;margin-bottom:8px;">Health & Safety</h3>
+    <p style="color:var(--muted);font-size:14px;">Child protection, first aid, nutrition planning, and hygiene modules built into Month 5.</p>
+  </a>
+</div>
     </div>
   </section>
 
@@ -226,13 +250,11 @@
       </button>
     </div>
   </div>
-
-</div><!-- /page-home -->
-
+  
 <!-- ============================================================
      PAGE: ABOUT
      ============================================================ -->
-<div id="page-about" class="page">
+<section id="about" class="section">
   <section class="section">
     <div class="container">
       <div class="section-header">
@@ -287,7 +309,11 @@
       </div>
     </div>
   </section>
-</div>
+</section>
+
+</div><!-- /page-home -->
+
+
 
 <!-- ============================================================
      PAGE: COURSES
@@ -311,7 +337,8 @@
 <!-- ============================================================
      PAGE: 6-MONTH TRAINING TIMELINE
      ============================================================ -->
-<div id="page-training" class="page">
+
+<!--<div id="page-training" class="page">
   <section class="section">
     <div class="container">
       <div class="section-header center">
@@ -320,13 +347,13 @@
         <div class="divider"></div>
         <p class="section-desc">A carefully structured journey from foundational theory to real-world classroom practice — covering every domain of early childhood education.</p>
       </div>
-      <div class="timeline-wrap" id="timeline-wrap">
-        <!-- rendered by JS -->
+      <div class="timeline-wrap" id="timeline-wrap">-->
+        <!-- rendered by JS --><!---
       </div>
     </div>
   </section>
 </div>
-
+-->
 <!-- ============================================================
      PAGE: WEEKLY SCHEDULE
      ============================================================ -->
@@ -421,6 +448,113 @@
       </div>
     </div>
   </section>
+  <!-- ============================================================
+     PAGE: FIELD WORK
+     ============================================================ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-label">Practical Experience</span>
+        <h2 class="section-title">Field Work &amp; Practicum</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Hands-on classroom experience is at the heart of SpacECE training. Download trackers, complete observation visits, and receive expert mentor feedback.</p>
+      </div>
+
+      <h3 style="font-family:var(--font-display);font-size:22px;font-weight:700;margin-bottom:20px;">Download Field Work Trackers</h3>
+      <div class="tracker-cards" id="tracker-cards">
+        <!-- rendered by JS -->
+      </div>
+
+      <h3 style="font-family:var(--font-display);font-size:22px;font-weight:700;margin-bottom:20px;">Field Work Components</h3>
+      <div class="fieldwork-item fade-in">
+        <div class="fieldwork-icon"><i class="fas fa-clipboard-check"></i></div>
+        <div>
+          <h4>Practicum Guidelines</h4>
+          <p>Rules, expectations, and conduct guidelines for all school observation visits.</p>
+        </div>
+        <i class="fas fa-chevron-right chevron"></i>
+      </div>
+      <div class="fieldwork-item fade-in">
+        <div class="fieldwork-icon"><i class="fas fa-eye"></i></div>
+        <div>
+          <h4>Observation Reports</h4>
+          <p>Structured templates for observing and documenting classroom dynamics.</p>
+        </div>
+        <i class="fas fa-chevron-right chevron"></i>
+      </div>
+      <div class="fieldwork-item fade-in">
+        <div class="fieldwork-icon"><i class="fas fa-journal-whills"></i></div>
+        <div>
+          <h4>Reflection Journals</h4>
+          <p>Daily reflective prompts to support continuous professional growth.</p>
+        </div>
+        <i class="fas fa-chevron-right chevron"></i>
+      </div>
+      <div class="fieldwork-item fade-in">
+        <div class="fieldwork-icon"><i class="fas fa-school"></i></div>
+        <div>
+          <h4>Classroom Visits</h4>
+          <p>Scheduled visits to partner preschools — shadow, assist, and then lead teaching.</p>
+        </div>
+        <i class="fas fa-chevron-right chevron"></i>
+      </div>
+      <div class="fieldwork-item fade-in">
+        <div class="fieldwork-icon"><i class="fas fa-comments"></i></div>
+        <div>
+          <h4>Mentor Feedback Sessions</h4>
+          <p>Structured one-to-one feedback from experienced ECE mentors.</p>
+        </div>
+        <i class="fas fa-chevron-right chevron"></i>
+      </div>
+      <div class="fieldwork-item fade-in">
+        <div class="fieldwork-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <div>
+          <h4>Micro-Teaching Practice</h4>
+          <p>Practice teaching with peers in simulated classroom sessions before the real practicum.</p>
+        </div>
+        <i class="fas fa-chevron-right chevron"></i>
+      </div>
+    </div>
+  </section>
+  <!-- ============================================================
+     PAGE: HANDBOOK
+     ============================================================ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-label">Study Material</span>
+        <h2 class="section-title">Teacher Training Handbook</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Your essential companion for the complete 6-month journey — comprehensive, practical, and available in all four languages.</p>
+      </div>
+
+      <div class="handbook-hero fade-in">
+        <div class="handbook-cover">
+          <div class="book-icon-large"><i class="fas fa-book"></i></div>
+          <h3>Complete Training Guide</h3>
+          <p>The essential companion for your 6-month learning journey.</p>
+          <div class="lang-btns" id="handbook-lang-btns">
+            <!-- rendered by JS -->
+          </div>
+        </div>
+        <div class="handbook-content">
+          <h3>Handbook Contents</h3>
+          <div class="chapters-grid">
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Child Development Fundamentals</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Learning Environment Design</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Literacy &amp; Numeracy Teaching</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Creative Arts Integration</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Inclusive Education Strategies</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Assessment &amp; Documentation</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Parent &amp; Community Engagement</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Health, Safety &amp; Nutrition</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Reflective Teaching Practice</div>
+            <div class="chapter-item fade-in"><i class="fas fa-check-circle"></i> Capstone Project Guide</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 
 <!-- ============================================================
@@ -438,6 +572,86 @@
       <div id="curriculum-wrap">
         <!-- rendered by JS -->
       </div>
+    </div>
+  </section>
+  <!-- ============================================================
+     PAGE: RESOURCES
+     ============================================================ -->
+  <section class="section" style="background:var(--cream);">
+    <div class="container">
+
+      <!-- Downloads -->
+      <div class="section-header center">
+        <span class="section-label">Downloads</span>
+        <h2 class="section-title">Teacher Resources</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Supplementary materials to support your classroom, your students, and the families you work with.</p>
+      </div>
+      <div class="grid-4" id="resources-grid">
+        <!-- rendered by JS -->
+      </div>
+
+      <!-- Station Activity Bank -->
+      <div class="section-header center" style="margin-top:80px;">
+        <span class="section-label">Station References</span>
+        <h2 class="section-title">Station Activity Bank</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Reference activity examples for each learning station — shared by Sachin Sir. Click any link to view the example on Facebook.</p>
+      </div>
+      <div class="grid-3" id="station-activity-bank" style="margin-top:8px;">
+        <!-- rendered by JS -->
+      </div>
+
+      <!-- Parent Awareness Videos -->
+      <div class="section-header center" style="margin-top:80px;">
+        <span class="section-label">Parent Education</span>
+        <h2 class="section-title">Parent Awareness Video Library</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Explains the WHY behind classroom activities. Share with parents at PTMs or use during the Parenting Course. Suggest follow-up activities for parents at home.</p>
+      </div>
+      <div style="max-width:720px;margin:0 auto 16px;">
+        <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:16px;box-shadow:0 8px 40px rgba(26,26,46,0.15);">
+          <iframe
+            src="https://www.youtube.com/embed/videoseries?list=PLV3Y-5-ti6T0cF36Y3lcoLCyGqFNLTuIG"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            title="SpacECE Parent Awareness Playlist">
+          </iframe>
+        </div>
+        <p style="text-align:center;margin-top:14px;font-size:14px;color:var(--muted);">
+          <i class="fab fa-youtube" style="color:#FF0000;margin-right:6px;"></i>
+          Full playlist on
+          <a href="https://www.youtube.com/@SpacECE" target="_blank" rel="noopener" style="color:var(--orange);font-weight:700;">SpacECE YouTube Channel →</a>
+        </p>
+      </div>
+
+      <!-- SpacECE Social Links -->
+      <div class="section-header center" style="margin-top:80px;">
+        <span class="section-label">Stay Connected</span>
+        <h2 class="section-title">Follow SpacECE</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Follow us for daily activity ideas, parent tips, and ECE inspiration.</p>
+      </div>
+      <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:8px;">
+        <a href="https://www.youtube.com/@SpacECE" target="_blank" rel="noopener"
+           style="display:flex;align-items:center;gap:10px;background:#FF0000;color:#fff;padding:14px 24px;border-radius:100px;font-weight:700;font-size:14px;box-shadow:0 4px 20px rgba(255,0,0,0.3);transition:transform .3s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+          <i class="fab fa-youtube" style="font-size:18px;"></i> YouTube
+        </a>
+        <a href="https://www.linkedin.com/company/spacecein" target="_blank" rel="noopener"
+           style="display:flex;align-items:center;gap:10px;background:#0077B5;color:#fff;padding:14px 24px;border-radius:100px;font-weight:700;font-size:14px;box-shadow:0 4px 20px rgba(0,119,181,0.3);transition:transform .3s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+          <i class="fab fa-linkedin-in" style="font-size:18px;"></i> LinkedIn
+        </a>
+        <a href="https://www.facebook.com/spacecein" target="_blank" rel="noopener"
+           style="display:flex;align-items:center;gap:10px;background:#1877F2;color:#fff;padding:14px 24px;border-radius:100px;font-weight:700;font-size:14px;box-shadow:0 4px 20px rgba(24,119,242,0.3);transition:transform .3s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+          <i class="fab fa-facebook-f" style="font-size:18px;"></i> Facebook
+        </a>
+        <a href="https://www.spacece.co/join-us/job-application" target="_blank" rel="noopener"
+           style="display:flex;align-items:center;gap:10px;background:var(--orange);color:#fff;padding:14px 24px;border-radius:100px;font-weight:700;font-size:14px;box-shadow:0 4px 20px rgba(245,106,0,0.3);transition:transform .3s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+          <i class="fas fa-briefcase" style="font-size:18px;"></i> Join SpacECE Team
+        </a>
+      </div>
+
     </div>
   </section>
 </div>
@@ -639,63 +853,6 @@
 </div>
 
 <!-- ============================================================
-     PAGE: LANGUAGE STATION
-     ============================================================ -->
-<div id="page-langstation" class="page">
-  <section class="section" style="background:var(--cream);">
-    <div class="container">
-      <div class="section-header center">
-        <span class="section-label">Language Station</span>
-        <h2 class="section-title">Sentences to Practise</h2>
-        <div class="divider"></div>
-        <p class="section-desc">Resources, videos, and reading materials shared for classroom language practice. Curated by the SpacECE team.</p>
-      </div>
-
-      <!-- PDFs -->
-      <div class="section-header" style="margin-top:40px;">
-        <span class="section-label">PDF Resources</span>
-        <h3 class="section-title" style="font-size:1.6rem;">Downloadable Documents</h3>
-        <div class="divider"></div>
-      </div>
-      <div class="grid-4" id="langstation-pdfs-grid"></div>
-
-      <!-- YouTube Playlists -->
-      <div class="section-header" style="margin-top:56px;">
-        <span class="section-label">Video Playlists</span>
-        <h3 class="section-title" style="font-size:1.6rem;">YouTube Learning Playlists</h3>
-        <div class="divider"></div>
-      </div>
-      <div class="grid-4" id="langstation-playlists-grid"></div>
-
-      <!-- Performances -->
-      <div class="section-header" style="margin-top:56px;">
-        <span class="section-label">Spotlight</span>
-        <h3 class="section-title" style="font-size:1.6rem;">Performances & Activities</h3>
-        <div class="divider"></div>
-      </div>
-      <div class="grid-4" id="langstation-performances-grid"></div>
-
-      <!-- Join Us CTA -->
-      <div class="contact-card fade-in" style="margin-top:56px;">
-        <div class="contact-icon-wrap"><i class="fas fa-users"></i></div>
-        <h3>Join the SpacECE Team!</h3>
-        <p>Passionate about early childhood education (0–8 years)? Love working with kids? We're looking for dedicated individuals to join us in shaping young minds through innovative, nurturing, and fun learning environments.</p>
-        <ul style="list-style:none;padding:0;margin:16px 0;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
-          <li style="background:var(--cream);border-radius:8px;padding:8px 16px;font-size:14px;font-weight:600;"><i class="fas fa-check-circle" style="color:var(--orange);margin-right:6px;"></i> Impactful work</li>
-          <li style="background:var(--cream);border-radius:8px;padding:8px 16px;font-size:14px;font-weight:600;"><i class="fas fa-check-circle" style="color:var(--orange);margin-right:6px;"></i> Professional growth</li>
-          <li style="background:var(--cream);border-radius:8px;padding:8px 16px;font-size:14px;font-weight:600;"><i class="fas fa-check-circle" style="color:var(--orange);margin-right:6px;"></i> Creative & supportive culture</li>
-          <li style="background:var(--cream);border-radius:8px;padding:8px 16px;font-size:14px;font-weight:600;"><i class="fas fa-check-circle" style="color:var(--orange);margin-right:6px;"></i> Work-life balance</li>
-        </ul>
-        <a href="https://www.spacece.co/join-us/job-application" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg" style="display:inline-flex;width:100%;justify-content:center;max-width:400px;margin:0 auto;">
-          <i class="fas fa-arrow-right"></i> Apply on Job Portal
-        </a>
-      </div>
-
-    </div>
-  </section>
-</div>
-
-<!-- ============================================================
      PAGE: CONTACT
      ============================================================ -->
 <div id="page-contact" class="page">
@@ -711,8 +868,8 @@
         <div class="contact-icon-wrap"><i class="fas fa-file-alt"></i></div>
         <h3>We'd Love to Hear From You</h3>
         <p>Fill in our Google Form to submit your enquiry about admissions, curriculum, or any other matter. Our team will get back to you within 24 hours.</p>
-        <a href="#" class="btn btn-primary btn-lg google-form-link" target="_blank" rel="noopener noreferrer" style="display:inline-flex;width:100%;justify-content:center;max-width:400px;margin:0 auto;">
-          <i class="fab fa-google"></i> Open Enquiry Form
+        <a href="https://www.spacece.co/join-us/spacece-internship" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg" style="display:inline-flex;width:100%;justify-content:center;max-width:400px;margin:0 auto;">
+          <i class="fas fa-external-link-alt"></i> Apply on SpacECE Website
         </a>
         <div class="divider"></div>
         <p style="font-size:14px;color:var(--muted);">You can also connect with us on social media for updates, resources and tips.</p>
@@ -755,14 +912,13 @@
           <li><button data-page="fieldwork"  onclick="navigate('fieldwork')">Field Work</button></li>
           <li><button data-page="handbook"   onclick="navigate('handbook')">Handbook</button></li>
           <li><button data-page="resources"  onclick="navigate('resources')">Downloads</button></li>
-          <li><button data-page="langstation" onclick="navigate('langstation')">Language Station</button></li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>Contact</h4>
         <ul>
           <li><button data-page="contact" onclick="navigate('contact')">Enquiry Form</button></li>
-          <li><a href="#" class="google-form-link" target="_blank">Apply Now</a></li>
+          <li><a href="https://www.spacece.co/join-us/spacece-internship" target="_blank" rel="noopener noreferrer">Apply Now</a></li>
         </ul>
         <div style="margin-top:24px;">
           <span style="font-size:12px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.1em;font-weight:700;">Follow Us</span>
