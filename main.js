@@ -4,12 +4,12 @@ const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('revealed'); });
 }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 reveals.forEach(r => observer.observe(r));
-
+ 
 // ── NAVBAR SCROLL ──
 window.addEventListener('scroll', () => {
   document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
 });
-
+ 
 // ── COUNTER ANIMATION ──
 const counters = document.querySelectorAll('.counter');
 const counterObs = new IntersectionObserver(entries => {
@@ -32,7 +32,7 @@ const counterObs = new IntersectionObserver(entries => {
   });
 }, { threshold: 0.5 });
 counters.forEach(c => counterObs.observe(c));
-
+ 
 // ── MODAL ──
 const modal = document.getElementById('modal');
 function openModal() { modal.classList.add('open'); }
@@ -40,7 +40,7 @@ function closeModalFn() { modal.classList.remove('open'); }
 document.getElementById('modalClose').addEventListener('click', closeModalFn);
 modal.addEventListener('click', e => { if(e.target === modal) closeModalFn(); });
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModalFn(); });
-
+ 
 function submitModal() {
   const n = document.getElementById('mName').value.trim();
   const p = document.getElementById('mPhone').value.trim();
@@ -53,7 +53,7 @@ function submitModal() {
     window.open(`https://wa.me/919096305648?text=Hi%20Nestio%2C%20I%27d%20like%20to%20book%20a%20free%20visit.%20Name%3A%20${encodeURIComponent(n)}%20%7C%20Phone%3A%20${encodeURIComponent(p)}%20%7C%20Child%20Age%3A%20${encodeURIComponent(a)}`,'_blank');
   }, 1500);
 }
-
+ 
 // ── CONTACT FORM ──
 function submitContactForm() {
   const n = document.getElementById('cfName').value.trim();
@@ -66,7 +66,7 @@ function submitContactForm() {
     window.open(`https://wa.me/919096305648?text=Hi%20Nestio%2C%20Book%20a%20Free%20Visit.%20Name%3A%20${encodeURIComponent(n)}%20%7C%20Phone%3A%20${encodeURIComponent(p)}%20%7C%20Age%3A%20${encodeURIComponent(a)}`,'_blank');
   }, 1500);
 }
-
+ 
 // ── SMOOTH ACTIVE NAV ──
 const sections = document.querySelectorAll('section[id]');
 const navLinks = document.querySelectorAll('.nav-links a');
@@ -82,7 +82,7 @@ window.addEventListener('scroll', () => {
     }
   });
 });
-
+ 
 // ── HAMBURGER / MOBILE MENU ──
 const hamburger = document.getElementById('hamburger');
 const mobileMenu = document.getElementById('mobileMenu');
