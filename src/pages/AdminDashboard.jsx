@@ -16,6 +16,7 @@ import SettingsTab from "../admin/SettingsTab";
 import LearningContentManagementTab from "../admin/LearningContentManagementTab";
 import FeedbackManagementTab from "../admin/FeedbackManagementTab";
 import { MOCK_TEACHERS, MOCK_COURSES, MOCK_BATCHES, MOCK_TRAINERS, MOCK_SESSIONS, MOCK_ASSIGNMENTS, MOCK_CONTENT_ITEMS, MOCK_ASSESSMENTS, MOCK_CERTIFICATES, MOCK_FEEDBACKS, MOCK_CATEGORIES } from "../data/mockData";
+import { getAdminTeachers, getCourseAssignments } from "../services/api";
 //import CourseManagementTab from "../admin/CourseManagementTab";
 //import BatchManagementTab from "../admin/BatchManagementTab";
 //import AssessmentManagementTab from "../admin/AssessmentManagementTab";
@@ -112,15 +113,18 @@ export default function AdminDashboard({ user, onLogout }) {
     }
   };
   useEffect(() => {
-  const stored = JSON.parse(localStorage.getItem("spaceece_teachers") || "[]");
-  // Stored teachers (registered via form) take priority — merge with mocks
-  const storedIds = new Set(stored.map(t => t.email));
-  const merged = [
-    ...MOCK_TEACHERS.filter(t => !storedIds.has(t.email)),
-    ...stored,
-  ];
-  setTeachers(merged);
-}, []);
+    getAdminTeachers()
+      .then(res => {
+        if (res.teachers) setTeachers(res.teachers);
+      })
+      .catch(console.error);
+
+    getCourseAssignments()
+      .then(res => {
+        if (res.assignments) setAssignments(res.assignments);
+      })
+      .catch(console.error);
+  }, [activeTab]);
 
   return (
     <div style={{ display:"flex", minHeight:"100vh", background:"#f8fafc", fontFamily:"'Segoe UI','Inter',-apple-system,sans-serif" }}>

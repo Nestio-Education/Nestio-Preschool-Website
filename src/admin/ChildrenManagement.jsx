@@ -1,170 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal, S, SearchBar, StatCard, StatusBadge, Toast } from "../components/Shared";
+import { getChildren, createChild, updateChild, deleteChild, getCenters, getClasses } from "../services/api";
 
-// Expanded mock data with diverse children, centers, and classes for robust testing
-const MOCK_CHILDREN = [
-  {
-    id: 1,
-    name: "Aarav Sharma",
-    age: 4,
-    gender: "Male",
-    parentName: "Rajesh Sharma",
-    phone: "9876543211",
-    email: "rajesh.sharma@gmail.com",
-    centerId: 1, // Pune Central
-    classId: "nursery-a",
-    status: "active",
-    attendanceRate: "94%",
-    activities: [
-      { date: "2026-06-10", activity: "Finger Painting", status: "Present" },
-      { date: "2026-06-09", activity: "Storytelling Circle", status: "Present" },
-    ]
-  },
-  {
-    id: 2,
-    name: "Ananya Desai",
-    age: 5,
-    gender: "Female",
-    parentName: "Amol Desai",
-    phone: "9123456780",
-    email: "amol.desai@yahoo.com",
-    centerId: 2, // Mumbai West
-    classId: "kg-1",
-    status: "active",
-    attendanceRate: "98%",
-    activities: [
-      { date: "2026-06-10", activity: "Phonics Basics", status: "Present" },
-      { date: "2026-06-09", activity: "Clay Modeling", status: "Present" },
-    ]
-  },
-  {
-    id: 3,
-    name: "Kabir Mehta",
-    age: 3,
-    gender: "Male",
-    parentName: "Megha Mehta",
-    phone: "9988776651",
-    email: "megha.mehta@outlook.com",
-    centerId: 1, // Pune Central
-    classId: "playgroup",
-    status: "inactive",
-    attendanceRate: "72%",
-    activities: [
-      { date: "2026-05-15", activity: "Building Blocks", status: "Absent" },
-    ]
-  },
-  {
-    id: 4,
-    name: "Reyansh Malhotra",
-    age: 4,
-    gender: "Male",
-    parentName: "Vikas Malhotra",
-    phone: "9822334455",
-    email: "vikas.m@gmail.com",
-    centerId: 1, // Pune Central
-    classId: "nursery-a",
-    status: "active",
-    attendanceRate: "91%",
-    activities: [
-      { date: "2026-06-12", activity: "Alphabet Puzzle", status: "Present" },
-      { date: "2026-06-11", activity: "Rhyme Session", status: "Present" },
-    ]
-  },
-  {
-    id: 5,
-    name: "Diya Iyer",
-    age: 5,
-    gender: "Female",
-    parentName: "Ramesh Iyer",
-    phone: "9566778899",
-    email: "ramesh.iyer@hotmail.com",
-    centerId: 1, // Pune Central
-    classId: "kg-1",
-    status: "active",
-    attendanceRate: "96%",
-    activities: [
-      { date: "2026-06-12", activity: "Math Counting", status: "Present" },
-    ]
-  },
-  {
-    id: 6,
-    name: "Vivaan Joshi",
-    age: 5,
-    gender: "Male",
-    parentName: "Siddharth Joshi",
-    phone: "9811223344",
-    email: "sid.joshi@gmail.com",
-    centerId: 2, // Mumbai West
-    classId: "kg-1",
-    status: "active",
-    attendanceRate: "95%",
-    activities: [
-      { date: "2026-06-10", activity: "Phonics Basics", status: "Present" },
-    ]
-  },
-  {
-    id: 7,
-    name: "Ira Kulkarni",
-    age: 6,
-    gender: "Female",
-    parentName: "Nitin Kulkarni",
-    phone: "9733445566",
-    email: "nitin.k@yahoo.com",
-    centerId: 2, // Mumbai West
-    classId: "kg-2",
-    status: "active",
-    attendanceRate: "100%",
-    activities: [
-      { date: "2026-06-11", activity: "Advanced Reading", status: "Present" },
-      { date: "2026-06-10", activity: "Drawing Board", status: "Present" },
-    ]
-  },
-  {
-    id: 8,
-    name: "Zoya Khan",
-    age: 3,
-    gender: "Female",
-    parentName: "Asif Khan",
-    phone: "9000112233",
-    email: "asif.khan@gmail.com",
-    centerId: 4, // Delhi NCR
-    classId: "playgroup",
-    status: "active",
-    attendanceRate: "88%",
-    activities: [
-      { date: "2026-06-12", activity: "Color Identification", status: "Present" },
-    ]
-  },
-  {
-    id: 9,
-    name: "Arjun Nair",
-    age: 4,
-    gender: "Male",
-    parentName: "Madhavan Nair",
-    phone: "9444555666",
-    email: "m.nair@outlook.com",
-    centerId: 4, // Delhi NCR
-    classId: "nursery-a",
-    status: "active",
-    attendanceRate: "93%",
-    activities: [
-      { date: "2026-06-12", activity: "Paper Crafting", status: "Present" },
-    ]
-  }
-];
+const mapChildFromApi = (c) => ({
+  id: c._id || c.id,
+  name: c.fullName || c.name,
+  age: c.age || 4,
+  gender: c.gender || "Male",
+  parentName: c.guardianName || c.parentName || "",
+  phone: c.guardianPhone || c.phone || "",
+  email: c.email || "",
+  centerId: c.center?._id || c.center || "",
+  classId: c.class?._id || c.class || "",
+  status: c.status || "active",
+  attendanceRate: "95%",
+  activities: c.activities || [
+    { date: "2026-06-15", activity: "Standard Classroom Play", status: "Present" }
+  ],
+});
 
-const MOCK_CENTERS_LIST = [
-  { id: 1, name: "SpacECE Preschool — Pune Central" },
-  { id: 2, name: "SpacECE Preschool — Mumbai West" },
-  { id: 4, name: "SpacECE Preschool — Delhi NCR" },
-];
-
-const MOCK_CLASSES_LIST = [
-  { id: "playgroup", name: "Playgroup" },
-  { id: "nursery-a", name: "Nursery - A" },
-  { id: "kg-1", name: "Kindergarten 1" },
-  { id: "kg-2", name: "Kindergarten 2" },
-];
+const mapChildToApi = (c) => ({
+  fullName: c.name,
+  age: Number(c.age),
+  gender: c.gender,
+  guardianName: c.parentName,
+  guardianPhone: c.phone,
+  email: c.email,
+  center: c.centerId,
+  class: c.classId,
+  status: c.status,
+});
 
 const EMPTY_FORM = {
   name: "", age: "", gender: "Male", parentName: "",
@@ -173,7 +38,7 @@ const EMPTY_FORM = {
 };
 
 /* ── Add / Edit Modal ── */
-function ChildFormModal({ child, onSave, onClose, setToast }) {
+function ChildFormModal({ child, centers = [], classes = [], onSave, onClose, setToast }) {
   const isEdit = !!child;
   const [form, setForm] = useState(child || EMPTY_FORM);
 
@@ -183,14 +48,15 @@ function ChildFormModal({ child, onSave, onClose, setToast }) {
       setToast({ msg: "Please fill all required fields.", type: "error" });
       return;
     }
-    onSave({ 
-      ...form, 
-      id: child?.id || Date.now(),
-      centerId: Number(form.centerId) 
-    });
-    setToast({ msg: isEdit ? "Child record updated!" : "Child enrolled successfully!", type: "success" });
+    onSave(form);
     onClose();
   };
+
+  // Filter classes by selected center in the form
+  const formClasses = classes.filter(cls => {
+    const cid = cls.center?._id || cls.center?.id || cls.center;
+    return cid === form.centerId;
+  });
 
   return (
     <Modal title={isEdit ? "✏️ Edit Child Profile" : "👶 Enroll New Child"} onClose={onClose}>
@@ -221,17 +87,17 @@ function ChildFormModal({ child, onSave, onClose, setToast }) {
           <div>
             <label style={S.label}>Assigned Center *</label>
             <select style={S.input} value={form.centerId}
-              onChange={e => setForm({ ...form, centerId: e.target.value })}>
+              onChange={e => setForm({ ...form, centerId: e.target.value, classId: "" })}>
               <option value="">Select Center</option>
-              {MOCK_CENTERS_LIST.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {centers.map(c => <option key={c._id || c.id} value={c._id || c.id}>{c.name}</option>)}
             </select>
           </div>
           <div>
             <label style={S.label}>Assigned Class *</label>
             <select style={S.input} value={form.classId}
-              onChange={e => setForm({ ...form, classId: e.target.value })}>
+              onChange={e => setForm({ ...form, classId: e.target.value })} disabled={!form.centerId}>
               <option value="">Select Class</option>
-              {MOCK_CLASSES_LIST.map(cls => <option key={cls.id} value={cls.id}>{cls.name}</option>)}
+              {formClasses.map(cls => <option key={cls._id || cls.id} value={cls._id || cls.id}>{cls.name}</option>)}
             </select>
           </div>
         </div>
@@ -272,9 +138,9 @@ function ChildFormModal({ child, onSave, onClose, setToast }) {
 }
 
 /* ── Child Detail & History View ── */
-function ChildDetailModal({ child, centers, classes, onClose }) {
-  const centerName = centers.find(c => c.id === child.centerId)?.name || "Unassigned Center";
-  const className = classes.find(c => c.id === child.classId)?.name || "Unassigned Class";
+function ChildDetailModal({ child, centers = [], classes = [], onClose }) {
+  const centerName = centers.find(c => (c._id || c.id) === child.centerId)?.name || "Unassigned Center";
+  const className = classes.find(c => (c._id || c.id) === child.classId)?.name || "Unassigned Class";
 
   return (
     <Modal title={`👶 Profile: ${child.name}`} onClose={onClose}>
@@ -294,7 +160,7 @@ function ChildDetailModal({ child, centers, classes, onClose }) {
         ))}
       </div>
 
-      {/* Activity & Attendance Timeline */}
+      {/* Activity Timeline */}
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#374151", marginBottom: 8 }}>📋 Activity & Attendance History</div>
         {child.activities && child.activities.length > 0 ? (
@@ -323,23 +189,51 @@ function ChildDetailModal({ child, centers, classes, onClose }) {
 
 /* ══════════════════════════════════════════
     MAIN CHILDREN MANAGEMENT TAB
-══════════════════════════════════════════ */
+   ══════════════════════════════════════════ */
 export default function ChildrenManagementTab({ setToast }) {
-  const [children, setChildren] = useState(MOCK_CHILDREN);
+  const [children, setChildren] = useState([]);
+  const [centers, setCenters] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [search, setSearch] = useState("");
-  
-  // Drill-down states
-  const [selectedCenterId, setSelectedCenterId] = useState(MOCK_CENTERS_LIST[0]?.id || null);
+  const [selectedCenterId, setSelectedCenterId] = useState(null);
   const [selectedClassId, setSelectedClassId] = useState(null);
-  
   const [formModal, setFormModal] = useState(false);
   const [editChild, setEditChild] = useState(null);
   const [detailChild, setDetailChild] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [toast, setLocalToast] = useState({ msg: "", type: "" });
 
   const showToast = setToast || setLocalToast;
 
-  // Filter children based on active hierarchy selections & explicit text search values
+  const loadData = () => {
+    setLoading(true);
+    Promise.all([getChildren(), getCenters(), getClasses()])
+      .then(([childrenRes, centersRes, classesRes]) => {
+        const dbChildren = (childrenRes.children || []).map(mapChildFromApi);
+        const dbCenters = centersRes.centers || [];
+        const dbClasses = classesRes.classes || [];
+
+        setChildren(dbChildren);
+        setCenters(dbCenters);
+        setClasses(dbClasses);
+
+        // Pre-select first center if none selected
+        if (dbCenters.length > 0 && !selectedCenterId) {
+          setSelectedCenterId(dbCenters[0]._id || dbCenters[0].id);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error loading children data:", err);
+        setLoading(false);
+        showToast({ msg: "Failed to load kids & classes from database.", type: "error" });
+      });
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
   const filteredChildren = children.filter(c => {
     const q = search.toLowerCase();
     const matchSearch = c.name.toLowerCase().includes(q) || c.parentName.toLowerCase().includes(q);
@@ -349,18 +243,33 @@ export default function ChildrenManagementTab({ setToast }) {
   });
 
   const handleSave = (saved) => {
+    const payload = mapChildToApi(saved);
     if (editChild) {
-      setChildren(prev => prev.map(c => c.id === saved.id ? saved : c));
+      updateChild(editChild.id, payload)
+        .then(() => {
+          showToast({ msg: "Child profile updated!", type: "success" });
+          loadData();
+        })
+        .catch(err => showToast({ msg: err.message, type: "error" }));
     } else {
-      setChildren(prev => [...prev, saved]);
+      createChild(payload)
+        .then(() => {
+          showToast({ msg: "Child enrolled successfully in database!", type: "success" });
+          loadData();
+        })
+        .catch(err => showToast({ msg: err.message, type: "error" }));
     }
     setFormModal(false);
     setEditChild(null);
   };
 
   const handleDeactivate = (id) => {
-    setChildren(prev => prev.map(c => c.id === id ? { ...c, status: "inactive" } : c));
-    showToast({ msg: "Child profile set to inactive.", type: "error" });
+    updateChild(id, { status: "inactive" })
+      .then(() => {
+        showToast({ msg: "Child profile marked as inactive.", type: "success" });
+        loadData();
+      })
+      .catch(err => showToast({ msg: err.message, type: "error" }));
   };
 
   const openEdit = (child) => {
@@ -375,16 +284,28 @@ export default function ChildrenManagementTab({ setToast }) {
 
   const handleCenterSelect = (centerId) => {
     setSelectedCenterId(centerId);
-    setSelectedClassId(null); // Reset class selection upon center shift
+    setSelectedClassId(null);
   };
 
-  // Dynamically compute counters for classes inside the active center context
   const getClassStudentCount = (classId) => {
     return children.filter(c => c.centerId === selectedCenterId && c.classId === classId).length;
   };
 
+  if (loading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "40vh", fontSize: 14, fontWeight: 600, color: "#d97706" }}>
+        🔄 Loading Children & Classes...
+      </div>
+    );
+  }
+
   const active = children.filter(c => c.status === "active").length;
   const inactive = children.filter(c => c.status === "inactive").length;
+
+  const activeCenterClasses = classes.filter(cls => {
+    const cid = cls.center?._id || cls.center?.id || cls.center;
+    return cid === selectedCenterId;
+  });
 
   return (
     <div style={{ animation: "fadeIn 0.3s ease", fontFamily: "inherit" }}>
@@ -393,6 +314,8 @@ export default function ChildrenManagementTab({ setToast }) {
       {formModal && (
         <ChildFormModal
           child={editChild}
+          centers={centers}
+          classes={classes}
           onSave={handleSave}
           onClose={() => { setFormModal(false); setEditChild(null); }}
           setToast={showToast}
@@ -402,8 +325,8 @@ export default function ChildrenManagementTab({ setToast }) {
       {detailChild && (
         <ChildDetailModal
           child={detailChild}
-          centers={MOCK_CENTERS_LIST}
-          classes={MOCK_CLASSES_LIST}
+          centers={centers}
+          classes={classes}
           onClose={() => setDetailChild(null)}
         />
       )}
@@ -430,13 +353,14 @@ export default function ChildrenManagementTab({ setToast }) {
           📍 Select Center
         </div>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          {MOCK_CENTERS_LIST.map(center => {
-            const isSelected = selectedCenterId === center.id;
-            const centerCount = children.filter(c => c.centerId === center.id).length;
+          {centers.map(center => {
+            const cid = center._id || center.id;
+            const isSelected = selectedCenterId === cid;
+            const centerCount = children.filter(c => c.centerId === cid).length;
             return (
               <button
-                key={center.id}
-                onClick={() => handleCenterSelect(center.id)}
+                key={cid}
+                onClick={() => handleCenterSelect(cid)}
                 style={{
                   padding: "12px 18px",
                   borderRadius: 12,
@@ -491,13 +415,14 @@ export default function ChildrenManagementTab({ setToast }) {
             >
               All Classes ({children.filter(c => c.centerId === selectedCenterId).length})
             </button>
-            {MOCK_CLASSES_LIST.map(cls => {
-              const isSelected = selectedClassId === cls.id;
-              const count = getClassStudentCount(cls.id);
+            {activeCenterClasses.map(cls => {
+              const clid = cls._id || cls.id;
+              const isSelected = selectedClassId === clid;
+              const count = getClassStudentCount(clid);
               return (
                 <button
-                  key={cls.id}
-                  onClick={() => setSelectedClassId(cls.id)}
+                  key={clid}
+                  onClick={() => setSelectedClassId(clid)}
                   style={{
                     padding: "8px 14px",
                     borderRadius: 20,
@@ -538,8 +463,8 @@ export default function ChildrenManagementTab({ setToast }) {
       {/* ── STEP 3: ENROLLED STUDENTS GRID DISPLAY ── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(320px,1fr))", gap: 16 }}>
         {filteredChildren.map((c) => {
-          const centerObj = MOCK_CENTERS_LIST.find(cen => cen.id === c.centerId);
-          const classObj = MOCK_CLASSES_LIST.find(cls => cls.id === c.classId);
+          const centerObj = centers.find(cen => (cen._id || cen.id) === c.centerId);
+          const classObj = classes.find(cls => (cls._id || cls.id) === c.classId);
 
           return (
             <div key={c.id} style={{ background: "white", borderRadius: 18, padding: "20px", border: "1px solid #f1f5f9", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", borderTop: `3px solid ${c.status === "active" ? "#8b5cf6" : "#e5e7eb"}` }}>

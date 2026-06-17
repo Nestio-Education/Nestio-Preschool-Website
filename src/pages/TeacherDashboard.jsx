@@ -1,13 +1,24 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Logo, Toast, Badge, StatusBadge, StatCard, SectionCard, S, globalCSS } from "../components/Shared";
 import AttendanceManager from "./AttendanceManager";
 import TrainingAndClassroomManager from "./TrainingAndClassroomManager";
 import GeotagAttendance from "./GeotagAttendance";
 import ProctoredAssessment from "./Proctoredassessment";
-
-/* ═══════════════════════════════════════════
-   MOCK DATA
-═══════════════════════════════════════════ */
+import {
+  getTeacherProgress,
+  getNotifications,
+  markNotificationRead,
+  askTeacherChatbot,
+  updateCourseAssignmentProgress,
+  getCourses,
+  uploadFile
+} from "../services/api";
+      {
+        id: "m9", title: "Technology Integration in Curriculum",
+        videos: [
+          { id: "v25", title: "SAMR Model for Technology Integration", ytId: "SC5ARwUkVyg", duration: "11:25" },
+        ],
+        notes: `## Technology Integration in Curriculum
 const MOCK_SCHEDULE = [
   { time: "08:00 AM", class: "Grade 5A", topic: "Number Patterns",        room: "101", status: "completed" },
   { time: "09:30 AM", class: "Grade 6B", topic: "Algebraic Expressions",  room: "203", status: "ongoing"   },
@@ -61,9 +72,14 @@ const MOCK_NOTIFICATIONS = [
    TAB COMPONENTS
 ═══════════════════════════════════════════ */
 
-function OverviewTab({ user, setActiveTab }) {
-  const attendance = user.attendance || 90;
+function OverviewTab({ user, setActiveTab, courses = [], assignments = [], lessons = [], activities = [], summary = {} }) {
+  const attendance = summary.attendanceRate !== undefined ? summary.attendanceRate : (user.attendance || 90);
   const attColor   = attendance>=85 ? "#10b981" : attendance>=70 ? "#f59e0b" : "#ef4444";
+
+  // Calculate certificates based on completed courses
+  const certificatesCount = courses.filter(c => c.status === "completed" || c.progressPercent === 100).length;
+  // Calculate pending tasks (assignments in assigned or revision status)
+  const pendingTasksCount = assignments.filter(a => a.status === "assigned" || a.status === "revision").length;
 
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
@@ -85,14 +101,17 @@ function OverviewTab({ user, setActiveTab }) {
         <StatCard icon="👥" label="Total Students" val={user.students||230} color="#3b82f6" bg="#dbeafe"/>
         <StatCard icon="📊" label="Attendance"     val={`${attendance}%`}  color={attColor} bg={attendance>=85?"#d1fae5":attendance>=70?"#fef3c7":"#fee2e2"}/>
         <StatCard icon="📝" label="Avg Grade"      val="82%"               color="#8b5cf6" bg="#ede9fe"/>
-        <StatCard icon="🏆" label="Certificates"   val={MOCK_CERTIFICATES.length} color="#06b6d4" bg="#cffafe"/>
-        <StatCard icon="⏳" label="Pending Tasks"  val={MOCK_ASSIGNMENTS.filter(a=>a.status==="pending"||a.status==="revision").length} color="#ef4444" bg="#fee2e2"/>
+        <StatCard icon="🏆" label="Certificates"   val={certificatesCount} color="#06b6d4" bg="#cffafe"/>
+        <StatCard icon="⏳" label="Pending Tasks"  val={pendingTasksCount} color="#ef4444" bg="#fee2e2"/>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
         <SectionCard title="📈 My Monthly Attendance">
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", height: 220, paddingTop: 15 }}>
-            {MOCK_ATTENDANCE_MONTHLY.map((d, i) => (
+            {[
+              { month: "Jan", val: 95 },{ month: "Feb", val: 88 },{ month: "Mar", val: 92 },
+              { month: "Apr", val: 87 },{ month: "May", val: 90 },{ month: "Jun", val: attendance || 94 },
+            ].map((d, i) => (
               <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1 }}>
                 <span style={{ marginBottom: 8, fontSize: 12, fontWeight: 800, color: d.val >= 90 ? "#10b981" : d.val >= 80 ? "#f59e0b" : "#ef4444" }}>{d.val}%</span>
                 <div style={{ width: 36, height: `${d.val * 1.6}px`, borderRadius: "12px 12px 0 0", background: d.val >= 90 ? "linear-gradient(180deg,#34d399,#10b981)" : d.val >= 80 ? "linear-gradient(180deg,#fbbf24,#f59e0b)" : "linear-gradient(180deg,#f87171,#ef4444)", transition: "all .6s ease" }}/>
@@ -103,18 +122,25 @@ function OverviewTab({ user, setActiveTab }) {
         </SectionCard>
 
         <SectionCard title="📚 Course Progress">
-          {MOCK_COURSES.map((c,i)=>(
-            <div key={i} style={{ marginBottom: 14 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>{c.title.split(" ").slice(0,3).join(" ")}...</span>
-                <span style={{ fontSize: 12, fontWeight: 800, color: "#f59e0b" }}>{c.progress}%</span>
-              </div>
-              <div style={{ height: 6, background: "#f3f4f6", borderRadius: 4, overflow: "hidden", marginBottom: 2 }}>
-                <div style={{ height: "100%", width: `${c.progress}%`, background: "linear-gradient(90deg,#f59e0b,#d97706)", borderRadius: 4 }}/>
-              </div>
-              <div style={{ fontSize: 10, color: "#9ca3af" }}>{c.completed}/{c.total} modules · Next: {c.nextSession}</div>
-            </div>
-          ))}
+          {courses.length === 0 ? (
+            <div style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 13 }}>No assigned courses yet.</div>
+          ) : (
+            courses.slice(0, 3).map((c, i) => {
+              const progress = c.progressPercent || 0;
+              return (
+                <div key={i} style={{ marginBottom: 14 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>{c.course?.title?.split(" ").slice(0,3).join(" ") || "Course"}...</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: "#f59e0b" }}>{progress}%</span>
+                  </div>
+                  <div style={{ height: 6, background: "#f3f4f6", borderRadius: 4, overflow: "hidden", marginBottom: 2 }}>
+                    <div style={{ height: "100%", width: `${progress}%`, background: "linear-gradient(90deg,#f59e0b,#d97706)", borderRadius: 4 }}/>
+                  </div>
+                  <div style={{ fontSize: 10, color: "#9ca3af" }}>{c.status || "Assigned"} · Due: {c.dueDate ? new Date(c.dueDate).toLocaleDateString() : "No deadline"}</div>
+                </div>
+              );
+            })
+          )}
           <button onClick={()=>setActiveTab("courses")} style={{ fontSize: 12, color: "#d97706", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: 4 }}>View all courses →</button>
         </SectionCard>
       </div>
@@ -138,19 +164,23 @@ function OverviewTab({ user, setActiveTab }) {
         </SectionCard>
 
         <SectionCard title="📝 Assignment Status">
-          {MOCK_ASSIGNMENTS.map((a,i)=>(
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid #f3f4f6" }}>
-              <div style={{ width: 8, height: 8, borderRadius: "50%", flexShrink: 0, background: a.status==="approved"?"#10b981":a.status==="revision"?"#ef4444":"#f59e0b" }}/>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#1c1917" }}>{a.title.substring(0,28)}...</div>
-                <div style={{ fontSize: 10, color: "#9ca3af" }}>Due: {a.due}</div>
+          {assignments.length === 0 ? (
+            <div style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 13 }}>No assignments available.</div>
+          ) : (
+            assignments.slice(0, 4).map((a, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid #f3f4f6" }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", flexShrink: 0, background: a.status==="approved"?"#10b981":a.status==="revision"?"#ef4444":"#f59e0b" }}/>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "#1c1917" }}>{(a.title || a.course?.title || "Assignment").substring(0,28)}...</div>
+                  <div style={{ fontSize: 10, color: "#9ca3af" }}>Due: {a.dueDate ? new Date(a.dueDate).toLocaleDateString() : "No due date"}</div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {a.score !== null && a.score !== undefined && <span style={{ fontSize: 11, fontWeight: 800, color: "#10b981" }}>{a.score}/100</span>}
+                  <StatusBadge status={a.status}/>
+                </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                {a.score && <span style={{ fontSize: 11, fontWeight: 800, color: "#10b981" }}>{a.score}/100</span>}
-                <StatusBadge status={a.status}/>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
           <button onClick={()=>setActiveTab("assignments")} style={{ fontSize: 12, color: "#d97706", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: 8 }}>View all →</button>
         </SectionCard>
       </div>
@@ -250,9 +280,6 @@ const COURSE_CONTENT = {
         notes: `## Assessment & Evaluation Methods\n\n**Formative Assessment (ongoing):**\n- Observations during activities\n- Questioning & discussion\n- Exit tickets / quick checks\n- Peer feedback\n\n**Summative Assessment (end of unit):**\n- Projects & presentations\n- Portfolios\n- Performance tasks\n- Written tests (older children)\n\n**Portfolio Assessment:**\n- Collects work samples over time\n- Shows growth, not just achievement\n- Involves child in self-reflection\n- Contents: drawings, photos, writing samples, teacher notes\n\n**Observation Checklist Items:**\n✅ Can follow 2-step instructions\n✅ Uses scissors with control\n✅ Recognises own name in print\n✅ Takes turns in group play\n✅ Expresses needs verbally`
       },
       {
-        id: "m9", title: "Technology Integration in Curriculum",
-        videos: [
-          { id: "v24", title: "EdTech Tools for Early Childhood", ytId: "bL4KNzBxDSk", duration: "15:40" },
           { id: "v25", title: "SAMR Model for Technology Integration", ytId: "SC5ARwUkVyg", duration: "11:25" },
         ],
         notes: `## Technology Integration in Curriculum\n\n**SAMR Model:**\n- **S**ubstitution: tech replaces traditional tool (digital worksheet)\n- **A**ugmentation: tech with functional improvement (auto-spell check)\n- **M**odification: tech allows significant redesign (collaborative docs)\n- **R**edefinition: tech creates new tasks previously inconceivable (global collaboration)\n\n**Recommended EdTech for Early Childhood:**\n| Tool | Use Case |\n|---|---|\n| Seesaw | Digital portfolios |\n| Kahoot | Interactive quizzes |\n| Book Creator | Digital storytelling |\n| Canva for Edu | Visual projects |\n| Google Classroom | Assignment management |\n\n**Screen Time Guidelines (WHO):**\n- Under 2: no screen time\n- 2–4: max 1 hour/day, with adult supervision\n- Quality over quantity — co-view & discuss`
@@ -261,123 +288,182 @@ const COURSE_CONTENT = {
   }
 };
 
-function CoursesTab() {
-  const [activeCourseId, setActiveCourseId]   = useState(null);
+const getEnrichedCourseContent = (assignment) => {
+  const dbCourse = assignment?.course;
+  if (!dbCourse) return null;
+  const title = dbCourse.title.toLowerCase();
+  let template = null;
+  if (title.includes("pre-primary") || title.includes("teacher training")) {
+    template = COURSE_CONTENT[1];
+  } else if (title.includes("psychology") || title.includes("development")) {
+    template = COURSE_CONTENT[2];
+  } else if (title.includes("curriculum") || title.includes("lesson")) {
+    template = COURSE_CONTENT[3];
+  }
+  
+  if (template) {
+    return {
+      ...template,
+      modules: template.modules.map((m, mIdx) => {
+        const dbMod = dbCourse.modules?.[mIdx];
+        return {
+          ...m,
+          id: dbMod?._id || m.id,
+          videos: m.videos.map((v, vIdx) => {
+            const dbContent = dbMod?.contents?.[vIdx];
+            return {
+              ...v,
+              id: dbContent?._id || v.id
+            };
+          })
+        };
+      })
+    };
+  }
+  
+  return {
+    color: "#fbbf24",
+    icon: "📚",
+    modules: (dbCourse.modules || []).map((m, mIdx) => ({
+      id: m._id || `mod-${mIdx}`,
+      title: m.title,
+      videos: (m.contents || [])
+        .filter(c => c.type === "video" || c.type === "link")
+        .map((c, cIdx) => {
+          let ytId = "Y5KmNaoMEVM";
+          if (c.externalUrl) {
+            if (c.externalUrl.includes("youtube.com") || c.externalUrl.includes("youtu.be")) {
+              const match = c.externalUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+              if (match) ytId = match[1];
+            }
+          }
+          return {
+            id: c._id || `vid-${cIdx}`,
+            title: c.title,
+            ytId,
+            duration: "10:00"
+          };
+        }),
+      notes: m.description || `Notes for ${m.title}`
+    }))
+  };
+};
+
+function CoursesTab({ assignments = [], onMarkDone }) {
+  const [activeAssignmentId, setActiveAssignmentId] = useState(null);
   const [activeModuleId, setActiveModuleId]   = useState(null);
   const [activeVideoId,  setActiveVideoId]    = useState(null);
   const [activeTab,      setActiveTab]        = useState("video"); // "video"|"notes"
-  // completed set stored as "courseId-moduleId-videoId"
-  const [completed, setCompleted] = useState(() => {
-    try { return new Set(JSON.parse(localStorage.getItem("spaceece_completed") || "[]")); }
-    catch { return new Set(); }
-  });
 
-  const saveCompleted = (newSet) => {
-    setCompleted(newSet);
-    localStorage.setItem("spaceece_completed", JSON.stringify([...newSet]));
+  const activeAssignment = assignments.find(a => a._id === activeAssignmentId);
+  const enrichedContent  = getEnrichedCourseContent(activeAssignment);
+
+  const isVideoDone = (assign, videoId) => {
+    return assign?.completedContent?.includes(videoId) || false;
   };
 
-  const markDone = (courseId, moduleId, videoId) => {
-    const key = `${courseId}-${moduleId}-${videoId}`;
-    const next = new Set(completed);
-    next.add(key);
-    saveCompleted(next);
-  };
-
-  const isVideoDone = (courseId, moduleId, videoId) => completed.has(`${courseId}-${moduleId}-${videoId}`);
-
-  // Dynamic progress per course
-  const getCourseProgress = (courseId) => {
-    const content = COURSE_CONTENT[courseId];
-    if (!content) return 0;
-    const allVideos = content.modules.flatMap(m => m.videos.map(v => `${courseId}-${m.id}-${v.id}`));
-    if (allVideos.length === 0) return 0;
-    const done = allVideos.filter(k => completed.has(k)).length;
-    return Math.round((done / allVideos.length) * 100);
-  };
-
-  const getModuleProgress = (courseId, module) => {
-    const allKeys = module.videos.map(v => `${courseId}-${module.id}-${v.id}`);
-    const done = allKeys.filter(k => completed.has(k)).length;
+  const getModuleProgress = (assign, module) => {
+    const allKeys = module.videos.map(v => v.id);
+    const done = allKeys.filter(k => isVideoDone(assign, k)).length;
     return { done, total: allKeys.length };
   };
 
+  const handleMarkDone = (assign, videoId) => {
+    if (!assign) return;
+    const completedContent = [...(assign.completedContent || [])];
+    if (!completedContent.includes(videoId)) {
+      completedContent.push(videoId);
+    }
+    const allVids = enrichedContent.modules.flatMap(m => m.videos);
+    const progressPercent = Math.round((completedContent.length / allVids.length) * 100);
+    
+    onMarkDone && onMarkDone(assign._id, {
+      completedContent,
+      progressPercent,
+      status: progressPercent === 100 ? "completed" : "ongoing"
+    });
+  };
+
   // ── Course list view ──
-  if (!activeCourseId) {
+  if (!activeAssignmentId) {
     return (
       <div style={{ animation: "fadeIn 0.3s ease" }}>
         <h1 style={S.pageTitle}>My Courses</h1>
         <p style={S.pageSub}>Your enrolled courses and learning progress</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {MOCK_COURSES.map((c) => {
-            const progress = getCourseProgress(c.id);
-            const content  = COURSE_CONTENT[c.id];
-            const totalVids = content ? content.modules.reduce((a,m)=>a+m.videos.length,0) : 0;
-            const doneVids  = content ? content.modules.reduce((a,m)=>a+m.videos.filter(v=>isVideoDone(c.id,m.id,v.id)).length,0) : 0;
-            return (
-              <div key={c.id} style={{ background: "white", borderRadius: 16, padding: "22px 24px", border: "1px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", borderLeft: `4px solid ${content?.color || "#f59e0b"}` }}>
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
-                  <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-                    <div style={{ fontSize: 36 }}>{content?.icon || "📚"}</div>
-                    <div>
-                      <h3 style={{ fontSize: 16, fontWeight: 800, color: "#1c1917", margin: "0 0 6px" }}>{c.title}</h3>
-                      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                        <StatusBadge status={c.status}/>
-                        <span style={{ fontSize: 11, color: "#9ca3af" }}>📅 Next: {c.nextSession}</span>
-                        <span style={{ fontSize: 11, color: "#6b7280" }}>🎬 {doneVids}/{totalVids} videos</span>
+          {assignments.length === 0 ? (
+            <div style={{ padding: 40, textAlign: "center", background: "white", borderRadius: 16, border: "1px dashed #cbd5e1", color: "#94a3b8" }}>
+              No enrolled courses found.
+            </div>
+          ) : (
+            assignments.map((c) => {
+              const progress = c.progressPercent || 0;
+              const content  = getEnrichedCourseContent(c);
+              const totalVids = content ? content.modules.reduce((a,m)=>a+m.videos.length,0) : 0;
+              const doneVids  = content ? content.modules.reduce((a,m)=>a+m.videos.filter(v=>isVideoDone(c, v.id)).length,0) : 0;
+              return (
+                <div key={c._id} style={{ background: "white", borderRadius: 16, padding: "22px 24px", border: "1px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", borderLeft: `4px solid ${content?.color || "#f59e0b"}` }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
+                    <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                      <div style={{ fontSize: 36 }}>{content?.icon || "📚"}</div>
+                      <div>
+                        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#1c1917", margin: "0 0 6px" }}>{c.course?.title}</h3>
+                        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                          <StatusBadge status={c.status}/>
+                          <span style={{ fontSize: 11, color: "#9ca3af" }}>📅 Due: {c.dueDate ? new Date(c.dueDate).toLocaleDateString() : "No due date"}</span>
+                          <span style={{ fontSize: 11, color: "#6b7280" }}>🎬 {doneVids}/{totalVids} videos</span>
+                        </div>
                       </div>
                     </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div style={{ fontSize: 28, fontWeight: 900, color: content?.color || "#f59e0b" }}>{progress}%</div>
+                      <div style={{ fontSize: 11, color: "#9ca3af" }}>Complete</div>
+                    </div>
                   </div>
-                  <div style={{ textAlign: "right", flexShrink: 0 }}>
-                    <div style={{ fontSize: 28, fontWeight: 900, color: content?.color || "#f59e0b" }}>{progress}%</div>
-                    <div style={{ fontSize: 11, color: "#9ca3af" }}>Complete</div>
+                  <div style={{ height: 8, background: "#f3f4f6", borderRadius: 4, overflow: "hidden", marginBottom: 12 }}>
+                    <div style={{ height: "100%", width: `${progress}%`, background: `linear-gradient(90deg,${content?.color||"#f59e0b"},${content?.color||"#d97706"})`, borderRadius: 4, transition: "width 0.8s ease" }}/>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 12, color: "#6b7280" }}>📖 {content?.modules?.length || 0} modules · {doneVids}/{totalVids} videos done</span>
+                    <button
+                      onClick={() => {
+                        setActiveAssignmentId(c._id);
+                        const firstModule = content?.modules[0];
+                        setActiveModuleId(firstModule?.id || null);
+                        setActiveVideoId(firstModule?.videos[0]?.id || null);
+                        setActiveTab("video");
+                      }}
+                      style={{ ...S.primaryBtn, padding: "8px 20px", fontSize: 12, background: `linear-gradient(135deg,${content?.color||"#f59e0b"},${content?.color||"#d97706"})` }}
+                    >
+                      {progress > 0 ? "Continue →" : "Start Course →"}
+                    </button>
                   </div>
                 </div>
-                <div style={{ height: 8, background: "#f3f4f6", borderRadius: 4, overflow: "hidden", marginBottom: 12 }}>
-                  <div style={{ height: "100%", width: `${progress}%`, background: `linear-gradient(90deg,${content?.color||"#f59e0b"},${content?.color||"#d97706"})`, borderRadius: 4, transition: "width 0.8s ease" }}/>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 12, color: "#6b7280" }}>📖 {content?.modules?.length || 0} modules · {doneVids}/{totalVids} videos done</span>
-                  <button
-                    onClick={() => {
-                      setActiveCourseId(c.id);
-                      const firstModule = COURSE_CONTENT[c.id]?.modules[0];
-                      setActiveModuleId(firstModule?.id || null);
-                      setActiveVideoId(firstModule?.videos[0]?.id || null);
-                      setActiveTab("video");
-                    }}
-                    style={{ ...S.primaryBtn, padding: "8px 20px", fontSize: 12, background: `linear-gradient(135deg,${content?.color||"#f59e0b"},${content?.color||"#d97706"})` }}
-                  >
-                    {progress > 0 ? "Continue →" : "Start Course →"}
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </div>
     );
   }
 
   // ── Course player view ──
-  const course        = MOCK_COURSES.find(c => c.id === activeCourseId);
-  const courseContent = COURSE_CONTENT[activeCourseId];
-  const activeModule  = courseContent?.modules.find(m => m.id === activeModuleId);
+  const activeModule  = enrichedContent?.modules.find(m => m.id === activeModuleId);
   const activeVideo   = activeModule?.videos.find(v => v.id === activeVideoId);
-  const overallProg   = getCourseProgress(activeCourseId);
+  const overallProg   = activeAssignment?.progressPercent || 0;
 
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <button onClick={() => setActiveCourseId(null)} style={{ background: "#f3f4f6", border: "none", borderRadius: 10, padding: "8px 14px", fontWeight: 700, fontSize: 13, cursor: "pointer", color: "#374151" }}>← Back</button>
+        <button onClick={() => setActiveAssignmentId(null)} style={{ background: "#f3f4f6", border: "none", borderRadius: 10, padding: "8px 14px", fontWeight: 700, fontSize: 13, cursor: "pointer", color: "#374151" }}>← Back</button>
         <div style={{ flex: 1 }}>
-          <h1 style={{ ...S.pageTitle, margin: 0 }}>{courseContent?.icon} {course?.title}</h1>
+          <h1 style={{ ...S.pageTitle, margin: 0 }}>{enrichedContent?.icon} {activeAssignment?.course?.title}</h1>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 4 }}>
             <div style={{ flex: 1, height: 6, background: "#f3f4f6", borderRadius: 4, overflow: "hidden", maxWidth: 300 }}>
-              <div style={{ height: "100%", width: `${overallProg}%`, background: `linear-gradient(90deg,${courseContent?.color},${courseContent?.color})`, borderRadius: 4, transition: "width 0.6s" }}/>
+              <div style={{ height: "100%", width: `${overallProg}%`, background: `linear-gradient(90deg,${enrichedContent?.color || "#f59e0b"},${enrichedContent?.color || "#f59e0b"})`, borderRadius: 4, transition: "width 0.6s" }}/>
             </div>
-            <span style={{ fontSize: 12, fontWeight: 800, color: courseContent?.color }}>{overallProg}% complete</span>
+            <span style={{ fontSize: 12, fontWeight: 800, color: enrichedContent?.color || "#f59e0b" }}>{overallProg}% complete</span>
           </div>
         </div>
       </div>
@@ -387,18 +473,18 @@ function CoursesTab() {
         <div style={{ background: "white", borderRadius: 16, border: "1px solid #f1f5f9", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
           <div style={{ padding: "14px 16px", background: "#f8fafc", borderBottom: "1px solid #f1f5f9" }}>
             <div style={{ fontSize: 13, fontWeight: 800, color: "#1c1917" }}>Course Content</div>
-            <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>{courseContent?.modules?.length} modules</div>
+            <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>{enrichedContent?.modules?.length} modules</div>
           </div>
           <div style={{ overflowY: "auto", maxHeight: 600 }}>
-            {courseContent?.modules.map((mod) => {
-              const mp = getModuleProgress(activeCourseId, mod);
+            {enrichedContent?.modules.map((mod) => {
+              const mp = getModuleProgress(activeAssignment, mod);
               const isModActive = mod.id === activeModuleId;
               return (
                 <div key={mod.id}>
                   {/* Module header */}
                   <div
                     onClick={() => { setActiveModuleId(mod.id); setActiveVideoId(mod.videos[0]?.id); setActiveTab("video"); }}
-                    style={{ padding: "12px 16px", background: isModActive ? "#fffbeb" : "white", borderBottom: "1px solid #f9fafb", cursor: "pointer", borderLeft: `3px solid ${isModActive ? courseContent?.color : "transparent"}` }}
+                    style={{ padding: "12px 16px", background: isModActive ? "#fffbeb" : "white", borderBottom: "1px solid #f9fafb", cursor: "pointer", borderLeft: `3px solid ${isModActive ? (enrichedContent?.color || "#f59e0b") : "transparent"}` }}
                   >
                     <div style={{ fontSize: 12, fontWeight: 700, color: isModActive ? "#92400e" : "#374151" }}>{mod.title}</div>
                     <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 3 }}>
@@ -411,14 +497,14 @@ function CoursesTab() {
                   {/* Videos under module */}
                   {isModActive && mod.videos.map((vid) => {
                     const isActive = vid.id === activeVideoId;
-                    const done = isVideoDone(activeCourseId, mod.id, vid.id);
+                    const done = isVideoDone(activeAssignment, vid.id);
                     return (
                       <div
                         key={vid.id}
                         onClick={() => { setActiveVideoId(vid.id); setActiveTab("video"); }}
                         style={{ padding: "9px 16px 9px 28px", background: isActive ? "#fef3c7" : "#fafafa", borderBottom: "1px solid #f3f4f6", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}
                       >
-                        <div style={{ width: 20, height: 20, borderRadius: "50%", background: done ? "#10b981" : isActive ? courseContent?.color : "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "white", flexShrink: 0 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: "50%", background: done ? "#10b981" : isActive ? (enrichedContent?.color || "#f59e0b") : "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "white", flexShrink: 0 }}>
                           {done ? "✓" : isActive ? "▶" : ""}
                         </div>
                         <div style={{ flex: 1 }}>
@@ -443,7 +529,7 @@ function CoursesTab() {
                 {/* Tab bar */}
                 <div style={{ display: "flex", borderBottom: "1px solid #f1f5f9" }}>
                   {["video","notes"].map(t => (
-                    <button key={t} onClick={() => setActiveTab(t)} style={{ flex: 1, padding: "12px", border: "none", background: activeTab===t?"#fffbeb":"white", color: activeTab===t?"#92400e":"#6b7280", fontWeight: activeTab===t?800:600, fontSize: 13, cursor: "pointer", borderBottom: `2px solid ${activeTab===t?courseContent?.color:"transparent"}`, transition: "all 0.15s" }}>
+                    <button key={t} onClick={() => setActiveTab(t)} style={{ flex: 1, padding: "12px", border: "none", background: activeTab===t?"#fffbeb":"white", color: activeTab===t?"#92400e":"#6b7280", fontWeight: activeTab===t?800:600, fontSize: 13, cursor: "pointer", borderBottom: `2px solid ${activeTab===t?(enrichedContent?.color || "#f59e0b"):"transparent"}`, transition: "all 0.15s" }}>
                       {t === "video" ? "🎬 Video Lesson" : "📝 Notes"}
                     </button>
                   ))}
@@ -465,12 +551,12 @@ function CoursesTab() {
                       <div style={{ fontSize: 15, fontWeight: 800, color: "#1c1917", marginBottom: 4 }}>{activeVideo.title}</div>
                       <div style={{ fontSize: 12, color: "#9ca3af", marginBottom: 16 }}>{activeModule?.title} · ⏱ {activeVideo.duration}</div>
                       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                        {isVideoDone(activeCourseId, activeModuleId, activeVideoId) ? (
+                        {isVideoDone(activeAssignment, activeVideoId) ? (
                           <span style={{ background: "#d1fae5", color: "#065f46", padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: 800 }}>✓ Completed</span>
                         ) : (
                           <button
-                            onClick={() => markDone(activeCourseId, activeModuleId, activeVideoId)}
-                            style={{ ...S.primaryBtn, background: `linear-gradient(135deg,${courseContent?.color},${courseContent?.color})`, fontSize: 13 }}
+                            onClick={() => handleMarkDone(activeAssignment, activeVideoId)}
+                            style={{ ...S.primaryBtn, background: `linear-gradient(135deg,${enrichedContent?.color || "#f59e0b"},${enrichedContent?.color || "#f59e0b"})`, fontSize: 13 }}
                           >
                             ✅ Mark as Complete
                           </button>
@@ -502,24 +588,24 @@ function CoursesTab() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ fontSize: 12, color: "#6b7280" }}>
                   {(() => {
-                    const allVids = courseContent.modules.flatMap(m => m.videos.map(v => ({ ...v, moduleId: m.id })));
+                    const allVids = enrichedContent.modules.flatMap(m => m.videos.map(v => ({ ...v, moduleId: m.id })));
                     const idx = allVids.findIndex(v => v.id === activeVideoId);
                     return `Video ${idx+1} of ${allVids.length}`;
                   })()}
                 </div>
                 <button
                   onClick={() => {
-                    const allVids = courseContent.modules.flatMap(m => m.videos.map(v => ({ ...v, moduleId: m.id })));
+                    const allVids = enrichedContent.modules.flatMap(m => m.videos.map(v => ({ ...v, moduleId: m.id })));
                     const idx = allVids.findIndex(v => v.id === activeVideoId);
                     if (idx < allVids.length - 1) {
-                      markDone(activeCourseId, activeModuleId, activeVideoId);
+                      handleMarkDone(activeAssignment, activeVideoId);
                       const next = allVids[idx + 1];
                       setActiveModuleId(next.moduleId);
                       setActiveVideoId(next.id);
                       setActiveTab("video");
                     }
                   }}
-                  style={{ ...S.primaryBtn, fontSize: 12, background: `linear-gradient(135deg,${courseContent?.color},${courseContent?.color})` }}
+                  style={{ ...S.primaryBtn, fontSize: 12, background: `linear-gradient(135deg,${enrichedContent?.color || "#f59e0b"},${enrichedContent?.color || "#f59e0b"})` }}
                 >
                   Next Video →
                 </button>
@@ -592,52 +678,118 @@ function GradesTab() {
   );
 }
 
-function AssignmentsTab() {
+function AssignmentsTab({ assignments = [], onSubmitAssignment }) {
   const [uploadModal, setUploadModal] = useState(false);
+  const [selectedFileObj, setSelectedFileObj] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState(null);
+  const [note, setNote] = useState("");
+  const [title, setTitle] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      setSelectedFileObj(file);
       setSelectedFile({ name: file.name, size: (file.size / (1024 * 1024)).toFixed(2) + " MB" });
+      if (!title) {
+        setTitle(file.name.split(".")[0]);
+      }
     }
   };
 
-  const handleCloseModal = () => { setUploadModal(false); setSelectedFile(null); };
+  const handleCloseModal = () => {
+    setUploadModal(false);
+    setSelectedFile(null);
+    setSelectedFileObj(null);
+    setSelectedAssignmentId(null);
+    setNote("");
+    setTitle("");
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedAssignmentId) return;
+    setSubmitting(true);
+    try {
+      let fileUrl = "";
+      if (selectedFileObj) {
+        const uploadRes = await uploadFile(selectedFileObj);
+        if (uploadRes && uploadRes.asset) {
+          fileUrl = uploadRes.asset.publicUrl;
+        }
+      }
+      
+      await onSubmitAssignment(selectedAssignmentId, {
+        status: "pending",
+        title: title || undefined,
+        feedback: note || "", // Save notes
+        score: null // Reset score
+      });
+      handleCloseModal();
+    } catch (err) {
+      alert("Failed to submit assignment: " + err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const pendingCount = assignments.filter(a => a.status === "assigned").length;
+  const revisionCount = assignments.filter(a => a.status === "revision").length;
 
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
           <h1 style={S.pageTitle}>My Assignments</h1>
-          <p style={S.pageSub}>{MOCK_ASSIGNMENTS.filter(a=>a.status==="pending").length} pending · {MOCK_ASSIGNMENTS.filter(a=>a.status==="revision").length} needs revision</p>
+          <p style={S.pageSub}>{pendingCount} assigned · {revisionCount} needs revision</p>
         </div>
-        <button onClick={()=>setUploadModal(true)} style={S.primaryBtn}>+ Submit Assignment</button>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {MOCK_ASSIGNMENTS.map(a=>(
-          <div key={a.id} style={{ background: "white", borderRadius: 14, padding: "16px 20px", border: "1px solid #f1f5f9", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", borderLeft: `4px solid ${a.status==="approved"?"#10b981":a.status==="revision"?"#ef4444":"#f59e0b"}` }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ fontSize: 24 }}>{a.status==="approved"?"✅":a.status==="revision"?"🔁":"📝"}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#1c1917" }}>{a.title}</div>
-                <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>{a.course} · Due: {a.due}</div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                {a.score && <span style={{ fontSize: 16, fontWeight: 800, color: "#10b981" }}>{a.score}/100</span>}
-                <StatusBadge status={a.status}/>
-                {(a.status==="revision"||a.status==="pending") &&
-                  <button onClick={()=>setUploadModal(true)} style={{ ...S.primaryBtn, padding: "6px 12px", fontSize: 12 }}>{a.status==="revision"?"Resubmit":"Submit"}</button>
-                }
-              </div>
-            </div>
-            {a.status==="revision" && (
-              <div style={{ marginTop: 10, padding: "8px 12px", background: "#fef2f2", borderRadius: 8, fontSize: 12, color: "#991b1b" }}>⚠️ Revision required — please review admin feedback and resubmit.</div>
-            )}
+        {assignments.length === 0 ? (
+          <div style={{ padding: 40, textAlign: "center", background: "white", borderRadius: 16, border: "1px dashed #cbd5e1", color: "#94a3b8" }}>
+            No assignments assigned yet.
           </div>
-        ))}
+        ) : (
+          assignments.map(a => (
+            <div key={a._id} style={{ background: "white", borderRadius: 14, padding: "16px 20px", border: "1px solid #f1f5f9", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", borderLeft: `4px solid ${a.status==="approved"||a.status==="reviewed"?"#10b981":a.status==="revision"?"#ef4444":"#f59e0b"}` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ fontSize: 24 }}>{a.status==="approved"||a.status==="reviewed"?"✅":a.status==="revision"?"🔁":"📝"}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#1c1917" }}>{a.title || a.course?.title || "Assignment"}</div>
+                  <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>{a.course?.title} · Due: {a.dueDate ? new Date(a.dueDate).toLocaleDateString() : "No deadline"}</div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  {a.score !== null && a.score !== undefined && <span style={{ fontSize: 16, fontWeight: 800, color: "#10b981" }}>{a.score}/100</span>}
+                  <StatusBadge status={a.status}/>
+                  {(a.status==="revision"||a.status==="assigned"||a.status==="pending") &&
+                    <button
+                      onClick={() => {
+                        setSelectedAssignmentId(a._id);
+                        setTitle(a.title || "");
+                        setUploadModal(true);
+                      }}
+                      style={{ ...S.primaryBtn, padding: "6px 12px", fontSize: 12 }}
+                    >
+                      {a.status==="revision"?"Resubmit":a.status==="pending"?"Update Submission":"Submit"}
+                    </button>
+                  }
+                </div>
+              </div>
+              {a.status==="revision" && a.feedback && (
+                <div style={{ marginTop: 10, padding: "8px 12px", background: "#fef2f2", borderRadius: 8, fontSize: 12, color: "#991b1b" }}>
+                  ⚠️ Revision required. Admin feedback: <b>{a.feedback}</b>
+                </div>
+              )}
+              {a.status==="approved" && a.feedback && (
+                <div style={{ marginTop: 10, padding: "8px 12px", background: "#f0fdf4", borderRadius: 8, fontSize: 12, color: "#166534" }}>
+                  ✓ Feedback: <b>{a.feedback}</b>
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </div>
 
       {uploadModal && (
@@ -648,7 +800,7 @@ function AssignmentsTab() {
               <button onClick={handleCloseModal} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#9ca3af" }}>✕</button>
             </div>
             <label style={S.label}>Assignment Title</label>
-            <input style={{ ...S.input, marginBottom: 12 }} placeholder="Enter assignment title"/>
+            <input style={{ ...S.input, marginBottom: 12 }} value={title} onChange={e => setTitle(e.target.value)} placeholder="Enter assignment title"/>
             <label style={S.label}>Upload File</label>
             <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".pdf,.docx,.ppt,.pptx" style={{ display: "none" }}/>
             <div onClick={()=>fileInputRef.current?.click()} style={{ border: "2px dashed #fbbf24", borderRadius: 12, padding: "24px", textAlign: "center", marginBottom: 16, background: "#fffbeb", cursor: "pointer" }}>
@@ -667,8 +819,10 @@ function AssignmentsTab() {
               )}
             </div>
             <label style={S.label}>Notes (Optional)</label>
-            <textarea style={{ ...S.input, height: 70, resize: "none", marginBottom: 20 }} placeholder="Any notes for the reviewer..."/>
-            <button onClick={handleCloseModal} style={{ ...S.primaryBtn, width: "100%" }}>📤 Submit Assignment</button>
+            <textarea style={{ ...S.input, height: 70, resize: "none", marginBottom: 20 }} value={note} onChange={e => setNote(e.target.value)} placeholder="Any notes for the reviewer..."/>
+            <button onClick={handleSubmit} disabled={submitting} style={{ ...S.primaryBtn, width: "100%" }}>
+              {submitting ? "Uploading & Submitting..." : "📤 Submit Assignment"}
+            </button>
           </div>
         </div>
       )}
@@ -908,10 +1062,8 @@ function ProfileTab({ user, onWorkingCenterChange }) {
   );
 }
 
-function NotificationsTab() {
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+function NotificationsTab({ notifications = [], onMarkRead, onMarkAllRead }) {
   const icons = { session: "📹", assignment: "📝", approval: "✅", certificate: "🏆", course: "📚" };
-  const markAll = () => setNotifications(prev=>prev.map(n=>({...n,read:true})));
 
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
@@ -920,19 +1072,25 @@ function NotificationsTab() {
           <h1 style={S.pageTitle}>Notifications</h1>
           <p style={S.pageSub}>{notifications.filter(n=>!n.read).length} unread</p>
         </div>
-        <button onClick={markAll} style={S.exportBtn}>✓ Mark all read</button>
+        <button onClick={onMarkAllRead} style={S.exportBtn}>✓ Mark all read</button>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {notifications.map(n=>(
-          <div key={n.id} onClick={()=>setNotifications(prev=>prev.map(p=>p.id===n.id?{...p,read:true}:p))} style={{ background: n.read?"white":"#fffbeb", borderRadius: 14, padding: "14px 18px", border: `1px solid ${n.read?"#f1f5f9":"#fbbf24"}`, display: "flex", alignItems: "center", gap: 14, cursor: "pointer", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", borderLeft: `4px solid ${n.read?"#e5e7eb":"#f59e0b"}` }}>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: n.read?"#f3f4f6":"#fef3c7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{icons[n.type]}</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: n.read?500:700, color: "#1c1917" }}>{n.msg}</div>
-              <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>{n.time}</div>
-            </div>
-            {!n.read && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#f59e0b", flexShrink: 0 }}/>}
+        {notifications.length === 0 ? (
+          <div style={{ padding: 40, textAlign: "center", background: "white", borderRadius: 16, border: "1px dashed #cbd5e1", color: "#94a3b8" }}>
+            No notifications.
           </div>
-        ))}
+        ) : (
+          notifications.map(n=>(
+            <div key={n.id} onClick={()=>!n.read && onMarkRead(n.id)} style={{ background: n.read?"white":"#fffbeb", borderRadius: 14, padding: "14px 18px", border: `1px solid ${n.read?"#f1f5f9":"#fbbf24"}`, display: "flex", alignItems: "center", gap: 14, cursor: "pointer", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", borderLeft: `4px solid ${n.read?"#e5e7eb":"#f59e0b"}` }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: n.read?"#f3f4f6":"#fef3c7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{icons[n.type] || "🔔"}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: n.read?500:700, color: "#1c1917" }}>{n.msg}</div>
+                <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>{n.time}</div>
+              </div>
+              {!n.read && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#f59e0b", flexShrink: 0 }}/>}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
@@ -944,10 +1102,131 @@ function NotificationsTab() {
 export default function TeacherDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab]         = useState("overview");
   const [toast, setToast]                 = useState({ msg: "", type: "" });
-  // workingCenter lives here so OverviewTab reflects changes saved in ProfileTab
   const [workingCenter, setWorkingCenter] = useState(user.workingCenter || "Dhayri, Pune, Maharashtra");
 
-  const unreadCount = MOCK_NOTIFICATIONS.filter(n=>!n.read).length;
+  // Backend States
+  const [courses, setCourses] = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [lessons, setLessons] = useState([]);
+  const [activities, setActivities] = useState([]);
+  const [summary, setSummary] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  // Chatbot States
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState([
+    { sender: "bot", text: `Hello ${user.name?.split(" ")[0] || "there"}! I'm your SpaceCE AI Assistant. How can I assist you with your class, attendance, courses, or lesson plans today?` }
+  ]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+
+  const refreshData = async () => {
+    try {
+      const progressRes = await getTeacherProgress();
+      if (progressRes) {
+        setCourses(progressRes.courses || []);
+        setLessons(progressRes.lessons || []);
+        setActivities(progressRes.activities || []);
+        setSummary(progressRes.summary || {});
+      }
+      const assignmentsRes = await getCourses();
+      if (assignmentsRes && assignmentsRes.courses) {
+        setAssignments(assignmentsRes.courses);
+      }
+      const notificationsRes = await getNotifications();
+      if (notificationsRes && notificationsRes.notifications) {
+        const mapped = notificationsRes.notifications.map(n => {
+          let timeVal = "Just now";
+          if (n.createdAt) {
+            const diffMs = new Date() - new Date(n.createdAt);
+            const diffMins = Math.floor(diffMs / 60000);
+            if (diffMins < 60) timeVal = `${diffMins}m ago`;
+            else {
+              const diffHrs = Math.floor(diffMins / 60);
+              if (diffHrs < 24) timeVal = `${diffHrs}h ago`;
+              else timeVal = `${Math.floor(diffHrs / 24)}d ago`;
+            }
+          }
+          return {
+            id: n._id,
+            type: n.type || "info",
+            msg: n.message || n.title || "",
+            time: timeVal,
+            read: n.read
+          };
+        });
+        setNotifications(mapped);
+      }
+    } catch (err) {
+      console.error("Error fetching teacher dashboard data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshData();
+  }, [user]);
+
+  const handleMarkDone = async (assignId, payload) => {
+    try {
+      await updateCourseAssignmentProgress(assignId, payload);
+      setToast({ msg: "Progress saved! ✓", type: "success" });
+      refreshData();
+    } catch (err) {
+      setToast({ msg: "Failed to save progress.", type: "error" });
+    }
+  };
+
+  const handleSubmitAssignment = async (assignId, payload) => {
+    await updateCourseAssignmentProgress(assignId, payload);
+    setToast({ msg: "Assignment submitted successfully! 📤", type: "success" });
+    refreshData();
+  };
+
+  const handleMarkNotifRead = async (notifId) => {
+    try {
+      await markNotificationRead(notifId);
+      refreshData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleMarkAllNotifRead = async () => {
+    try {
+      const unread = notifications.filter(n => !n.read);
+      await Promise.all(unread.map(n => markNotificationRead(n.id)));
+      setToast({ msg: "All notifications marked as read.", type: "success" });
+      refreshData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSendChatMessage = async () => {
+    if (!chatInput.trim()) return;
+    const userMsg = chatInput.trim();
+    setChatMessages(prev => [...prev, { sender: "user", text: userMsg }]);
+    setChatInput("");
+    setChatLoading(true);
+    try {
+      const res = await askTeacherChatbot(userMsg);
+      if (res && res.reply) {
+        setChatMessages(prev => [...prev, { sender: "bot", text: res.reply }]);
+      } else {
+        setChatMessages(prev => [...prev, { sender: "bot", text: "I'm sorry, I'm having trouble connecting right now." }]);
+      }
+    } catch (err) {
+      setChatMessages(prev => [...prev, { sender: "bot", text: "Something went wrong. Please try again later." }]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const unreadCount = notifications.filter(n=>!n.read).length;
+  const pendingAssignmentsCount = assignments.filter(a=>a.status==="assigned"||a.status==="revision").length;
 
   const navItems = [
     { key: "overview",      label: "Teacher's Dashboard", icon: "📊" },
@@ -958,28 +1237,34 @@ export default function TeacherDashboard({ user, onLogout }) {
     { key: "assessment",    label: "Assessments",         icon: "📝" },
     { key: "schedule",      label: "Schedule",            icon: "📅" },
     { key: "grades",        label: "Grades",              icon: "📊" },
-    { key: "assignments",   label: "Assignments",         icon: "✏️", badge: MOCK_ASSIGNMENTS.filter(a=>a.status==="pending"||a.status==="revision").length },
+    { key: "assignments",   label: "Assignments",         icon: "✏️", badge: pendingAssignmentsCount },
     { key: "certificates",  label: "Certificates",        icon: "🏆" },
     { key: "notifications", label: "Notifications",       icon: "🔔", badge: unreadCount },
     { key: "profile",       label: "My Profile",          icon: "👤" },
   ];
 
-  // Pass live workingCenter to every child
   const enrichedUser = { ...user, workingCenter };
 
   const renderContent = () => {
+    if (loading) {
+      return (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "60vh", fontSize: 16, fontWeight: 700, color: "#64748b" }}>
+          🔄 Loading Portal Data...
+        </div>
+      );
+    }
     switch(activeTab) {
-      case "overview":      return <OverviewTab user={enrichedUser} setActiveTab={setActiveTab}/>;
+      case "overview":      return <OverviewTab user={enrichedUser} setActiveTab={setActiveTab} courses={courses} assignments={assignments} lessons={lessons} activities={activities} summary={summary}/>;
       case "children_att":  return <AttendanceManager user={enrichedUser}/>;
       case "geotag":        return <GeotagAttendance user={enrichedUser}/>;
       case "training":      return <TrainingAndClassroomManager user={enrichedUser}/>;
-      case "courses":       return <CoursesTab/>;
+      case "courses":       return <CoursesTab assignments={assignments} onMarkDone={handleMarkDone}/>;
       case "assessment":    return <ProctoredAssessment user={enrichedUser}/>;
       case "schedule":      return <ScheduleTab user={enrichedUser}/>;
       case "grades":        return <GradesTab/>;
-      case "assignments":   return <AssignmentsTab/>;
+      case "assignments":   return <AssignmentsTab assignments={assignments} onSubmitAssignment={handleSubmitAssignment}/>;
       case "certificates":  return <CertificatesTab/>;
-      case "notifications": return <NotificationsTab/>;
+      case "notifications": return <NotificationsTab notifications={notifications} onMarkRead={handleMarkNotifRead} onMarkAllRead={handleMarkAllNotifRead}/>;
       case "profile":       return <ProfileTab user={enrichedUser} onWorkingCenterChange={setWorkingCenter}/>;
       default:              return null;
     }
@@ -1020,6 +1305,92 @@ export default function TeacherDashboard({ user, onLogout }) {
       {/* Main Content */}
       <div style={{ flex: 1, width: "0px", minWidth: "0px", padding: "28px 32px", overflowY: "auto", maxHeight: "100vh" }}>
         {renderContent()}
+      </div>
+
+      {/* Floating Chatbot Widget */}
+      <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000, display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+        {chatOpen && (
+          <div style={{ width: 340, height: 460, background: "rgba(255, 255, 255, 0.95)", backdropFilter: "blur(12px)", border: "1px solid #fbbf24", borderRadius: 20, boxShadow: "0 10px 40px rgba(0,0,0,0.12)", marginBottom: 16, display: "flex", flexDirection: "column", overflow: "hidden", animation: "slideUp 0.3s ease" }}>
+            {/* Header */}
+            <div style={{ background: "linear-gradient(135deg,#f59e0b 0%,#d97706 100%)", padding: "16px 20px", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 24 }}>🤖</span>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 900, letterSpacing: "-0.2px" }}>SpaceCE Assistant</div>
+                  <div style={{ fontSize: 10, opacity: 0.85, fontWeight: 700 }}>Online · Portal Helper</div>
+                </div>
+              </div>
+              <button onClick={() => setChatOpen(false)} style={{ background: "none", border: "none", color: "white", fontSize: 18, cursor: "pointer", padding: 0 }}>✕</button>
+            </div>
+            {/* Messages Area */}
+            <div style={{ flex: 1, padding: 16, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, background: "#fafbfc" }}>
+              {chatMessages.map((msg, idx) => (
+                <div key={idx} style={{ display: "flex", justifyContent: msg.sender === "user" ? "flex-end" : "flex-start" }}>
+                  <div style={{
+                    maxWidth: "80%",
+                    padding: "10px 14px",
+                    borderRadius: msg.sender === "user" ? "16px 16px 0 16px" : "16px 16px 16px 0",
+                    background: msg.sender === "user" ? "linear-gradient(135deg,#f59e0b 0%,#d97706 100%)" : "white",
+                    color: msg.sender === "user" ? "white" : "#1c1917",
+                    fontSize: 12.5,
+                    fontWeight: 600,
+                    lineHeight: 1.45,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+                    border: msg.sender === "user" ? "none" : "1px solid #f1f5f9"
+                  }}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+              {chatLoading && (
+                <div style={{ display: "flex", justifyContent: "flex-start" }}>
+                  <div style={{ background: "white", padding: "12px 18px", borderRadius: "16px 16px 16px 0", border: "1px solid #f1f5f9", display: "flex", gap: 4, alignItems: "center" }}>
+                    <span style={{ width: 6, height: 6, background: "#d97706", borderRadius: "50%", display: "inline-block", animation: "bounce 1.4s infinite ease-in-out both" }} />
+                    <span style={{ width: 6, height: 6, background: "#d97706", borderRadius: "50%", display: "inline-block", animation: "bounce 1.4s infinite ease-in-out both 0.2s" }} />
+                    <span style={{ width: 6, height: 6, background: "#d97706", borderRadius: "50%", display: "inline-block", animation: "bounce 1.4s infinite ease-in-out both 0.4s" }} />
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* Input Area */}
+            <div style={{ padding: 12, background: "white", borderTop: "1px solid #f1f5f9", display: "flex", gap: 8 }}>
+              <input
+                type="text"
+                placeholder="Ask about attendance, courses..."
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSendChatMessage()}
+                style={{ flex: 1, border: "1px solid #cbd5e1", borderRadius: 10, padding: "8px 12px", fontSize: 12, outline: "none", fontWeight: 600 }}
+              />
+              <button
+                onClick={handleSendChatMessage}
+                style={{ background: "linear-gradient(135deg,#f59e0b 0%,#d97706 100%)", border: "none", color: "white", borderRadius: 10, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 2px 6px rgba(217,119,6,0.3)" }}
+              >
+                ➔
+              </button>
+            </div>
+          </div>
+        )}
+        <button
+          onClick={() => setChatOpen(!chatOpen)}
+          style={{
+            width: 54,
+            height: 54,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg,#f59e0b 0%,#d97706 100%)",
+            border: "none",
+            color: "white",
+            fontSize: 24,
+            cursor: "pointer",
+            boxShadow: "0 4px 16px rgba(217,119,6,0.45)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "transform 0.2s ease"
+          }}
+        >
+          💬
+        </button>
       </div>
     </div>
   );
