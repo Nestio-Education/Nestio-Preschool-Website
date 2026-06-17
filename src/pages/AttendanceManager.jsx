@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
 import { SectionCard, S, Badge } from "../components/Shared";
+import {
+  getStudentRoster,
+  updateStudentRoster,
+  getStudentAttendance,
+  saveStudentAttendance,
+  deleteStudentAttendance
+} from "../services/api";
 
 export default function AttendanceManager({ user }) {
   const [students, setStudents] = useState([]);
@@ -14,29 +21,42 @@ export default function AttendanceManager({ user }) {
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const storageKeyStudents = `spaceece_students_${user.subject}`;
-  const storageKeyAttendance = `spaceece_attendance_${user.subject}`;
-
   // 1. Load Sorted Students and Attendance Sheet for the chosen date dynamically
   useEffect(() => {
-    const savedStudents = JSON.parse(localStorage.getItem(storageKeyStudents) || "[]");
-    setStudents(savedStudents);
+    let active = true;
 
-    const savedRecords = JSON.parse(localStorage.getItem(storageKeyAttendance) || "{}");
-    
-    if (savedRecords[selectedDate]) {
-      // Historical data found! Load past attendance sheet records
-      setAttendanceDict(savedRecords[selectedDate]);
-      setIsSavedRecord(true);
-    } else {
-      // Fresh new attendance record profile
-      const initial = {};
-      savedStudents.forEach(st => {
-        initial[st.rollNo] = "P";
-      });
-      setAttendanceDict(initial);
-      setIsSavedRecord(false);
+    async function loadData() {
+      try {
+        const roster = await getStudentRoster(user.subject);
+        if (!active) return;
+        setStudents(roster || []);
+
+        const sheet = await getStudentAttendance(user.subject, selectedDate);
+        if (!active) return;
+
+        if (sheet) {
+          // Historical data found! Load past attendance sheet records
+          setAttendanceDict(sheet);
+          setIsSavedRecord(true);
+        } else {
+          // Fresh new attendance record profile
+          const initial = {};
+          (roster || []).forEach(st => {
+            initial[st.rollNo] = "P";
+          });
+          setAttendanceDict(initial);
+          setIsSavedRecord(false);
+        }
+      } catch (err) {
+        console.error("Failed to load attendance/roster data:", err);
+      }
     }
+
+    loadData();
+
+    return () => {
+      active = false;
+    };
   }, [selectedDate, user.subject]);
 
   // Alert toast auto-clearing message handler
@@ -51,32 +71,36 @@ export default function AttendanceManager({ user }) {
   };
 
   // 2. Add New Child and Automatically Rearrange by Roll Number (Alphabetical order)
-  const handleAddStudent = (e) => {
+  const handleAddStudent = async (e) => {
     e.preventDefault();
     if (!newStudentName.trim()) return;
 
-    const currentStudents = JSON.parse(localStorage.getItem(storageKeyStudents) || "[]");
-    const updatedList = [...currentStudents, { name: newStudentName.trim() }];
-    
-    // Sort alphabetically by student name
-    updatedList.sort((a, b) => a.name.localeCompare(b.name));
+    try {
+      const updatedList = [...students, { name: newStudentName.trim() }];
+      
+      // Sort alphabetically by student name
+      updatedList.sort((a, b) => a.name.localeCompare(b.name));
 
-    // Re-assign Roll Numbers sequentially starting from 1
-    const structuredList = updatedList.map((st, index) => ({
-      rollNo: index + 1,
-      name: st.name
-    }));
+      // Re-assign Roll Numbers sequentially starting from 1
+      const structuredList = updatedList.map((st, index) => ({
+        rollNo: index + 1,
+        name: st.name
+      }));
 
-    localStorage.setItem(storageKeyStudents, JSON.stringify(structuredList));
-    setStudents(structuredList);
-    setNewStudentName("");
-    setShowAddModal(false);
-    triggerToast("Child registered and roll numbers re-sorted!");
+      const teacherId = user.id || user._id;
+      const roster = await updateStudentRoster(teacherId, user.subject, structuredList);
+      setStudents(roster || []);
+      setNewStudentName("");
+      setShowAddModal(false);
+      triggerToast("Child registered and roll numbers re-sorted!");
 
-    // Dynamically patch state tracking for active view template
-    const addedChild = structuredList.find(s => s.name === newStudentName.trim());
-    if (addedChild) {
-      setAttendanceDict(prev => ({ ...prev, [addedChild.rollNo]: "P" }));
+      // Dynamically patch state tracking for active view template
+      const addedChild = (roster || []).find(s => s.name === newStudentName.trim());
+      if (addedChild) {
+        setAttendanceDict(prev => ({ ...prev, [addedChild.rollNo]: "P" }));
+      }
+    } catch (err) {
+      triggerToast("Failed to register child: " + err.message, true);
     }
   };
 
@@ -98,7 +122,7 @@ export default function AttendanceManager({ user }) {
   // 4. Verify Password against Profile Credentials
   const handleVerifyAndUpdate = (e) => {
     e.preventDefault();
-    
+
     if (verifyPassword === user.password) {
       if (pendingAttendanceChange) {
         const { rollNo, nextStatus } = pendingAttendanceChange;
@@ -113,27 +137,33 @@ export default function AttendanceManager({ user }) {
   };
 
   // 5. Save Sheet to Persistence Cache
-  const handleSaveSheet = () => {
-    const savedRecords = JSON.parse(localStorage.getItem(storageKeyAttendance) || "{}");
-    savedRecords[selectedDate] = attendanceDict;
-    localStorage.setItem(storageKeyAttendance, JSON.stringify(savedRecords));
-    setIsSavedRecord(true);
-    triggerToast(`Attendance sheet archived successfully for date: ${selectedDate}`);
+  const handleSaveSheet = async () => {
+    try {
+      const teacherId = user.id || user._id;
+      const sheet = await saveStudentAttendance(teacherId, user.subject, selectedDate, attendanceDict);
+      setAttendanceDict(sheet);
+      setIsSavedRecord(true);
+      triggerToast(`Attendance sheet archived successfully for date: ${selectedDate}`);
+    } catch (err) {
+      triggerToast("Failed to save attendance sheet: " + err.message, true);
+    }
   };
 
   // 6. Reset or Un-Archive the sheet to clear history metrics if needed
-  const handleClearSheetRecord = () => {
+  const handleClearSheetRecord = async () => {
     if (window.confirm("Are you sure you want to delete this archived sheet record from the database history logs?")) {
-      const savedRecords = JSON.parse(localStorage.getItem(storageKeyAttendance) || "{}");
-      delete savedRecords[selectedDate];
-      localStorage.setItem(storageKeyAttendance, JSON.stringify(savedRecords));
-      
-      // Re-initialize view state back to default present configuration
-      const initial = {};
-      students.forEach(st => { initial[st.rollNo] = "P"; });
-      setAttendanceDict(initial);
-      setIsSavedRecord(false);
-      triggerToast("Archived record removed. Sheet reset to defaults.");
+      try {
+        await deleteStudentAttendance(user.subject, selectedDate);
+        
+        // Re-initialize view state back to default present configuration
+        const initial = {};
+        students.forEach(st => { initial[st.rollNo] = "P"; });
+        setAttendanceDict(initial);
+        setIsSavedRecord(false);
+        triggerToast("Archived record removed. Sheet reset to defaults.");
+      } catch (err) {
+        triggerToast("Failed to delete attendance record: " + err.message, true);
+      }
     }
   };
 
@@ -158,13 +188,13 @@ export default function AttendanceManager({ user }) {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <label style={{ ...S.label, margin: 0, fontWeight: "700" }}>Select Sheet Date:</label>
-            <input 
-              type="date" 
-              value={selectedDate} 
-              onChange={(e) => setSelectedDate(e.target.value)} 
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
               style={{ ...S.input, width: "auto", padding: "8px 12px" }}
             />
-            
+
             {/* Dynamic Historical Log Badge Status */}
             {isSavedRecord ? (
               <Badge children="📝 Reviewing Saved Sheet History" color="#1e40af" bg="#dbeafe" />
@@ -195,16 +225,16 @@ export default function AttendanceManager({ user }) {
               {/* Dynamic Map Stack Output array */}
               {students.map((st) => {
                 const status = attendanceDict[st.rollNo] || "P";
-                const badgeStyle = 
+                const badgeStyle =
                   status === "P" ? { bg: "#d1fae5", text: "#065f46", lbl: "Present" } :
-                  status === "A" ? { bg: "#fee2e2", text: "#991b1b", lbl: "Absent" } :
-                                   { bg: "#fef3c7", text: "#92400e", lbl: "Leave" };
+                    status === "A" ? { bg: "#fee2e2", text: "#991b1b", lbl: "Absent" } :
+                      { bg: "#fef3c7", text: "#92400e", lbl: "Leave" };
 
                 return (
-                  <div 
-                    key={st.rollNo} 
-                    style={{ 
-                      display: "flex", alignItems: "center", padding: "12px 16px", 
+                  <div
+                    key={st.rollNo}
+                    style={{
+                      display: "flex", alignItems: "center", padding: "12px 16px",
                       background: "white", border: "1px solid #f1f5f9", borderRadius: 10,
                       transition: "all 0.15s"
                     }}
@@ -255,9 +285,9 @@ export default function AttendanceManager({ user }) {
             </div>
             <form onSubmit={handleAddStudent}>
               <label style={S.label}>Student Full Name</label>
-              <input 
+              <input
                 required
-                style={{ ...S.input, marginBottom: 20 }} 
+                style={{ ...S.input, marginBottom: 20 }}
                 placeholder="Enter first and last name..."
                 value={newStudentName}
                 onChange={(e) => setNewStudentName(e.target.value)}
@@ -281,10 +311,10 @@ export default function AttendanceManager({ user }) {
             </p>
             <form onSubmit={handleVerifyAndUpdate}>
               <label style={S.label}>Password Credential Verification</label>
-              <input 
+              <input
                 required
-                type="password" 
-                style={{ ...S.input, marginBottom: 20 }} 
+                type="password"
+                style={{ ...S.input, marginBottom: 20 }}
                 placeholder="••••••••"
                 value={verifyPassword}
                 onChange={(e) => setVerifyPassword(e.target.value)}

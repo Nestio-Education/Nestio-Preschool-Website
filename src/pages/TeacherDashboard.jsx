@@ -3,6 +3,7 @@ import { Logo, Toast, Badge, StatusBadge, StatCard, SectionCard, S, globalCSS } 
 import AttendanceManager from "./AttendanceManager";
 import TrainingAndClassroomManager from "./TrainingAndClassroomManager";
 import GeotagAttendance from "./GeotagAttendance";
+import { updateTeacher } from "../services/api";
 
 /* ═══════════════════════════════════════════
    MOCK DATA
@@ -390,10 +391,33 @@ function ProfileTab({ user, onWorkingCenterChange }) {
 
   const [savedForm, setSavedForm] = useState({ ...form });
 
-  const handleSave = () => {
-    setSavedForm({ ...form });
-    onWorkingCenterChange && onWorkingCenterChange(form.workingCenter);
-    setEditing(false);
+  const handleSave = async () => {
+    try {
+      const payload = {
+        name: form.name,
+        phone: form.phone,
+        address: form.address,
+        workingCenter: form.workingCenter,
+        subject: form.subject,
+        portfolio: {
+          degree: form.degree,
+          university: form.university,
+          netStatus: form.netStatus,
+          netDesc: form.netDesc,
+          expYears: form.expYears,
+          expBio: form.expBio
+        }
+      };
+      if (user.id || user._id) {
+        await updateTeacher(user.id || user._id, payload);
+      }
+      setSavedForm({ ...form });
+      onWorkingCenterChange && onWorkingCenterChange(form.workingCenter);
+      setEditing(false);
+      alert('Profile updated successfully!');
+    } catch (err) {
+      alert('Failed to update profile: ' + err.message);
+    }
   };
 
   const handleCancel = () => {
