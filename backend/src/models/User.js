@@ -14,8 +14,6 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
     photoUrl: String,
-    resetPasswordTokenHash: String,
-    resetPasswordExpiresAt: Date,
     teacherProfile: {
       center: { type: mongoose.Schema.Types.ObjectId, ref: "Center" },
       class: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Logo, Toast, Particles, S, globalCSS } from "../components/Shared";
-import { loginUser, registerTeacher, requestPasswordReset, resetPassword, verifyResetToken } from "../services/api";
+import { loginUser, registerTeacher } from "../services/api";
 
 /* ── Animated illustration ── */
 function LoginIllustration() {
@@ -62,12 +62,12 @@ function StrengthBar({ password }) {
 
 /* ── Login Form ── */
 function LoginForm({ onLogin, onGoRegister, onGoForgot }) {
-  const [email, setEmail] = useState("");
+  const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
-  const [toast, setToast] = useState({ msg: "", type: "" });
+  const [toast, setToast]       = useState({ msg: "", type: "" });
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     if (!email || !password) { setToast({ msg: "Please fill in all fields.", type: "error" }); return; }
 
@@ -124,26 +124,32 @@ function LoginForm({ onLogin, onGoRegister, onGoForgot }) {
 
 /* ── Forgot Password Form ── */
 function ForgotPasswordForm({ onBack }) {
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
-  const [toast, setToast] = useState({ msg: "", type: "" });
-  const [resetLink, setResetLink] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail]       = useState("");
+  const [sent, setSent]         = useState(false);
+  const [toast, setToast]       = useState({ msg: "", type: "" });
+  const [mockLink, setMockLink] = useState("");
 
-  const handleForgot = async (e) => {
+  const handleForgot = (e) => {
     e.preventDefault();
     if (!email) { setToast({ msg: "Please enter your email address.", type: "error" }); return; }
 
-    setLoading(true);
-    requestPasswordReset(email)
-      .then((data) => {
-        setResetLink(data.resetLink || "");
-        setSent(true);
-      })
-      .catch((err) => {
-        setToast({ msg: err.message || "Could not generate reset link.", type: "error" });
-      })
-      .finally(() => setLoading(false));
+    const teachers  = JSON.parse(localStorage.getItem("spaceece_teachers") || "[]");
+    const isTeacher = teachers.find(t => t.email === email);
+    const isAdmin   = email === ADMIN_CREDENTIALS.email;
+
+    if (!isTeacher && !isAdmin) {
+      setToast({ msg: "No account found with this email address.", type: "error" });
+      return;
+    }
+
+    const token     = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    const expiry    = Date.now() + 15 * 60 * 1000;
+    const resetData = { email, token, expiry };
+    localStorage.setItem("spaceece_reset_token", JSON.stringify(resetData));
+
+    const simulatedLink = `${window.location.origin}${window.location.pathname}?reset_token=${token}`;
+    setMockLink(simulatedLink);
+    setSent(true);
   };
 
   if (sent) {
@@ -170,11 +176,11 @@ function ForgotPasswordForm({ onBack }) {
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <input
               readOnly
-              value={resetLink}
+              value={mockLink}
               style={{ ...S.input, fontSize: 10, flex: 1, padding: "6px 10px", color: "#374151", background: "#fff" }}
             />
             <button
-              onClick={() => { navigator.clipboard.writeText(resetLink); setToast({ msg: "Link copied!", type: "success" }); }}
+              onClick={() => { navigator.clipboard.writeText(mockLink); setToast({ msg: "Link copied!", type: "success" }); }}
               style={{ ...S.primaryBtn, padding: "6px 12px", fontSize: 11, whiteSpace: "nowrap" }}
             >
               Copy
@@ -226,36 +232,44 @@ function ForgotPasswordForm({ onBack }) {
 
 /* ── Reset Password Form (reached via reset link token) ── */
 function ResetPasswordForm({ token, onDone }) {
-  const [password, setPassword] = useState("");
+  const [password, setPassword]       = useState("");
   const [confirmPassword, setConfirm] = useState("");
-  const [showPass, setShowPass] = useState(false);
-  const [toast, setToast] = useState({ msg: "", type: "" });
-  const [tokenValid, setTokenValid] = useState(null);
-  const [tokenEmail, setTokenEmail] = useState("");
+  const [showPass, setShowPass]       = useState(false);
+  const [toast, setToast]             = useState({ msg: "", type: "" });
+  const [tokenValid, setTokenValid]   = useState(null);
+  const [tokenEmail, setTokenEmail]   = useState("");
 
   useEffect(() => {
-    verifyResetToken(token)
-      .then((data) => {
+    const raw = localStorage.getItem("spaceece_reset_token");
+    if (!raw) { setTokenValid(false); return; }
+    try {
+      const data = JSON.parse(raw);
+      if (data.token !== token || Date.now() > data.expiry) {
+        setTokenValid(false);
+      } else {
         setTokenValid(true);
-        setTokenEmail(data.email || "");
-      })
-      .catch(() => setTokenValid(false));
+        setTokenEmail(data.email);
+      }
+    } catch {
+      setTokenValid(false);
+    }
   }, [token]);
 
-  const handleReset = async (e) => {
+  const handleReset = (e) => {
     e.preventDefault();
     if (!password || !confirmPassword) { setToast({ msg: "Please fill in both fields.", type: "error" }); return; }
-    if (password !== confirmPassword) { setToast({ msg: "Passwords do not match.", type: "error" }); return; }
-    if (password.length < 8) { setToast({ msg: "Password must be at least 8 characters.", type: "error" }); return; }
+    if (password !== confirmPassword)  { setToast({ msg: "Passwords do not match.", type: "error" }); return; }
+    if (password.length < 8)           { setToast({ msg: "Password must be at least 8 characters.", type: "error" }); return; }
 
-    resetPassword(token, password)
-      .then(() => {
-        setToast({ msg: "Password updated successfully!", type: "success" });
-        setTimeout(onDone, 1800);
-      })
-      .catch((err) => {
-        setToast({ msg: err.message || "Could not update password.", type: "error" });
-      });
+    if (tokenEmail !== ADMIN_CREDENTIALS.email) {
+      const teachers = JSON.parse(localStorage.getItem("spaceece_teachers") || "[]");
+      const updated  = teachers.map(t => t.email === tokenEmail ? { ...t, password } : t);
+      localStorage.setItem("spaceece_teachers", JSON.stringify(updated));
+    }
+
+    localStorage.removeItem("spaceece_reset_token");
+    setToast({ msg: "Password updated successfully!", type: "success" });
+    setTimeout(onDone, 1800);
   };
 
   if (tokenValid === null) {
@@ -338,21 +352,21 @@ function ResetPasswordForm({ token, onDone }) {
 
 /* ── Register Form ── */
 function RegisterForm({ onBack }) {
-  const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", subject: "", photo: "", password: "", confirmPassword: "" });
+  const [form, setForm]         = useState({ name: "", email: "", phone: "", address: "", subject: "", photo: "", password: "", confirmPassword: "" });
   const [showPass, setShowPass] = useState(false);
-  const [toast, setToast] = useState({ msg: "", type: "" });
+  const [toast, setToast]       = useState({ msg: "", type: "" });
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) { setToast({ msg: "Please upload an image file (PNG/JPG).", type: "error" }); return; }
-    if (file.size > 1024 * 1024) { setToast({ msg: "Image is too large. Please select a photo under 1MB.", type: "error" }); return; }
+    if (file.size > 1024 * 1024)         { setToast({ msg: "Image is too large. Please select a photo under 1MB.", type: "error" }); return; }
     const reader = new FileReader();
     reader.onloadend = () => setForm({ ...form, photo: reader.result });
     reader.readAsDataURL(file);
   };
 
-  const handleRegister = async (e) => {
+  const handleRegister = (e) => {
     e.preventDefault();
     const { name, email, phone, address, subject, password, confirmPassword } = form;
     if (!name || !email || !phone || !address || !subject || !password || !confirmPassword) { setToast({ msg: "Please fill all fields.", type: "error" }); return; }
@@ -461,7 +475,7 @@ export default function LoginPage({ onLogin }) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get("reset_token");
+    const token  = params.get("reset_token");
     if (token) {
       setView({ type: "reset", token });
     }
@@ -507,25 +521,17 @@ export default function LoginPage({ onLogin }) {
 }
 
 const ls = {
-  bg: {
-    minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-    background: "linear-gradient(135deg,#fef3c7 0%,#fde68a 30%,#fbbf24 65%,#f59e0b 100%)",
-    position: "relative", overflow: "hidden", padding: "24px",
-    fontFamily: "'Segoe UI','Inter',-apple-system,sans-serif"
-  },
-  panel: {
-    display: "flex", alignItems: "stretch", background: "rgba(255,255,255,0.97)",
-    borderRadius: 24, overflow: "hidden", boxShadow: "0 20px 60px rgba(180,120,0,0.18)",
-    border: "1px solid rgba(245,158,11,0.2)", zIndex: 1, width: "100%", maxWidth: 900
-  },
-  left: {
-    flex: "0 0 440px", background: "linear-gradient(160deg,#fffbeb,#fef3c7)", padding: "48px 32px",
-    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-    borderRight: "1px solid rgba(245,158,11,0.15)"
-  },
+  bg:    { minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
+           background: "linear-gradient(135deg,#fef3c7 0%,#fde68a 30%,#fbbf24 65%,#f59e0b 100%)",
+           position: "relative", overflow: "hidden", padding: "24px",
+           fontFamily: "'Segoe UI','Inter',-apple-system,sans-serif" },
+  panel: { display: "flex", alignItems: "stretch", background: "rgba(255,255,255,0.97)",
+           borderRadius: 24, overflow: "hidden", boxShadow: "0 20px 60px rgba(180,120,0,0.18)",
+           border: "1px solid rgba(245,158,11,0.2)", zIndex: 1, width: "100%", maxWidth: 900 },
+  left:  { flex: "0 0 440px", background: "linear-gradient(160deg,#fffbeb,#fef3c7)", padding: "48px 32px",
+           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+           borderRight: "1px solid rgba(245,158,11,0.15)" },
   right: { flex: 1, padding: "48px 44px", display: "flex", flexDirection: "column", justifyContent: "center", overflowY: "auto" },
-  badge: {
-    display: "inline-block", padding: "4px 14px", background: "#fef3c7", color: "#92400e",
-    borderRadius: 20, fontSize: 12, fontWeight: 600, border: "1px solid #fbbf24"
-  },
+  badge: { display: "inline-block", padding: "4px 14px", background: "#fef3c7", color: "#92400e",
+           borderRadius: 20, fontSize: 12, fontWeight: 600, border: "1px solid #fbbf24" },
 };

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { S } from "../components/Shared";
-import { getTeacherAssessments, saveTeacherAssessment } from "../services/api";
 
 /* ═══════════════════════════════════════════════════════════
    ASSESSMENT QUESTION BANK  (20 marks each, per course)
@@ -222,25 +221,6 @@ export default function ProctoredAssessment({ user }) {
     catch { return {}; }
   });
 
-  useEffect(() => {
-    const fetchAttempts = async () => {
-      try {
-        const res = await getTeacherAssessments();
-        if (res && res.attempts) {
-          const map = {};
-          res.attempts.forEach(att => {
-            map[att.courseId] = att;
-          });
-          setAttempts(map);
-          localStorage.setItem("spaceece_assessment_attempts", JSON.stringify(map));
-        }
-      } catch (err) {
-        console.error("Failed to fetch assessment attempts from backend:", err);
-      }
-    };
-    fetchAttempts();
-  }, []);
-
   const videoRef    = useRef(null);
   const streamRef   = useRef(null);
   const timerRef    = useRef(null);
@@ -249,27 +229,10 @@ export default function ProctoredAssessment({ user }) {
   const autoSubmitted = useRef(false);
 
   // ── Save attempts ──
-  const saveAttempt = useCallback(async (courseId, resultData) => {
+  const saveAttempt = useCallback((courseId, resultData) => {
     const updated = { ...attempts, [courseId]: { ...resultData, date: new Date().toLocaleDateString("en-IN") } };
     setAttempts(updated);
     localStorage.setItem("spaceece_assessment_attempts", JSON.stringify(updated));
-    try {
-      await saveTeacherAssessment({
-        courseId: String(courseId),
-        score: resultData.score,
-        percentage: resultData.percentage,
-        grade: resultData.grade,
-        performance: resultData.performance,
-        strengths: resultData.strengths,
-        improvements: resultData.improvements,
-        recommendation: resultData.recommendation,
-        answers: resultData.answers,
-        forced: resultData.forced,
-        warnings: resultData.warnings
-      });
-    } catch (err) {
-      console.error("Failed to save attempt to backend database:", err);
-    }
   }, [attempts]);
 
   // ── Issue a proctoring warning ──
