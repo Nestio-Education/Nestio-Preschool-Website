@@ -14,7 +14,15 @@ import ReportsTab from "../admin/ReportsTab";
 import NotificationsTab from "../admin/NotificationsTab";
 import SettingsTab from "../admin/SettingsTab";
 import FeedbackManagementTab from "../admin/FeedbackManagementTab";
-import { getAdminTeachers, getCourseAssignments, getCourses, updateTeacherStatus } from "../services/api";
+import {
+  getAdminTeachers,
+  getCourseAssignments,
+  getCourses,
+  getFeedbacks,
+  getTeacherAttendance,
+  getTrainers,
+  updateTeacherStatus,
+} from "../services/api";
 //import CourseManagementTab from "../admin/CourseManagementTab";
 //import BatchManagementTab from "../admin/BatchManagementTab";
 //import AssessmentManagementTab from "../admin/AssessmentManagementTab";
@@ -29,13 +37,16 @@ import { getAdminTeachers, getCourseAssignments, getCourses, updateTeacherStatus
 
 
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════════
    MAIN ADMIN DASHBOARD
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+═══════════════════════════════════════════ */
 export default function AdminDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [teachers,  setTeachers]  = useState([]);
   const [courses, setCourses] = useState([]);
+  const [trainers, setTrainers] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [assignments,setAssignments] = useState([]);
   const [toast, setToast] = useState({msg:"",type:""});
 
@@ -78,27 +89,27 @@ export default function AdminDashboard({ user, onLogout }) {
   };
 
   const navItems = [
-    { key:"overview",     label:"Admin Dashboard",          icon:"ðŸ“Š" },
-    { key:"centers",      label:"Center Management", icon:"ðŸ«" },
-    { key:"teachers",     label:"Teacher Management",icon:"ðŸ‘©â€ðŸ«", badge:pending.length },
-    { key: "curriculum", label: "Course Management", icon: "ðŸ“š" },
-    { key: "activities", label: "Activity Monitoring", icon: "ðŸ“¸" },
-    { key: "lessonplans", label: "Lesson Plans", icon: "ðŸ“‹" },
-    { key: "children", label: "Children & Classes", icon: "ðŸ‘¶" },
-    { key:"trainers",     label:"Trainer Management",icon:"ðŸŽ“" },
-    { key:"assignments",  label:"Assignment Review", icon:"ðŸ“", badge:assignments.filter(a=>a.status==="pending").length },
-    { key:"attendance",   label:"Attendance",        icon:"ðŸ“‹" },
+    { key:"overview",     label:"Admin Dashboard",          icon:"📊" },
+    { key:"centers",      label:"Center Management", icon:"🏫" },
+    { key:"teachers",     label:"Teacher Management",icon:"👩‍🏫", badge:pending.length },
+    { key: "curriculum", label: "Course Management", icon: "📚" },
+    { key: "activities", label: "Activity Monitoring", icon: "📸" },
+    { key: "lessonplans", label: "Lesson Plans", icon: "📋" },
+    { key: "children", label: "Children & Classes", icon: "👶" },
+    { key:"trainers",     label:"Trainer Management",icon:"🎓" },
+    { key:"assignments",  label:"Assignment Review", icon:"📝", badge:assignments.filter(a=>a.status==="pending").length },
+    { key:"attendance",   label:"Attendance",        icon:"📋" },
    
-    { key:"reports",      label:"Reports & Analytics",icon:"ðŸ“ˆ" },
-    { key:"notifications",label:"Notifications",     icon:"ðŸ””" },
-    { key:"settings",     label:"Settings & Roles",  icon:"âš™ï¸" },
-    { key:"feedback",     label:"Feedback",              icon:"ðŸ’¬" },
-    //{ key:"courses",      label:"Course Management", icon:"ðŸ“š" },
-    //{ key:"batches",      label:"Batch Management",  icon:"ðŸ—‚ï¸" },
-    // { key:"content",      label:"Learning Content",      icon:"ðŸŽ¬" },
-    // { key:"assessments",  label:"Assessment Management", icon:"ðŸ§ " },
-    // { key:"certificates", label:"Certificates",          icon:"ðŸ…" },
-    //{ key:"sessions",     label:"Live Sessions",     icon:"ðŸ“¹" },
+    { key:"reports",      label:"Reports & Analytics",icon:"📈" },
+    { key:"notifications",label:"Notifications",     icon:"🔔" },
+    { key:"settings",     label:"Settings & Roles",  icon:"⚙️" },
+    { key:"feedback",     label:"Feedback",              icon:"💬" },
+    //{ key:"courses",      label:"Course Management", icon:"📚" },
+    //{ key:"batches",      label:"Batch Management",  icon:"🗂️" },
+    // { key:"content",      label:"Learning Content",      icon:"🎬" },
+    // { key:"assessments",  label:"Assessment Management", icon:"Assessment" },
+    // { key:"certificates", label:"Certificates",          icon:"🏅" },
+    //{ key:"sessions",     label:"Live Sessions",     icon:"📹" },
     
   ];
   const persistTeachers = (updater) => {
@@ -126,13 +137,13 @@ export default function AdminDashboard({ user, onLogout }) {
       case "activities": return <ActivityMonitoringTab setToast={setToast}/>;
       case "lessonplans": return <LessonPlanManagementTab setToast={setToast} />;
       case "children": return <ChildrenManagementTab setToast={setToast}/>;
-      case "trainers": return <TrainerManagementTab batches={[]} setToast={setToast}/>;
+      case "trainers": return <TrainerManagementTab trainers={trainers} setTrainers={setTrainers} batches={[]} setToast={setToast}/>;
       case "assignments":  return <AssignmentReviewTab assignments={assignments} setAssignments={setAssignments} setToast={setToast}/>;
-      case "attendance":   return <AttendanceTab teachers={teachers} sessions={[]}/>;
+      case "attendance":   return <AttendanceTab teachers={teachers} sessions={[]} attendanceRecords={attendanceRecords} setAttendanceRecords={setAttendanceRecords}/>;
       case "reports":      return <ReportsTab teachers={teachers} courses={courses} batches={[]}/>;
       case "notifications":return <NotificationsTab teachers={teachers} setToast={setToast}/>;
       case "settings":     return <SettingsTab/>;
-      case "feedback":     return <FeedbackManagementTab setToast={setToast}/>;
+      case "feedback":     return <FeedbackManagementTab feedbacks={feedbacks} setFeedbacks={setFeedbacks} setToast={setToast}/>;
       //case "sessions": return <LiveSessionsTab sessions={sessions} setSessions={setSessions} teachers={teachers} batches={[]} setToast={setToast}/>;
       //case "courses":      return <CourseManagementTab courses={courses} setCourses={setCourses} categories={categories} setCategories={setCategories} setToast={setToast}/>;
       //case "batches": return <BatchManagementTab batches={batches} setBatches={setBatches} teachers={teachers} setToast={setToast}/>;
@@ -146,12 +157,33 @@ export default function AdminDashboard({ user, onLogout }) {
   useEffect(() => {
     let ignore = false;
 
-    Promise.all([getAdminTeachers(), getCourses(), getCourseAssignments()])
-      .then(([teacherRes, courseRes, assignmentRes]) => {
+    Promise.all([
+      getAdminTeachers(),
+      getCourses(),
+      getCourseAssignments(),
+      getTrainers(),
+      getFeedbacks(),
+      getTeacherAttendance(),
+    ])
+      .then(([teacherRes, courseRes, assignmentRes, trainerRes, feedbackRes, attendanceRes]) => {
         if (ignore) return;
-        setTeachers(teacherRes.teachers || []);
+        setTeachers((teacherRes.teachers || []).map((teacher) => ({ ...teacher, id: teacher._id || teacher.id })));
         setCourses(courseRes.courses || []);
         setAssignments((assignmentRes.assignments || []).map(mapCourseAssignmentForReview));
+        setTrainers((trainerRes.trainers || []).map((trainer) => ({ ...trainer, id: trainer._id || trainer.id })));
+        setFeedbacks((feedbackRes.feedbacks || []).map((feedback) => ({ ...feedback, id: feedback._id || feedback.id })));
+        setAttendanceRecords((attendanceRes.records || []).map((record) => ({
+          id: record._id,
+          teacherId: record.teacher?._id || record.teacher?.id || record.teacher,
+          teacherName: record.teacher?.name || "Teacher",
+          sessionId: record._id,
+          sessionTitle: record.source === "geo" ? "Geotag Attendance" : "Teacher Attendance",
+          batch: record.teacher?.teacherProfile?.class?.name || "General",
+          date: record.attendanceDate ? new Date(record.attendanceDate).toLocaleDateString("en-IN") : "",
+          status: record.status,
+          markedBy: record.source || "system",
+          note: record.note || "",
+        })));
       })
       .catch((error) => {
         if (!ignore) setToast({ msg: error.message || "Could not load dashboard data from MongoDB.", type: "error" });
@@ -167,13 +199,13 @@ export default function AdminDashboard({ user, onLogout }) {
       <style>{globalCSS}</style>
       <Toast msg={toast.msg} type={toast.type} onClose={()=>setToast({msg:"",type:""})}/>
 
-      {/* â”€â”€ Sidebar â”€â”€ */}
+      {/* ── Sidebar ── */}
       <div style={{ width:250, background:"white", borderRight:"1px solid #f1f5f9", display:"flex", flexDirection:"column", flexShrink:0, boxShadow:"2px 0 12px rgba(0,0,0,0.04)", position:"sticky", top:0, height:"100vh", overflowY:"auto" }}>
         <div style={{ padding:"20px 16px 12px" }}>
           <Logo size={120}/>
           <div style={{ textAlign:"center", padding:"4px 12px", borderRadius:20, fontSize:11, fontWeight:700,
             background:"#fef3c7", color:"#92400e", border:"1px solid #fbbf24", margin:"6px auto 0", display:"inline-block", width:"fit-content", letterSpacing:"0.3px" }}>
-            ðŸ›¡ï¸ Admin Panel
+            🛡️ Admin Panel
           </div>
         </div>
 
@@ -199,11 +231,11 @@ export default function AdminDashboard({ user, onLogout }) {
             <div style={{ fontSize:10, color:"#9ca3af", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{user?.email}</div>
           </div>
           <button onClick={onLogout} title="Sign Out"
-            style={{ background:"none", border:"none", cursor:"pointer", fontSize:16, color:"#9ca3af", padding:4 }}>â»</button>
+            style={{ background:"none", border:"none", cursor:"pointer", fontSize:16, color:"#9ca3af", padding:4 }}>⏻</button>
         </div>
       </div>
 
-      {/* â”€â”€ Main â”€â”€ */}
+      {/* ── Main ── */}
       <div style={{ flex:1, padding:"28px 32px", overflowY:"auto", maxHeight:"100vh" }}>
         {renderContent()}
       </div>

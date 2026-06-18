@@ -1,6 +1,6 @@
 import { useState } from "react";
-import LoginPage       from "./pages/LoginPage";
-import AdminDashboard  from "./pages/AdminDashboard";
+import LoginPage from "./pages/LoginPage";
+import AdminDashboard from "./pages/AdminDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import { getStoredSession, storeSession, clearSession } from "./services/api";
 
@@ -26,7 +26,7 @@ export default function App() {
     setScreen("login");
   };
 
-  if (screen === "admin")   return <AdminDashboard   user={currentUser} onLogout={handleLogout}/>;
-  if (screen === "teacher") return <TeacherDashboard user={currentUser} onLogout={handleLogout}/>;
-  return <LoginPage onLogin={handleLogin}/>;
+  if (screen === "admin") return <AdminDashboard user={currentUser} onLogout={handleLogout} />;
+  if (screen === "teacher") return <TeacherDashboard user={currentUser} onLogout={handleLogout} />;
+  return <LoginPage onLogin={handleLogin} />;
 }
