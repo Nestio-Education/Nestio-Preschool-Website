@@ -391,20 +391,17 @@ export default function AttendanceManager({ user }) {
       <SectionCard title="📅 Daily Register Date Lookup">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <label style={{ ...S.label, margin: 0, fontWeight: "700" }}>Select Sheet Date:</label>
+            <label style={{ ...S.label, margin: 0, fontWeight: 700 }}>Select Sheet Date:</label>
             <input
               type="date"
               value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
+              onChange={e => setSelectedDate(e.target.value)}
               style={{ ...S.input, width: "auto", padding: "8px 12px" }}
             />
-
-            {/* Dynamic Historical Log Badge Status */}
-            {isSavedRecord ? (
-              <Badge children="📝 Reviewing Saved Sheet History" color="#1e40af" bg="#dbeafe" />
-            ) : (
-              <Badge children="✨ New Unsaved Data Register" color="#854d0e" bg="#fef9c3" />
-            )}
+            {isSavedRecord
+              ? <Badge children="📝 Reviewing Saved Sheet History" color="#1e40af" bg="#dbeafe" />
+              : <Badge children="✨ New Unsaved Data Register"     color="#854d0e" bg="#fef9c3" />
+            }
           </div>
           <Badge children={`Class: ${teacherProfile?.teacherProfile?.class?.name || "Unassigned"}`} color="#d97706" bg="#fef3c7" />
         </div>
@@ -487,7 +484,7 @@ export default function AttendanceManager({ user }) {
               <input
                 required
                 style={{ ...S.input, marginBottom: 20 }}
-                placeholder="Enter first and last name..."
+                placeholder="Enter first and last name…"
                 value={newStudentName}
                 onChange={e => setNewStudentName(e.target.value)}
               />

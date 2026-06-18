@@ -38,24 +38,6 @@ export function registerTeacher(payload) {
   });
 }
 
-export function requestPasswordReset(email) {
-  return request("/api/auth/forgot-password", {
-    method: "POST",
-    body: JSON.stringify({ email }),
-  });
-}
-
-export function verifyResetToken(token) {
-  return request(`/api/auth/reset-password/${token}`);
-}
-
-export function resetPassword(token, password) {
-  return request("/api/auth/reset-password", {
-    method: "POST",
-    body: JSON.stringify({ token, password }),
-  });
-}
-
 export function getStoredSession() {
   const token = localStorage.getItem("spaceece_auth_token");
   const rawUser = localStorage.getItem("spaceece_user");
@@ -191,12 +173,6 @@ export function updateTeacherProfile(id, teacherData) {
   });
 }
 
-// Backwards-compatible export (some pages import updateTeacher)
-export function updateTeacher(id, teacherData) {
-  return updateTeacherProfile(id, teacherData);
-}
-
-
 export function updateTeacherStatus(id, status) {
   return request(`/api/admin/teachers/${id}/status`, {
     method: "PATCH",
@@ -321,10 +297,6 @@ export function updateLessonPlanAssignment(id, payload) {
 
 export function getTeacherLessonPlans() {
   return request("/api/teacher/lesson-plans");
-}
-
-export function getTeacherLessonReports() {
-  return request("/api/teacher/lesson-plans/reports");
 }
 
 
@@ -469,53 +441,5 @@ export function updateReportJob(id, reportData) {
   return request(`/api/admin/report-jobs/${id}`, {
     method: "PATCH",
     body: JSON.stringify(reportData)
-  });
-}
-
-// Teacher Assessment Attempts
-export function getTeacherAssessments() {
-  return request("/api/teacher/assessments");
-}
-
-export function saveTeacherAssessment(payload) {
-  return request("/api/teacher/assessments", {
-    method: "POST",
-    body: JSON.stringify(payload)
-  });
-}
-
-// Teacher Schedule / Timetable
-export function getTeacherSchedule() {
-  return request("/api/teacher/schedule");
-}
-
-export function createTeacherSchedule(payload) {
-  return request("/api/teacher/schedule", {
-    method: "POST",
-    body: JSON.stringify(payload)
-  });
-}
-
-export function deleteTeacherSchedule(id) {
-  return request(`/api/teacher/schedule/${id}`, {
-    method: "DELETE"
-  });
-}
-
-// Student Grades
-export function getTeacherGrades() {
-  return request("/api/teacher/grades");
-}
-
-export function createTeacherGrade(payload) {
-  return request("/api/teacher/grades", {
-    method: "POST",
-    body: JSON.stringify(payload)
-  });
-}
-
-export function deleteTeacherGrade(id) {
-  return request(`/api/teacher/grades/${id}`, {
-    method: "DELETE"
   });
 }

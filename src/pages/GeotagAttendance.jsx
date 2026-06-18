@@ -24,7 +24,10 @@ export default function GeotagAttendance({ user }) {
 
   const monthName = today.toLocaleString("en-IN", { month: "long" });
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+  // Day of week for the 1st of this month (0=Sun, 1=Mon,...)
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+  // Convert to Mon-start: Mon=0, Tue=1,... Sun=6
   const startOffset = (firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1);
 
   // Weekends detection
@@ -177,10 +180,12 @@ export default function GeotagAttendance({ user }) {
 
   // --- Core punch handler ---
   const handlePunch = (type) => {
+    // Guard: can't check out without check in
     if (type === "checkout" && !todayRecord.checkedIn) {
       setErrorAlert("You must check in before you can check out.");
       return;
     }
+    // Guard: already done
     if (type === "checkin" && todayRecord.checkedIn) {
       setErrorAlert("You have already checked in today.");
       return;
@@ -229,7 +234,7 @@ export default function GeotagAttendance({ user }) {
       const dateStr = now.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
       const coordStr = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 
-    setCoords(coordStr);
+      setCoords(coordStr);
 
       // Prepare payload to save
       const recordToday = attendanceMap[todayKey] || {};
@@ -517,6 +522,7 @@ export default function GeotagAttendance({ user }) {
                   onClick={() => {
                     if (window.confirm("Clear all session logs?")) {
                       setHistoryLogs([]);
+                      localStorage.removeItem(storageKey);
                     }
                   }}
                   style={{ background: "none", border: "none", color: "#ef4444", fontSize: "11px", fontWeight: "700", cursor: "pointer", textDecoration: "underline", padding: 0 }}

@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { Logo, Toast, Badge, StatusBadge, StatCard, SectionCard, S, globalCSS } from "../components/Shared";
 import AttendanceManager from "./AttendanceManager";
 import TrainingAndClassroomManager from "./TrainingAndClassroomManager";
 import GeotagAttendance from "./GeotagAttendance";
-import { updateTeacher } from "../services/api";
 import ProctoredAssessment from "./Proctoredassessment";
 import {
   getTeacherProgress,
@@ -12,14 +11,7 @@ import {
   askTeacherChatbot,
   updateCourseAssignmentProgress,
   getCourses,
-  uploadFile,
-  getTeacherSchedule,
-  createTeacherSchedule,
-  deleteTeacherSchedule,
-  getTeacherGrades,
-  createTeacherGrade,
-  deleteTeacherGrade,
-  getTeacherChildren
+  uploadFile
 } from "../services/api";
 const MOCK_SCHEDULE = [
   { time: "08:00 AM", class: "Grade 5A", topic: "Number Patterns",        room: "101", status: "completed" },
@@ -45,7 +37,7 @@ const MOCK_ATTENDANCE_MONTHLY = [
 ];
 
 const MOCK_ASSIGNMENTS = [
-  { id: 1, title: "Lesson Plan — Number Patterns",      course: "Pre-Primary Training", due: "05/06/2026", status: "pending",  score: null },
+  { id: 1, title: "Lesson Plan â€” Number Patterns",      course: "Pre-Primary Training", due: "05/06/2026", status: "pending",  score: null },
   { id: 2, title: "Activity Worksheet Set",             course: "Pre-Primary Training", due: "01/06/2026", status: "approved", score: 95   },
   { id: 3, title: "Assessment Tool Design",             course: "Pre-Primary Training", due: "28/05/2026", status: "revision", score: null },
   { id: 4, title: "Classroom Management Report",        course: "Pre-Primary Training", due: "20/05/2026", status: "approved", score: 88   },
@@ -58,21 +50,21 @@ const MOCK_COURSES = [
 ];
 
 const MOCK_CERTIFICATES = [
-  { id: 1, title: "Pre-Primary Teacher Training — Level 1", issued: "15/03/2026", grade: "A+", credentialId: "SPC-2026-001" },
+  { id: 1, title: "Pre-Primary Teacher Training â€” Level 1", issued: "15/03/2026", grade: "A+", credentialId: "SPC-2026-001" },
   { id: 2, title: "Child Safety & Wellbeing",               issued: "10/02/2026", grade: "A",  credentialId: "SPC-2026-002" },
 ];
 
 const MOCK_NOTIFICATIONS = [
-  { id: 1, type: "session",     msg: "Live session tomorrow at 10:00 AM — Classroom Management",  time: "2h ago",  read: false },
-  { id: 2, type: "assignment",  msg: "Assignment reviewed — Activity Worksheet scored 95/100",     time: "5h ago",  read: false },
-  { id: 3, type: "approval",    msg: "Assignment needs revision — Reattempt by 05/06/2026",        time: "1d ago",  read: true  },
+  { id: 1, type: "session",     msg: "Live session tomorrow at 10:00 AM â€” Classroom Management",  time: "2h ago",  read: false },
+  { id: 2, type: "assignment",  msg: "Assignment reviewed â€” Activity Worksheet scored 95/100",     time: "5h ago",  read: false },
+  { id: 3, type: "approval",    msg: "Assignment needs revision â€” Reattempt by 05/06/2026",        time: "1d ago",  read: true  },
   { id: 4, type: "certificate", msg: "Your certificate for Child Safety has been issued",           time: "3d ago",  read: true  },
-  { id: 5, type: "course",      msg: "New course available — Curriculum Design & Lesson Planning", time: "5d ago",  read: true  },
+  { id: 5, type: "course",      msg: "New course available â€” Curriculum Design & Lesson Planning", time: "5d ago",  read: true  },
 ];
 
-/* ═══════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    TAB COMPONENTS
-═══════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 function OverviewTab({ user, setActiveTab, courses = [], assignments = [], lessons = [], activities = [], summary = {} }) {
   const attendance = summary.attendanceRate !== undefined ? summary.attendanceRate : (user.attendance || 90);
@@ -87,28 +79,28 @@ function OverviewTab({ user, setActiveTab, courses = [], assignments = [], lesso
     <div style={{ animation: "fadeIn 0.3s ease" }}>
       <div style={{ background: "linear-gradient(135deg,#f59e0b,#d97706)", borderRadius: 20, padding: "24px 28px", marginBottom: 24, color: "white", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 900, margin: "0 0 6px", letterSpacing: "-0.3px" }}>Good morning, {user.name?.split(" ")[0]}! 👋</h1>
-          <p style={{ fontSize: 13, margin: 0, opacity: 0.88 }}>{user.subject} Teacher · {user.batch || "SpacECE"} · {new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}</p>
+          <h1 style={{ fontSize: 22, fontWeight: 900, margin: "0 0 6px", letterSpacing: "-0.3px" }}>Good morning, {user.name?.split(" ")[0]}! ðŸ‘‹</h1>
+          <p style={{ fontSize: 13, margin: 0, opacity: 0.88 }}>{user.subject} Teacher Â· {user.batch || "SpacECE"} Â· {new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}</p>
         </div>
-        <div style={{ fontSize: 48, opacity: 0.7 }}>🎓</div>
+        <div style={{ fontSize: 48, opacity: 0.7 }}>ðŸŽ“</div>
       </div>
 
       <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700 }}>
-        <span style={{ fontSize: 18 }}>📍</span>
+        <span style={{ fontSize: 18 }}>ðŸ“</span>
         <span>Working Center : {user.workingCenter || "Dhayri, Pune, Maharashtra"}</span>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 16, marginBottom: 24, marginTop: 16 }}>
-        <StatCard icon="📚" label="My Classes"     val={user.classes||6}   color="#f59e0b" bg="#fef3c7"/>
-        <StatCard icon="👥" label="Total Students" val={user.students||230} color="#3b82f6" bg="#dbeafe"/>
-        <StatCard icon="📊" label="Attendance"     val={`${attendance}%`}  color={attColor} bg={attendance>=85?"#d1fae5":attendance>=70?"#fef3c7":"#fee2e2"}/>
-        <StatCard icon="📝" label="Avg Grade"      val="82%"               color="#8b5cf6" bg="#ede9fe"/>
-        <StatCard icon="🏆" label="Certificates"   val={certificatesCount} color="#06b6d4" bg="#cffafe"/>
-        <StatCard icon="⏳" label="Pending Tasks"  val={pendingTasksCount} color="#ef4444" bg="#fee2e2"/>
+        <StatCard icon="ðŸ“š" label="My Classes"     val={user.classes||6}   color="#f59e0b" bg="#fef3c7"/>
+        <StatCard icon="ðŸ‘¥" label="Total Students" val={user.students||230} color="#3b82f6" bg="#dbeafe"/>
+        <StatCard icon="ðŸ“Š" label="Attendance"     val={`${attendance}%`}  color={attColor} bg={attendance>=85?"#d1fae5":attendance>=70?"#fef3c7":"#fee2e2"}/>
+        <StatCard icon="ðŸ“" label="Avg Grade"      val="82%"               color="#8b5cf6" bg="#ede9fe"/>
+        <StatCard icon="ðŸ†" label="Certificates"   val={certificatesCount} color="#06b6d4" bg="#cffafe"/>
+        <StatCard icon="â³" label="Pending Tasks"  val={pendingTasksCount} color="#ef4444" bg="#fee2e2"/>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
-        <SectionCard title="📈 My Monthly Attendance">
+        <SectionCard title="ðŸ“ˆ My Monthly Attendance">
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", height: 220, paddingTop: 15 }}>
             {[
               { month: "Jan", val: 95 },{ month: "Feb", val: 88 },{ month: "Mar", val: 92 },
@@ -123,7 +115,7 @@ function OverviewTab({ user, setActiveTab, courses = [], assignments = [], lesso
           </div>
         </SectionCard>
 
-        <SectionCard title="📚 Course Progress">
+        <SectionCard title="ðŸ“š Course Progress">
           {courses.length === 0 ? (
             <div style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 13 }}>No assigned courses yet.</div>
           ) : (
@@ -138,34 +130,34 @@ function OverviewTab({ user, setActiveTab, courses = [], assignments = [], lesso
                   <div style={{ height: 6, background: "#f3f4f6", borderRadius: 4, overflow: "hidden", marginBottom: 2 }}>
                     <div style={{ height: "100%", width: `${progress}%`, background: "linear-gradient(90deg,#f59e0b,#d97706)", borderRadius: 4 }}/>
                   </div>
-                  <div style={{ fontSize: 10, color: "#9ca3af" }}>{c.status || "Assigned"} · Due: {c.dueDate ? new Date(c.dueDate).toLocaleDateString() : "No deadline"}</div>
+                  <div style={{ fontSize: 10, color: "#9ca3af" }}>{c.status || "Assigned"} Â· Due: {c.dueDate ? new Date(c.dueDate).toLocaleDateString() : "No deadline"}</div>
                 </div>
               );
             })
           )}
-          <button onClick={()=>setActiveTab("courses")} style={{ fontSize: 12, color: "#d97706", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: 4 }}>View all courses →</button>
+          <button onClick={()=>setActiveTab("courses")} style={{ fontSize: 12, color: "#d97706", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: 4 }}>View all courses â†’</button>
         </SectionCard>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-        <SectionCard title="📅 Today's Classes">
+        <SectionCard title="ðŸ“… Today's Classes">
           {MOCK_SCHEDULE.slice(0,4).map((cl,i)=>{
             const statusColor = { completed: "#10b981", ongoing: "#f59e0b", upcoming: "#6b7280" };
             return (
               <div key={i} style={{ display: "flex", gap: 12, padding: "8px 0", borderBottom: "1px solid #f3f4f6" }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: statusColor[cl.status], marginTop: 5, flexShrink: 0 }}/>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "#1c1917" }}>{cl.class} — {cl.topic}</div>
-                  <div style={{ fontSize: 10, color: "#9ca3af" }}>{cl.time} · Room {cl.room}</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#1c1917" }}>{cl.class} â€” {cl.topic}</div>
+                  <div style={{ fontSize: 10, color: "#9ca3af" }}>{cl.time} Â· Room {cl.room}</div>
                 </div>
                 <StatusBadge status={cl.status}/>
               </div>
             );
           })}
-          <button onClick={()=>setActiveTab("schedule")} style={{ fontSize: 12, color: "#d97706", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: 8 }}>Full schedule →</button>
+          <button onClick={()=>setActiveTab("schedule")} style={{ fontSize: 12, color: "#d97706", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: 8 }}>Full schedule â†’</button>
         </SectionCard>
 
-        <SectionCard title="📝 Assignment Status">
+        <SectionCard title="ðŸ“ Assignment Status">
           {assignments.length === 0 ? (
             <div style={{ padding: 20, textAlign: "center", color: "#9ca3af", fontSize: 13 }}>No assignments available.</div>
           ) : (
@@ -183,20 +175,20 @@ function OverviewTab({ user, setActiveTab, courses = [], assignments = [], lesso
               </div>
             ))
           )}
-          <button onClick={()=>setActiveTab("assignments")} style={{ fontSize: 12, color: "#d97706", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: 8 }}>View all →</button>
+          <button onClick={()=>setActiveTab("assignments")} style={{ fontSize: 12, color: "#d97706", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: 8 }}>View all â†’</button>
         </SectionCard>
       </div>
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    COURSE CONTENT DATA
-═══════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 const COURSE_CONTENT = {
   1: { // Pre-Primary Teacher Training
     color: "#f59e0b",
-    icon: "👩‍🏫",
+    icon: "ðŸ‘©â€ðŸ«",
     modules: [
       {
         id: "m1", title: "Introduction to Pre-Primary Education",
@@ -205,7 +197,7 @@ const COURSE_CONTENT = {
           { id: "v2", title: "Developmental Stages of Early Childhood", ytId: "cWgCGKnUbZo", duration: "18:22" },
           { id: "v3", title: "Role of a Pre-Primary Teacher", ytId: "vQnFgLxVJhU", duration: "14:10" },
         ],
-        notes: `## Introduction to Pre-Primary Education\n\n**Key Concepts:**\n- Pre-primary education covers ages 3–6 years\n- It forms the foundation for lifelong learning\n- Focus areas: cognitive, social, emotional, physical development\n\n**The 5 Pillars of Early Childhood Education:**\n1. Play-based learning\n2. Holistic development\n3. Child-centered approach\n4. Family involvement\n5. Safe & nurturing environment\n\n**Important Theories:**\n- Piaget's Cognitive Development Theory\n- Vygotsky's Zone of Proximal Development (ZPD)\n- Bronfenbrenner's Ecological Systems Theory\n\n**Key Terms:** Scaffolding · Parallel Play · Sensorimotor Stage · Preoperational Stage`
+        notes: `## Introduction to Pre-Primary Education\n\n**Key Concepts:**\n- Pre-primary education covers ages 3â€“6 years\n- It forms the foundation for lifelong learning\n- Focus areas: cognitive, social, emotional, physical development\n\n**The 5 Pillars of Early Childhood Education:**\n1. Play-based learning\n2. Holistic development\n3. Child-centered approach\n4. Family involvement\n5. Safe & nurturing environment\n\n**Important Theories:**\n- Piaget's Cognitive Development Theory\n- Vygotsky's Zone of Proximal Development (ZPD)\n- Bronfenbrenner's Ecological Systems Theory\n\n**Key Terms:** Scaffolding Â· Parallel Play Â· Sensorimotor Stage Â· Preoperational Stage`
       },
       {
         id: "m2", title: "Classroom Setup & Environment",
@@ -214,7 +206,7 @@ const COURSE_CONTENT = {
           { id: "v5", title: "Learning Corners & Activity Zones", ytId: "QlJif-4NWOE", duration: "11:30" },
           { id: "v6", title: "Safety & Hygiene in Early Classrooms", ytId: "5TGp6X0KSAM", duration: "9:50" },
         ],
-        notes: `## Classroom Setup & Environment\n\n**Key Areas to Set Up:**\n- Reading Corner: soft seating, picture books, literacy materials\n- Art & Craft Zone: easels, non-toxic supplies, display boards\n- Dramatic Play Area: dress-up, kitchen set, puppets\n- Construction Zone: blocks, LEGO, puzzles\n- Science Discovery Table: magnifiers, nature items\n\n**Arrangement Principles:**\n- Low shelves for child independence\n- Clear pathways for movement\n- Defined zones reduce conflict\n- Natural light when possible\n\n**Safety Checklist:**\n✅ No sharp corners at child height\n✅ Non-toxic materials only\n✅ Secure heavy furniture to walls\n✅ Clear emergency exit paths`
+        notes: `## Classroom Setup & Environment\n\n**Key Areas to Set Up:**\n- Reading Corner: soft seating, picture books, literacy materials\n- Art & Craft Zone: easels, non-toxic supplies, display boards\n- Dramatic Play Area: dress-up, kitchen set, puppets\n- Construction Zone: blocks, LEGO, puzzles\n- Science Discovery Table: magnifiers, nature items\n\n**Arrangement Principles:**\n- Low shelves for child independence\n- Clear pathways for movement\n- Defined zones reduce conflict\n- Natural light when possible\n\n**Safety Checklist:**\nâœ… No sharp corners at child height\nâœ… Non-toxic materials only\nâœ… Secure heavy furniture to walls\nâœ… Clear emergency exit paths`
       },
       {
         id: "m3", title: "Lesson Planning & Activity Design",
@@ -223,31 +215,31 @@ const COURSE_CONTENT = {
           { id: "v8", title: "Theme-Based Teaching Approach", ytId: "N6pCIqxtWE8", duration: "15:00" },
           { id: "v9", title: "Circle Time & Group Activities", ytId: "sTRCTbmJMsc", duration: "13:40" },
         ],
-        notes: `## Lesson Planning & Activity Design\n\n**Lesson Plan Template:**\n1. **Objective** — What will children learn?\n2. **Materials** — What do you need?\n3. **Introduction** (5 min) — Hook/story/song\n4. **Main Activity** (15–20 min) — Core learning\n5. **Review** (5 min) — Recap & discussion\n6. **Assessment** — Observation notes\n\n**Theme-Based Planning Examples:**\n- Week Theme: "Animals"\n  - Art: animal masks\n  - Science: habitat sorting\n  - Literacy: animal sound books\n  - Math: counting legs\n\n**Circle Time Essentials:**\n- Greeting ritual\n- Calendar & weather\n- Story or song\n- Day preview`
+        notes: `## Lesson Planning & Activity Design\n\n**Lesson Plan Template:**\n1. **Objective** â€” What will children learn?\n2. **Materials** â€” What do you need?\n3. **Introduction** (5 min) â€” Hook/story/song\n4. **Main Activity** (15â€“20 min) â€” Core learning\n5. **Review** (5 min) â€” Recap & discussion\n6. **Assessment** â€” Observation notes\n\n**Theme-Based Planning Examples:**\n- Week Theme: "Animals"\n  - Art: animal masks\n  - Science: habitat sorting\n  - Literacy: animal sound books\n  - Math: counting legs\n\n**Circle Time Essentials:**\n- Greeting ritual\n- Calendar & weather\n- Story or song\n- Day preview`
       },
     ]
   },
   2: { // Child Psychology
     color: "#8b5cf6",
-    icon: "🧠",
+    icon: "ðŸ§ ",
     modules: [
       {
         id: "m4", title: "Foundations of Child Psychology",
         videos: [
           { id: "v10", title: "Introduction to Child Psychology", ytId: "O5BOxhqHEUQ", duration: "17:20" },
-          { id: "v11", title: "Attachment Theory — Bowlby & Ainsworth", ytId: "WjOowWxOXCg", duration: "21:05" },
+          { id: "v11", title: "Attachment Theory â€” Bowlby & Ainsworth", ytId: "WjOowWxOXCg", duration: "21:05" },
           { id: "v12", title: "Emotional Development in Children", ytId: "m2jU92NqBMw", duration: "14:55" },
         ],
-        notes: `## Foundations of Child Psychology\n\n**Core Theories:**\n\n**Bowlby's Attachment Theory:**\n- Secure attachment → confident exploration\n- Types: Secure, Anxious-Ambivalent, Avoidant, Disorganized\n- Primary caregiver relationship is critical (0–2 years)\n\n**Piaget's Stages (Cognitive):**\n| Stage | Age | Key Feature |\n|---|---|---|\n| Sensorimotor | 0–2 | Object permanence |\n| Preoperational | 2–7 | Symbolic thinking |\n| Concrete Op. | 7–11 | Logical thinking |\n| Formal Op. | 12+ | Abstract reasoning |\n\n**Erikson's Psychosocial Stages (Early Childhood):**\n- Trust vs Mistrust (0–18 months)\n- Autonomy vs Shame (18m–3 years)\n- Initiative vs Guilt (3–5 years)`
+        notes: `## Foundations of Child Psychology\n\n**Core Theories:**\n\n**Bowlby's Attachment Theory:**\n- Secure attachment â†’ confident exploration\n- Types: Secure, Anxious-Ambivalent, Avoidant, Disorganized\n- Primary caregiver relationship is critical (0â€“2 years)\n\n**Piaget's Stages (Cognitive):**\n| Stage | Age | Key Feature |\n|---|---|---|\n| Sensorimotor | 0â€“2 | Object permanence |\n| Preoperational | 2â€“7 | Symbolic thinking |\n| Concrete Op. | 7â€“11 | Logical thinking |\n| Formal Op. | 12+ | Abstract reasoning |\n\n**Erikson's Psychosocial Stages (Early Childhood):**\n- Trust vs Mistrust (0â€“18 months)\n- Autonomy vs Shame (18mâ€“3 years)\n- Initiative vs Guilt (3â€“5 years)`
       },
       {
         id: "m5", title: "Behavioural & Social Development",
         videos: [
-          { id: "v13", title: "Social Learning Theory — Bandura", ytId: "eGSB1GKbJQE", duration: "16:30" },
+          { id: "v13", title: "Social Learning Theory â€” Bandura", ytId: "eGSB1GKbJQE", duration: "16:30" },
           { id: "v14", title: "Play & Peer Relationships", ytId: "yT-lSxHMGbg", duration: "19:10" },
           { id: "v15", title: "Understanding Child Behaviour Problems", ytId: "RX2pjGIiS4w", duration: "22:45" },
         ],
-        notes: `## Behavioural & Social Development\n\n**Bandura's Social Learning Theory:**\n- Children learn by observation (modeling)\n- 4 Steps: Attention → Retention → Reproduction → Motivation\n- Self-efficacy: belief in one's own ability\n\n**Types of Play (Parten's Social Stages):**\n1. Solitary Play (2–3 years)\n2. Parallel Play (2.5–3.5 years)\n3. Associative Play (3–4 years)\n4. Cooperative Play (4+ years)\n\n**Common Behaviour Challenges:**\n- Tantrums: validate emotion, stay calm\n- Aggression: teach words for feelings\n- Separation anxiety: consistent goodbye routine\n- Refusal: offer limited choices\n\n**Positive Reinforcement Tips:**\n✅ Praise effort, not outcome\n✅ Be specific: "I love how you shared your blocks"\n✅ Use visual reward charts`
+        notes: `## Behavioural & Social Development\n\n**Bandura's Social Learning Theory:**\n- Children learn by observation (modeling)\n- 4 Steps: Attention â†’ Retention â†’ Reproduction â†’ Motivation\n- Self-efficacy: belief in one's own ability\n\n**Types of Play (Parten's Social Stages):**\n1. Solitary Play (2â€“3 years)\n2. Parallel Play (2.5â€“3.5 years)\n3. Associative Play (3â€“4 years)\n4. Cooperative Play (4+ years)\n\n**Common Behaviour Challenges:**\n- Tantrums: validate emotion, stay calm\n- Aggression: teach words for feelings\n- Separation anxiety: consistent goodbye routine\n- Refusal: offer limited choices\n\n**Positive Reinforcement Tips:**\nâœ… Praise effort, not outcome\nâœ… Be specific: "I love how you shared your blocks"\nâœ… Use visual reward charts`
       },
       {
         id: "m6", title: "Special Needs & Inclusive Education",
@@ -255,20 +247,20 @@ const COURSE_CONTENT = {
           { id: "v16", title: "Introduction to Inclusive Education", ytId: "iVt5CX3BLGU", duration: "18:00" },
           { id: "v17", title: "Identifying Learning Difficulties Early", ytId: "BVoCN5lD6rg", duration: "15:30" },
         ],
-        notes: `## Special Needs & Inclusive Education\n\n**Key Principles of Inclusion:**\n- Every child has the right to education\n- Adapt environment, not the child\n- Collaboration: teachers, parents, specialists\n\n**Common Learning Differences:**\n- **Dyslexia**: difficulty with reading/writing → use multi-sensory methods\n- **ADHD**: attention/hyperactivity → structured routines, movement breaks\n- **Autism Spectrum**: social/communication differences → visual schedules, sensory awareness\n- **Developmental Delay**: slower milestone achievement → differentiated activities\n\n**Classroom Adaptations:**\n- Flexible seating arrangements\n- Visual timetables on walls\n- Quiet zones for sensory breaks\n- Peer buddy systems\n- Modified instructions & materials`
+        notes: `## Special Needs & Inclusive Education\n\n**Key Principles of Inclusion:**\n- Every child has the right to education\n- Adapt environment, not the child\n- Collaboration: teachers, parents, specialists\n\n**Common Learning Differences:**\n- **Dyslexia**: difficulty with reading/writing â†’ use multi-sensory methods\n- **ADHD**: attention/hyperactivity â†’ structured routines, movement breaks\n- **Autism Spectrum**: social/communication differences â†’ visual schedules, sensory awareness\n- **Developmental Delay**: slower milestone achievement â†’ differentiated activities\n\n**Classroom Adaptations:**\n- Flexible seating arrangements\n- Visual timetables on walls\n- Quiet zones for sensory breaks\n- Peer buddy systems\n- Modified instructions & materials`
       },
     ]
   },
   3: { // Curriculum Design
     color: "#10b981",
-    icon: "📐",
+    icon: "ðŸ“",
     modules: [
       {
         id: "m7", title: "Principles of Curriculum Design",
         videos: [
           { id: "v18", title: "What is Curriculum? Types & Models", ytId: "sXpPDcBMBzs", duration: "20:00" },
           { id: "v19", title: "Bloom's Taxonomy Explained", ytId: "ayefSTAnCR8", duration: "16:45" },
-          { id: "v20", title: "Backward Design — Understanding by Design", ytId: "d8F1SnWaIfE", duration: "18:30" },
+          { id: "v20", title: "Backward Design â€” Understanding by Design", ytId: "d8F1SnWaIfE", duration: "18:30" },
         ],
         notes: `## Principles of Curriculum Design\n\n**Types of Curriculum:**\n- **Formal/Explicit**: planned, written syllabus\n- **Hidden**: unwritten social norms taught\n- **Null**: what is NOT taught\n- **Extracurricular**: beyond formal classes\n\n**Bloom's Taxonomy (Revised):**\n1. Remember (recall facts)\n2. Understand (explain ideas)\n3. Apply (use in new situations)\n4. Analyze (draw connections)\n5. Evaluate (justify decisions)\n6. Create (produce new work)\n\n**Backward Design (Wiggins & McTighe):**\n1. Identify desired results (What should students know?)\n2. Determine acceptable evidence (How will you know?)\n3. Plan learning experiences (How will you teach it?)\n\n**Key Curriculum Models:**\n- Tyler's Rational Model\n- Spiral Curriculum (Bruner)\n- Integrated/Thematic Model`
       },
@@ -279,14 +271,14 @@ const COURSE_CONTENT = {
           { id: "v22", title: "Portfolio Assessment in Early Childhood", ytId: "U8ORh-l_i9Y", duration: "17:55" },
           { id: "v23", title: "Observation as an Assessment Tool", ytId: "nWXD_bVQ-Ro", duration: "12:10" },
         ],
-        notes: `## Assessment & Evaluation Methods\n\n**Formative Assessment (ongoing):**\n- Observations during activities\n- Questioning & discussion\n- Exit tickets / quick checks\n- Peer feedback\n\n**Summative Assessment (end of unit):**\n- Projects & presentations\n- Portfolios\n- Performance tasks\n- Written tests (older children)\n\n**Portfolio Assessment:**\n- Collects work samples over time\n- Shows growth, not just achievement\n- Involves child in self-reflection\n- Contents: drawings, photos, writing samples, teacher notes\n\n**Observation Checklist Items:**\n✅ Can follow 2-step instructions\n✅ Uses scissors with control\n✅ Recognises own name in print\n✅ Takes turns in group play\n✅ Expresses needs verbally`
+        notes: `## Assessment & Evaluation Methods\n\n**Formative Assessment (ongoing):**\n- Observations during activities\n- Questioning & discussion\n- Exit tickets / quick checks\n- Peer feedback\n\n**Summative Assessment (end of unit):**\n- Projects & presentations\n- Portfolios\n- Performance tasks\n- Written tests (older children)\n\n**Portfolio Assessment:**\n- Collects work samples over time\n- Shows growth, not just achievement\n- Involves child in self-reflection\n- Contents: drawings, photos, writing samples, teacher notes\n\n**Observation Checklist Items:**\nâœ… Can follow 2-step instructions\nâœ… Uses scissors with control\nâœ… Recognises own name in print\nâœ… Takes turns in group play\nâœ… Expresses needs verbally`
       },
       {
         id: "m9", title: "Technology Integration in Curriculum",
         videos: [
           { id: "v25", title: "SAMR Model for Technology Integration", ytId: "SC5ARwUkVyg", duration: "11:25" },
         ],
-        notes: `## Technology Integration in Curriculum\n\n**SAMR Model:**\n- **S**ubstitution: tech replaces traditional tool (digital worksheet)\n- **A**ugmentation: tech with functional improvement (auto-spell check)\n- **M**odification: tech allows significant redesign (collaborative docs)\n- **R**edefinition: tech creates new tasks previously inconceivable (global collaboration)\n\n**Recommended EdTech for Early Childhood:**\n| Tool | Use Case |\n|---|---|\n| Seesaw | Digital portfolios |\n| Kahoot | Interactive quizzes |\n| Book Creator | Digital storytelling |\n| Canva for Edu | Visual projects |\n| Google Classroom | Assignment management |\n\n**Screen Time Guidelines (WHO):**\n- Under 2: no screen time\n- 2–4: max 1 hour/day, with adult supervision\n- Quality over quantity — co-view & discuss`
+        notes: `## Technology Integration in Curriculum\n\n**SAMR Model:**\n- **S**ubstitution: tech replaces traditional tool (digital worksheet)\n- **A**ugmentation: tech with functional improvement (auto-spell check)\n- **M**odification: tech allows significant redesign (collaborative docs)\n- **R**edefinition: tech creates new tasks previously inconceivable (global collaboration)\n\n**Recommended EdTech for Early Childhood:**\n| Tool | Use Case |\n|---|---|\n| Seesaw | Digital portfolios |\n| Kahoot | Interactive quizzes |\n| Book Creator | Digital storytelling |\n| Canva for Edu | Visual projects |\n| Google Classroom | Assignment management |\n\n**Screen Time Guidelines (WHO):**\n- Under 2: no screen time\n- 2â€“4: max 1 hour/day, with adult supervision\n- Quality over quantity â€” co-view & discuss`
       },
     ]
   }
@@ -327,7 +319,7 @@ const getEnrichedCourseContent = (assignment) => {
   
   return {
     color: "#fbbf24",
-    icon: "📚",
+    icon: "ðŸ“š",
     modules: (dbCourse.modules || []).map((m, mIdx) => ({
       id: m._id || `mod-${mIdx}`,
       title: m.title,
@@ -388,7 +380,7 @@ function CoursesTab({ assignments = [], onMarkDone }) {
     });
   };
 
-  // ── Course list view ──
+  // â”€â”€ Course list view â”€â”€
   if (!activeAssignmentId) {
     return (
       <div style={{ animation: "fadeIn 0.3s ease" }}>
@@ -409,13 +401,13 @@ function CoursesTab({ assignments = [], onMarkDone }) {
                 <div key={c._id} style={{ background: "white", borderRadius: 16, padding: "22px 24px", border: "1px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", borderLeft: `4px solid ${content?.color || "#f59e0b"}` }}>
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
                     <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-                      <div style={{ fontSize: 36 }}>{content?.icon || "📚"}</div>
+                      <div style={{ fontSize: 36 }}>{content?.icon || "ðŸ“š"}</div>
                       <div>
                         <h3 style={{ fontSize: 16, fontWeight: 800, color: "#1c1917", margin: "0 0 6px" }}>{c.course?.title}</h3>
                         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                           <StatusBadge status={c.status}/>
-                          <span style={{ fontSize: 11, color: "#9ca3af" }}>📅 Due: {c.dueDate ? new Date(c.dueDate).toLocaleDateString() : "No due date"}</span>
-                          <span style={{ fontSize: 11, color: "#6b7280" }}>🎬 {doneVids}/{totalVids} videos</span>
+                          <span style={{ fontSize: 11, color: "#9ca3af" }}>ðŸ“… Due: {c.dueDate ? new Date(c.dueDate).toLocaleDateString() : "No due date"}</span>
+                          <span style={{ fontSize: 11, color: "#6b7280" }}>ðŸŽ¬ {doneVids}/{totalVids} videos</span>
                         </div>
                       </div>
                     </div>
@@ -428,7 +420,7 @@ function CoursesTab({ assignments = [], onMarkDone }) {
                     <div style={{ height: "100%", width: `${progress}%`, background: `linear-gradient(90deg,${content?.color||"#f59e0b"},${content?.color||"#d97706"})`, borderRadius: 4, transition: "width 0.8s ease" }}/>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 12, color: "#6b7280" }}>📖 {content?.modules?.length || 0} modules · {doneVids}/{totalVids} videos done</span>
+                    <span style={{ fontSize: 12, color: "#6b7280" }}>ðŸ“– {content?.modules?.length || 0} modules Â· {doneVids}/{totalVids} videos done</span>
                     <button
                       onClick={() => {
                         setActiveAssignmentId(c._id);
@@ -439,7 +431,7 @@ function CoursesTab({ assignments = [], onMarkDone }) {
                       }}
                       style={{ ...S.primaryBtn, padding: "8px 20px", fontSize: 12, background: `linear-gradient(135deg,${content?.color||"#f59e0b"},${content?.color||"#d97706"})` }}
                     >
-                      {progress > 0 ? "Continue →" : "Start Course →"}
+                      {progress > 0 ? "Continue â†’" : "Start Course â†’"}
                     </button>
                   </div>
                 </div>
@@ -451,7 +443,7 @@ function CoursesTab({ assignments = [], onMarkDone }) {
     );
   }
 
-  // ── Course player view ──
+  // â”€â”€ Course player view â”€â”€
   const activeModule  = enrichedContent?.modules.find(m => m.id === activeModuleId);
   const activeVideo   = activeModule?.videos.find(v => v.id === activeVideoId);
   const overallProg   = activeAssignment?.progressPercent || 0;
@@ -460,7 +452,7 @@ function CoursesTab({ assignments = [], onMarkDone }) {
     <div style={{ animation: "fadeIn 0.3s ease" }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <button onClick={() => setActiveAssignmentId(null)} style={{ background: "#f3f4f6", border: "none", borderRadius: 10, padding: "8px 14px", fontWeight: 700, fontSize: 13, cursor: "pointer", color: "#374151" }}>← Back</button>
+        <button onClick={() => setActiveAssignmentId(null)} style={{ background: "#f3f4f6", border: "none", borderRadius: 10, padding: "8px 14px", fontWeight: 700, fontSize: 13, cursor: "pointer", color: "#374151" }}>â† Back</button>
         <div style={{ flex: 1 }}>
           <h1 style={{ ...S.pageTitle, margin: 0 }}>{enrichedContent?.icon} {activeAssignment?.course?.title}</h1>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 4 }}>
@@ -473,7 +465,7 @@ function CoursesTab({ assignments = [], onMarkDone }) {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 20, alignItems: "start" }}>
-        {/* ── Sidebar: module/video list ── */}
+        {/* â”€â”€ Sidebar: module/video list â”€â”€ */}
         <div style={{ background: "white", borderRadius: 16, border: "1px solid #f1f5f9", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
           <div style={{ padding: "14px 16px", background: "#f8fafc", borderBottom: "1px solid #f1f5f9" }}>
             <div style={{ fontSize: 13, fontWeight: 800, color: "#1c1917" }}>Course Content</div>
@@ -494,7 +486,7 @@ function CoursesTab({ assignments = [], onMarkDone }) {
                     <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 3 }}>
                       {mp.done}/{mp.total} videos
                       <span style={{ marginLeft: 6, background: mp.done===mp.total?"#d1fae5":"#f3f4f6", color: mp.done===mp.total?"#065f46":"#9ca3af", padding: "1px 6px", borderRadius: 10, fontWeight: 700 }}>
-                        {mp.done===mp.total?"✓ Done":`${Math.round((mp.done/mp.total)*100)}%`}
+                        {mp.done===mp.total?"âœ“ Done":`${Math.round((mp.done/mp.total)*100)}%`}
                       </span>
                     </div>
                   </div>
@@ -509,11 +501,11 @@ function CoursesTab({ assignments = [], onMarkDone }) {
                         style={{ padding: "9px 16px 9px 28px", background: isActive ? "#fef3c7" : "#fafafa", borderBottom: "1px solid #f3f4f6", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}
                       >
                         <div style={{ width: 20, height: 20, borderRadius: "50%", background: done ? "#10b981" : isActive ? (enrichedContent?.color || "#f59e0b") : "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "white", flexShrink: 0 }}>
-                          {done ? "✓" : isActive ? "▶" : ""}
+                          {done ? "âœ“" : isActive ? "â–¶" : ""}
                         </div>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 11, fontWeight: isActive?700:500, color: isActive?"#92400e":"#374151", lineHeight: 1.3 }}>{vid.title}</div>
-                          <div style={{ fontSize: 10, color: "#9ca3af" }}>⏱ {vid.duration}</div>
+                          <div style={{ fontSize: 10, color: "#9ca3af" }}>â± {vid.duration}</div>
                         </div>
                       </div>
                     );
@@ -524,7 +516,7 @@ function CoursesTab({ assignments = [], onMarkDone }) {
           </div>
         </div>
 
-        {/* ── Main content area ── */}
+        {/* â”€â”€ Main content area â”€â”€ */}
         <div>
           {activeVideo ? (
             <>
@@ -534,7 +526,7 @@ function CoursesTab({ assignments = [], onMarkDone }) {
                 <div style={{ display: "flex", borderBottom: "1px solid #f1f5f9" }}>
                   {["video","notes"].map(t => (
                     <button key={t} onClick={() => setActiveTab(t)} style={{ flex: 1, padding: "12px", border: "none", background: activeTab===t?"#fffbeb":"white", color: activeTab===t?"#92400e":"#6b7280", fontWeight: activeTab===t?800:600, fontSize: 13, cursor: "pointer", borderBottom: `2px solid ${activeTab===t?(enrichedContent?.color || "#f59e0b"):"transparent"}`, transition: "all 0.15s" }}>
-                      {t === "video" ? "🎬 Video Lesson" : "📝 Notes"}
+                      {t === "video" ? "ðŸŽ¬ Video Lesson" : "ðŸ“ Notes"}
                     </button>
                   ))}
                 </div>
@@ -553,32 +545,32 @@ function CoursesTab({ assignments = [], onMarkDone }) {
                     </div>
                     <div style={{ padding: "16px 20px" }}>
                       <div style={{ fontSize: 15, fontWeight: 800, color: "#1c1917", marginBottom: 4 }}>{activeVideo.title}</div>
-                      <div style={{ fontSize: 12, color: "#9ca3af", marginBottom: 16 }}>{activeModule?.title} · ⏱ {activeVideo.duration}</div>
+                      <div style={{ fontSize: 12, color: "#9ca3af", marginBottom: 16 }}>{activeModule?.title} Â· â± {activeVideo.duration}</div>
                       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                         {isVideoDone(activeAssignment, activeVideoId) ? (
-                          <span style={{ background: "#d1fae5", color: "#065f46", padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: 800 }}>✓ Completed</span>
+                          <span style={{ background: "#d1fae5", color: "#065f46", padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: 800 }}>âœ“ Completed</span>
                         ) : (
                           <button
                             onClick={() => handleMarkDone(activeAssignment, activeVideoId)}
                             style={{ ...S.primaryBtn, background: `linear-gradient(135deg,${enrichedContent?.color || "#f59e0b"},${enrichedContent?.color || "#f59e0b"})`, fontSize: 13 }}
                           >
-                            ✅ Mark as Complete
+                            âœ… Mark as Complete
                           </button>
                         )}
-                        <button onClick={() => setActiveTab("notes")} style={{ ...S.exportBtn, fontSize: 12 }}>📝 View Notes</button>
+                        <button onClick={() => setActiveTab("notes")} style={{ ...S.exportBtn, fontSize: 12 }}>ðŸ“ View Notes</button>
                       </div>
                     </div>
                   </div>
                 ) : (
                   <div style={{ padding: "20px 24px", maxHeight: 520, overflowY: "auto" }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: "#1c1917", marginBottom: 12 }}>📝 Notes — {activeModule?.title}</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: "#1c1917", marginBottom: 12 }}>ðŸ“ Notes â€” {activeModule?.title}</div>
                     <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.8, whiteSpace: "pre-line", fontFamily: "inherit" }}>
                       {activeModule?.notes?.split('\n').map((line, i) => {
                         if (line.startsWith('## ')) return <h3 key={i} style={{ fontSize: 15, fontWeight: 800, color: "#1c1917", margin: "16px 0 8px" }}>{line.replace('## ','')}</h3>;
                         if (line.startsWith('**') && line.endsWith('**')) return <div key={i} style={{ fontWeight: 700, color: "#374151", margin: "8px 0 4px" }}>{line.replace(/\*\*/g,'')}</div>;
-                        if (line.startsWith('- ')) return <div key={i} style={{ paddingLeft: 16, margin: "3px 0", color: "#4b5563" }}>⬢ {line.slice(2)}</div>;
+                        if (line.startsWith('- ')) return <div key={i} style={{ paddingLeft: 16, margin: "3px 0", color: "#4b5563" }}>â€¢ {line.slice(2)}</div>;
                         if (line.match(/^\d+\./)) return <div key={i} style={{ paddingLeft: 16, margin: "3px 0", color: "#4b5563" }}>{line}</div>;
-                        if (line.startsWith('✅')) return <div key={i} style={{ paddingLeft: 16, margin: "3px 0", color: "#059669", fontWeight: 600 }}>{line}</div>;
+                        if (line.startsWith('âœ…')) return <div key={i} style={{ paddingLeft: 16, margin: "3px 0", color: "#059669", fontWeight: 600 }}>{line}</div>;
                         if (line.startsWith('|')) return <div key={i} style={{ fontFamily: "monospace", fontSize: 12, background: "#f8fafc", padding: "3px 8px", margin: "1px 0" }}>{line}</div>;
                         if (line === '') return <div key={i} style={{ height: 6 }}/>;
                         return <div key={i} style={{ margin: "3px 0" }}>{line}</div>;
@@ -611,13 +603,13 @@ function CoursesTab({ assignments = [], onMarkDone }) {
                   }}
                   style={{ ...S.primaryBtn, fontSize: 12, background: `linear-gradient(135deg,${enrichedContent?.color || "#f59e0b"},${enrichedContent?.color || "#f59e0b"})` }}
                 >
-                  Next Video →
+                  Next Video â†’
                 </button>
               </div>
             </>
           ) : (
             <div style={{ background: "white", borderRadius: 16, padding: 40, textAlign: "center", border: "1px solid #f1f5f9" }}>
-              <div style={{ fontSize: 48, marginBottom: 12 }}>👆</div>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>ðŸ‘†</div>
               <div style={{ fontSize: 14, color: "#6b7280" }}>Select a video from the left to start learning</div>
             </div>
           )}
@@ -627,342 +619,56 @@ function CoursesTab({ assignments = [], onMarkDone }) {
   );
 }
 
-function ScheduleTab({ user, schedule = [], onRefresh }) {
-  const [time, setTime] = useState("");
-  const [className, setClassName] = useState("");
-  const [topic, setTopic] = useState("");
-  const [room, setRoom] = useState("");
-  const [status, setStatus] = useState("upcoming");
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!time || !className || !topic || !room) {
-      alert("Please fill in all fields.");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      await createTeacherSchedule({ time, className, topic, room, status });
-      setTime("");
-      setClassName("");
-      setTopic("");
-      setRoom("");
-      setStatus("upcoming");
-      onRefresh();
-    } catch (err) {
-      alert("Failed to add class: " + err.message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this class from your schedule?")) return;
-    try {
-      await deleteTeacherSchedule(id);
-      onRefresh();
-    } catch (err) {
-      alert("Failed to delete class: " + err.message);
-    }
-  };
-
+function ScheduleTab({ user }) {
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
       <h1 style={S.pageTitle}>My Schedule</h1>
-      <p style={S.pageSub}>Subject: {user.subject} · {schedule.length} classes scheduled</p>
-      
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: 24, alignItems: "start" }}>
-        {/* Left: Add Class Form */}
-        <SectionCard title="➕ Add Class to Schedule">
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: 12 }}>
-              <label style={S.label}>Time (e.g. 09:30 AM)</label>
-              <input required type="text" value={time} onChange={e => setTime(e.target.value)} style={S.input} placeholder="e.g. 10:30 AM" />
+      <p style={S.pageSub}>Subject: {user.subject} Â· {user.classes||6} classes today</p>
+      <SectionCard title="ðŸ“… Today's Timetable">
+        {MOCK_SCHEDULE.map((cl,i)=>{
+          const bg = { completed: "#f0fdf4", ongoing: "#fffbeb", upcoming: "white" };
+          const dot= { completed: "#10b981", ongoing: "#f59e0b", upcoming: "#d1d5db" };
+          return (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 16px", background: bg[cl.status], borderRadius: 10, marginBottom: 8, border: "1px solid #f3f4f6" }}>
+              <div style={{ width: 10, height: 10, borderRadius: "50%", background: dot[cl.status], flexShrink: 0 }}/>
+              <div style={{ width: 90, fontSize: 13, fontWeight: 800, color: "#d97706", flexShrink: 0 }}>{cl.time}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#1c1917" }}>{cl.class}</div>
+                <div style={{ fontSize: 12, color: "#6b7280", marginTop: 1 }}>ðŸ“– {cl.topic}</div>
+              </div>
+              <div style={{ fontSize: 12, color: "#9ca3af" }}>ðŸšª Room {cl.room}</div>
+              <StatusBadge status={cl.status}/>
             </div>
-            <div style={{ marginBottom: 12 }}>
-              <label style={S.label}>Class / Grade</label>
-              <input required type="text" value={className} onChange={e => setClassName(e.target.value)} style={S.input} placeholder="e.g. Grade 5A" />
-            </div>
-            <div style={{ marginBottom: 12 }}>
-              <label style={S.label}>Topic / Lesson</label>
-              <input required type="text" value={topic} onChange={e => setTopic(e.target.value)} style={S.input} placeholder="e.g. Fraction Basics" />
-            </div>
-            <div style={{ marginBottom: 12 }}>
-              <label style={S.label}>Room / Lab</label>
-              <input required type="text" value={room} onChange={e => setRoom(e.target.value)} style={S.input} placeholder="e.g. 102 or Lab" />
-            </div>
-            <div style={{ marginBottom: 16 }}>
-              <label style={S.label}>Status</label>
-              <select value={status} onChange={e => setStatus(e.target.value)} style={S.input}>
-                <option value="upcoming">Upcoming</option>
-                <option value="ongoing">Ongoing</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-            <button type="submit" disabled={submitting} style={{ ...S.primaryBtn, width: "100%" }}>
-              {submitting ? "Adding class..." : "Schedule Class"}
-            </button>
-          </form>
-        </SectionCard>
-
-        {/* Right: Schedule List */}
-        <SectionCard title="📅 Timetable Classes">
-          {schedule.length === 0 ? (
-            <div style={{ padding: 40, textAlign: "center", border: "1px dashed #e2e8f0", borderRadius: 12, color: "#64748b" }}>
-              No classes scheduled. Add a class on the left to start.
-            </div>
-          ) : (
-            schedule.map((cl, i) => {
-              const bg = { completed: "#f0fdf4", ongoing: "#fffbeb", upcoming: "white" };
-              const dot = { completed: "#10b981", ongoing: "#f59e0b", upcoming: "#d1d5db" };
-              return (
-                <div key={cl._id} style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 16px", background: bg[cl.status] || "white", borderRadius: 10, marginBottom: 8, border: "1px solid #f3f4f6", boxShadow: "0 1px 3px rgba(0,0,0,0.01)" }}>
-                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: dot[cl.status] || "#d1d5db", flexShrink: 0 }}/>
-                  <div style={{ width: 90, fontSize: 13, fontWeight: 800, color: "#d97706", flexShrink: 0 }}>{cl.time}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "#1c1917" }}>{cl.className}</div>
-                    <div style={{ fontSize: 12, color: "#6b7280", marginTop: 1 }}>📖 {cl.topic}</div>
-                  </div>
-                  <div style={{ fontSize: 12, color: "#9ca3af" }}>🚪 Room {cl.room}</div>
-                  <StatusBadge status={cl.status}/>
-                  <button onClick={() => handleDelete(cl._id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, color: "#ef4444", padding: 4, marginLeft: 8 }} title="Remove class">🗑️</button>
-                </div>
-              );
-            })
-          )}
-        </SectionCard>
-      </div>
+          );
+        })}
+      </SectionCard>
     </div>
   );
 }
 
-function GradesTab({ grades = [], childrenList = [], onRefresh }) {
-  const [selectedChildId, setSelectedChildId] = useState("");
-  const [subject, setSubject] = useState("");
-  const [assignmentName, setAssignmentName] = useState("");
-  const [score, setScore] = useState("");
-  const [maxScore, setMaxScore] = useState("100");
-  const [remarks, setRemarks] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  // Auto-seed some grades if grades is empty and childrenList is available
-  useEffect(() => {
-    const seedGrades = async () => {
-      if (grades.length === 0 && childrenList.length > 0) {
-        const subjects = ["Math & Logic", "Language Skills", "Creative Arts"];
-        const assignments = ["Mid-Term Assessment", "Phonics Check", "Color Sorting Activity"];
-        const seedPromises = [];
-        
-        childrenList.slice(0, 3).forEach((child, i) => {
-          const mockScore = 75 + Math.floor(Math.random() * 21);
-          seedPromises.push(
-            createTeacherGrade({
-              childId: child._id,
-              subject: subjects[i] || "General Cognitive",
-              assignmentName: assignments[i] || "Classroom Evaluation",
-              score: mockScore,
-              maxScore: 100,
-              grade: mockScore >= 90 ? "A+" : mockScore >= 80 ? "A" : "B",
-              remarks: "Showing steady developmental growth."
-            })
-          );
-        });
-
-        if (seedPromises.length > 0) {
-          try {
-            await Promise.all(seedPromises);
-            onRefresh();
-          } catch (err) {
-            console.error("Failed to seed grades:", err);
-          }
-        }
-      }
-    };
-    seedGrades();
-  }, [grades.length, childrenList, onRefresh]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!selectedChildId || !subject || !assignmentName || !score || !maxScore) {
-      alert("Please fill in all fields.");
-      return;
-    }
-    const numScore = parseFloat(score);
-    const numMax = parseFloat(maxScore);
-    if (numScore > numMax) {
-      alert("Score cannot exceed Max Score!");
-      return;
-    }
-
-    const pct = (numScore / numMax) * 100;
-    const computedGrade = pct >= 95 ? "A+" : pct >= 85 ? "A" : pct >= 75 ? "B+" : pct >= 65 ? "B" : pct >= 50 ? "C" : "F";
-
-    setSubmitting(true);
-    try {
-      await createTeacherGrade({
-        childId: selectedChildId,
-        subject,
-        assignmentName,
-        score: numScore,
-        maxScore: numMax,
-        grade: computedGrade,
-        remarks
-      });
-      setSelectedChildId("");
-      setSubject("");
-      setAssignmentName("");
-      setScore("");
-      setRemarks("");
-      onRefresh();
-    } catch (err) {
-      alert("Failed to submit grade: " + err.message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this grade entry?")) return;
-    try {
-      await deleteTeacherGrade(id);
-      onRefresh();
-    } catch (err) {
-      alert("Failed to delete grade entry: " + err.message);
-    }
-  };
-
-  // Calculate stats
-  const totalEntries = grades.length;
-  const averagePct = totalEntries > 0
-    ? Math.round(grades.reduce((sum, g) => sum + ((g.score / g.maxScore) * 100), 0) / totalEntries)
-    : 0;
-  
-  const highestPct = totalEntries > 0
-    ? Math.max(...grades.map(g => (g.score / g.maxScore) * 100))
-    : 0;
-
-  const lowestPct = totalEntries > 0
-    ? Math.min(...grades.map(g => (g.score / g.maxScore) * 100))
-    : 0;
-
+function GradesTab() {
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
-      <h1 style={S.pageTitle}>Student Grades</h1>
-      <p style={S.pageSub}>Record and evaluate student performance in early developmental categories</p>
-
-      {/* Stats Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 16, marginBottom: 24 }}>
-        <div style={{ background: "white", padding: "20px", borderRadius: 16, border: "1px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
-          <div style={{ fontSize: 10, color: "#9ca3af", fontWeight: 700, textTransform: "uppercase" }}>Avg Class Percentage</div>
-          <div style={{ fontSize: 32, fontWeight: 900, color: "#f59e0b", marginTop: 4 }}>{averagePct}%</div>
-        </div>
-        <div style={{ background: "white", padding: "20px", borderRadius: 16, border: "1px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
-          <div style={{ fontSize: 10, color: "#9ca3af", fontWeight: 700, textTransform: "uppercase" }}>Highest Score</div>
-          <div style={{ fontSize: 32, fontWeight: 900, color: "#10b981", marginTop: 4 }}>{Math.round(highestPct)}%</div>
-        </div>
-        <div style={{ background: "white", padding: "20px", borderRadius: 16, border: "1px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
-          <div style={{ fontSize: 10, color: "#9ca3af", fontWeight: 700, textTransform: "uppercase" }}>Lowest Score</div>
-          <div style={{ fontSize: 32, fontWeight: 900, color: "#ef4444", marginTop: 4 }}>{Math.round(lowestPct)}%</div>
-        </div>
-        <div style={{ background: "white", padding: "20px", borderRadius: 16, border: "1px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
-          <div style={{ fontSize: 10, color: "#9ca3af", fontWeight: 700, textTransform: "uppercase" }}>Total Evaluated</div>
-          <div style={{ fontSize: 32, fontWeight: 900, color: "#3b82f6", marginTop: 4 }}>{totalEntries} entries</div>
-        </div>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: 24, alignItems: "start" }}>
-        {/* Left: Input Grades Form */}
-        <SectionCard title="➕ Record Student Grade">
-          {childrenList.length === 0 ? (
-            <div style={{ padding: 20, textAlign: "center", color: "#6b7280", background: "#f8fafc", borderRadius: 10, fontSize: 12 }}>
-              No active students assigned to your class. Go to Attendance or Student management to enroll/verify students first.
+      <h1 style={S.pageTitle}>Grades Overview</h1>
+      <p style={S.pageSub}>Student performance across all classes</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 16 }}>
+        {MOCK_GRADES.map((g,i)=>(
+          <div key={i} style={{ background: "white", borderRadius: 16, padding: "20px", border: "1px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", borderTop: `3px solid ${g.avg>=85?"#10b981":g.avg>=75?"#f59e0b":"#ef4444"}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: "#1c1917" }}>{g.class}</div>
+              <Badge children={`${g.students} students`} color="#d97706" bg="#fef3c7"/>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: 12 }}>
-                <label style={S.label}>Select Student</label>
-                <select required value={selectedChildId} onChange={e => setSelectedChildId(e.target.value)} style={S.input}>
-                  <option value="">-- Choose Student --</option>
-                  {childrenList.map(child => (
-                    <option key={child._id} value={child._id}>{child.fullName} {child.rollNo ? `(Roll: ${child.rollNo})` : ""}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={{ marginBottom: 12 }}>
-                <label style={S.label}>Developmental Area / Subject</label>
-                <input required type="text" value={subject} onChange={e => setSubject(e.target.value)} style={S.input} placeholder="e.g. Cognitive Skills, Language, Math" />
-              </div>
-
-              <div style={{ marginBottom: 12 }}>
-                <label style={S.label}>Evaluation Activity / Quiz</label>
-                <input required type="text" value={assignmentName} onChange={e => setAssignmentName(e.target.value)} style={S.input} placeholder="e.g. Term 1 Phonics Check" />
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
-                <div>
-                  <label style={S.label}>Score Obtained</label>
-                  <input required type="number" step="0.5" value={score} onChange={e => setScore(e.target.value)} style={S.input} placeholder="e.g. 85" />
-                </div>
-                <div>
-                  <label style={S.label}>Max Possible Score</label>
-                  <input required type="number" step="1" value={maxScore} onChange={e => setMaxScore(e.target.value)} style={S.input} placeholder="100" />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 16 }}>
-                <label style={S.label}>Observations & Remarks</label>
-                <textarea value={remarks} onChange={e => setRemarks(e.target.value)} style={{ ...S.input, height: 60, resize: "none" }} placeholder="Optional remarks on performance..." />
-              </div>
-
-              <button type="submit" disabled={submitting} style={{ ...S.primaryBtn, width: "100%" }}>
-                {submitting ? "Saving record..." : "Record Evaluation"}
-              </button>
-            </form>
-          )}
-        </SectionCard>
-
-        {/* Right: Grades Records List */}
-        <SectionCard title="📋 Gradebook Log Book">
-          {grades.length === 0 ? (
-            <div style={{ padding: 40, textAlign: "center", border: "1px dashed #e2e8f0", borderRadius: 12, color: "#64748b" }}>
-              No grades recorded yet. Record grades on the left to start.
+            <div style={{ fontSize: 32, fontWeight: 900, color: "#f59e0b", letterSpacing: "-1px", marginBottom: 8 }}>{g.avg}%</div>
+            <div style={{ height: 8, background: "#f3f4f6", borderRadius: 4, overflow: "hidden", marginBottom: 12 }}>
+              <div style={{ height: "100%", width: `${g.avg}%`, borderRadius: 4, background: g.avg>=85?"#10b981":g.avg>=75?"#f59e0b":"#ef4444" }}/>
             </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: "550px", overflowY: "auto" }}>
-              {grades.map(g => {
-                const childName = g.child?.fullName || "Unknown Child";
-                const rollNo = g.child?.rollNo || "";
-                return (
-                  <div key={g._id} style={{ border: "1px solid #f1f5f9", padding: "14px", borderRadius: 12, background: "white", display: "flex", justifyContent: "space-between", alignItems: "start", boxShadow: "0 1px 3px rgba(0,0,0,0.01)" }}>
-                    <div style={{ flex: 1, paddingRight: 12 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontWeight: 800, fontSize: 13, color: "#1c1917" }}>{childName}</span>
-                        {rollNo && <span style={{ fontSize: 10, background: "#f1f5f9", color: "#6b7280", padding: "1px 6px", borderRadius: 10, fontWeight: 700 }}>{rollNo}</span>}
-                      </div>
-                      <div style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>
-                        📖 {g.subject} · <b>{g.assignmentName}</b>
-                      </div>
-                      {g.remarks && (
-                        <div style={{ fontSize: 11, color: "#64748b", marginTop: 6, fontStyle: "italic", background: "#f8fafc", padding: "4px 8px", borderRadius: 6 }}>
-                          💬 {g.remarks}
-                        </div>
-                      )}
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: 16, fontWeight: 900, color: "#f59e0b" }}>{g.score}/{g.maxScore}</div>
-                        <span style={{ fontSize: 10, background: "#fffbeb", color: "#b45309", padding: "1px 6px", borderRadius: 10, fontWeight: 800 }}>Grade: {g.grade || "-"}</span>
-                      </div>
-                      <button onClick={() => handleDelete(g._id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, color: "#ef4444", padding: 4 }} title="Delete record">🗑️</button>
-                    </div>
-                  </div>
-                );
-              })}
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#9ca3af", marginBottom: 10 }}>
+              <span>ðŸ† Highest: <b style={{ color: "#10b981" }}>{g.highest}%</b></span>
+              <span>ðŸ“‰ Lowest: <b style={{ color: "#ef4444" }}>{g.lowest}%</b></span>
             </div>
-          )}
-        </SectionCard>
+            <div style={{ fontSize: 11, color: "#6b7280", paddingTop: 10, borderTop: "1px solid #f3f4f6" }}>ðŸ“ Assignments: {g.completed}/{g.assignments} submitted</div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -1032,7 +738,7 @@ function AssignmentsTab({ assignments = [], onSubmitAssignment }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
           <h1 style={S.pageTitle}>My Assignments</h1>
-          <p style={S.pageSub}>{pendingCount} assigned · {revisionCount} needs revision</p>
+          <p style={S.pageSub}>{pendingCount} assigned Â· {revisionCount} needs revision</p>
         </div>
       </div>
 
@@ -1045,10 +751,10 @@ function AssignmentsTab({ assignments = [], onSubmitAssignment }) {
           assignments.map(a => (
             <div key={a._id} style={{ background: "white", borderRadius: 14, padding: "16px 20px", border: "1px solid #f1f5f9", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", borderLeft: `4px solid ${a.status==="approved"||a.status==="reviewed"?"#10b981":a.status==="revision"?"#ef4444":"#f59e0b"}` }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ fontSize: 24 }}>{a.status==="approved"||a.status==="reviewed"?"✅":a.status==="revision"?"🔁":"📝"}</div>
+                <div style={{ fontSize: 24 }}>{a.status==="approved"||a.status==="reviewed"?"âœ…":a.status==="revision"?"ðŸ”":"ðŸ“"}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: "#1c1917" }}>{a.title || a.course?.title || "Assignment"}</div>
-                  <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>{a.course?.title} · Due: {a.dueDate ? new Date(a.dueDate).toLocaleDateString() : "No deadline"}</div>
+                  <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>{a.course?.title} Â· Due: {a.dueDate ? new Date(a.dueDate).toLocaleDateString() : "No deadline"}</div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   {a.score !== null && a.score !== undefined && <span style={{ fontSize: 16, fontWeight: 800, color: "#10b981" }}>{a.score}/100</span>}
@@ -1069,12 +775,12 @@ function AssignmentsTab({ assignments = [], onSubmitAssignment }) {
               </div>
               {a.status==="revision" && a.feedback && (
                 <div style={{ marginTop: 10, padding: "8px 12px", background: "#fef2f2", borderRadius: 8, fontSize: 12, color: "#991b1b" }}>
-                  ⚠️ Revision required. Admin feedback: <b>{a.feedback}</b>
+                  âš ï¸ Revision required. Admin feedback: <b>{a.feedback}</b>
                 </div>
               )}
               {a.status==="approved" && a.feedback && (
                 <div style={{ marginTop: 10, padding: "8px 12px", background: "#f0fdf4", borderRadius: 8, fontSize: 12, color: "#166534" }}>
-                  ✓ Feedback: <b>{a.feedback}</b>
+                  âœ“ Feedback: <b>{a.feedback}</b>
                 </div>
               )}
             </div>
@@ -1087,17 +793,17 @@ function AssignmentsTab({ assignments = [], onSubmitAssignment }) {
           <div style={{ background: "white", borderRadius: 20, padding: "28px", width: "100%", maxWidth: 480, boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <h3 style={{ fontSize: 17, fontWeight: 800, color: "#1c1917", margin: 0 }}>Submit Assignment</h3>
-              <button onClick={handleCloseModal} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#9ca3af" }}>✕</button>
+              <button onClick={handleCloseModal} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#9ca3af" }}>âœ•</button>
             </div>
             <label style={S.label}>Assignment Title</label>
             <input style={{ ...S.input, marginBottom: 12 }} value={title} onChange={e => setTitle(e.target.value)} placeholder="Enter assignment title"/>
             <label style={S.label}>Upload File</label>
             <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".pdf,.docx,.ppt,.pptx" style={{ display: "none" }}/>
             <div onClick={()=>fileInputRef.current?.click()} style={{ border: "2px dashed #fbbf24", borderRadius: 12, padding: "24px", textAlign: "center", marginBottom: 16, background: "#fffbeb", cursor: "pointer" }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>📎</div>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>ðŸ“Ž</div>
               {selectedFile ? (
                 <>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#059669" }}>📄 File Added Successfully!</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#059669" }}>ðŸ“„ File Added Successfully!</div>
                   <div style={{ fontSize: 12, color: "#374151", marginTop: 4, fontWeight: 600, wordBreak: "break-all" }}>{selectedFile.name}</div>
                   <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>Size: {selectedFile.size}</div>
                 </>
@@ -1111,7 +817,7 @@ function AssignmentsTab({ assignments = [], onSubmitAssignment }) {
             <label style={S.label}>Notes (Optional)</label>
             <textarea style={{ ...S.input, height: 70, resize: "none", marginBottom: 20 }} value={note} onChange={e => setNote(e.target.value)} placeholder="Any notes for the reviewer..."/>
             <button onClick={handleSubmit} disabled={submitting} style={{ ...S.primaryBtn, width: "100%" }}>
-              {submitting ? "Uploading & Submitting..." : "📤 Submit Assignment"}
+              {submitting ? "Uploading & Submitting..." : "ðŸ“¤ Submit Assignment"}
             </button>
           </div>
         </div>
@@ -1120,76 +826,46 @@ function AssignmentsTab({ assignments = [], onSubmitAssignment }) {
   );
 }
 
-function CertificatesTab({ user, courses = [] }) {
-  const completedCourses = courses.filter(c => c.status === "completed" || c.progressPercent === 100);
-  const inProgressCourses = courses.filter(c => c.status !== "completed" && c.progressPercent < 100);
-
-  const handleDownload = (courseTitle) => {
-    alert(`Downloading PDF Certificate for "${courseTitle}"...\nVerification hash registered successfully!`);
-  };
-
-  const handleShare = (courseTitle) => {
-    alert(`Link copied to clipboard! Share your "${courseTitle}" achievement on LinkedIn.`);
-  };
-
+function CertificatesTab() {
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
       <h1 style={S.pageTitle}>My Certificates</h1>
-      <p style={S.pageSub}>{completedCourses.length} certificates earned</p>
-      
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(340px,1fr))", gap: 20 }}>
-        {completedCourses.map((c) => {
-          const title = c.course?.title || "Professional Teacher Training";
-          const credentialId = `SPC-2026-${String(user.id || user._id || "000").substring(0, 4).toUpperCase()}-${String(c._id).substring(0, 4).toUpperCase()}`;
-          const dateStr = c.completedAt ? new Date(c.completedAt).toLocaleDateString("en-IN") : new Date().toLocaleDateString("en-IN");
-          
-          return (
-            <div key={c._id} style={{ background: "linear-gradient(135deg,#fffbeb,#fef3c7)", borderRadius: 20, padding: "28px 24px", border: "2px solid #fbbf24", position: "relative", overflow: "hidden", boxShadow: "0 4px 20px rgba(245,158,11,0.15)" }}>
-              <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "#fbbf24", opacity: 0.15 }}/>
-              <div style={{ position: "absolute", bottom: -30, left: -20, width: 100, height: 100, borderRadius: "50%", background: "#f59e0b", opacity: 0.1 }}/>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>🏆</div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: "#1c1917", marginBottom: 8, lineHeight: 1.4 }}>{title}</div>
-              <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-                <Badge children={`Completed`} color="#059669" bg="#d1fae5"/>
-                <Badge children={dateStr} color="#d97706" bg="#fef3c7"/>
-              </div>
-              <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 16 }}>🔑 Credential ID: <span style={{ fontWeight: 700, color: "#374151" }}>{credentialId}</span></div>
-              <div style={{ display: "flex", gap: 10 }}>
-                <button onClick={() => handleDownload(title)} style={{ ...S.primaryBtn, flex: 1, textAlign: "center" }}>⬇ Download PDF</button>
-                <button onClick={() => handleShare(title)} style={{ ...S.exportBtn, flex: 1, textAlign: "center" }}>🔗 Share</button>
-              </div>
+      <p style={S.pageSub}>{MOCK_CERTIFICATES.length} certificates earned</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(340px,1fr))", gap: 16 }}>
+        {MOCK_CERTIFICATES.map((c,i)=>(
+          <div key={i} style={{ background: "linear-gradient(135deg,#fffbeb,#fef3c7)", borderRadius: 20, padding: "28px 24px", border: "2px solid #fbbf24", position: "relative", overflow: "hidden", boxShadow: "0 4px 20px rgba(245,158,11,0.15)" }}>
+            <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "#fbbf24", opacity: 0.15 }}/>
+            <div style={{ position: "absolute", bottom: -30, left: -20, width: 100, height: 100, borderRadius: "50%", background: "#f59e0b", opacity: 0.1 }}/>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>ðŸ†</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: "#1c1917", marginBottom: 8, lineHeight: 1.4 }}>{c.title}</div>
+            <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+              <Badge children={`Grade: ${c.grade}`} color="#059669" bg="#d1fae5"/>
+              <Badge children={c.issued} color="#d97706" bg="#fef3c7"/>
             </div>
-          );
-        })}
-
-        {inProgressCourses.map((c) => {
-          const title = c.course?.title || "In-Progress Training";
-          return (
-            <div key={c._id} style={{ background: "#f9fafb", borderRadius: 20, padding: "28px 24px", border: "2px dashed #e5e7eb", opacity: 0.7 }}>
-              <div style={{ fontSize: 40, marginBottom: 12, filter: "grayscale(1)" }}>🔒</div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: "#9ca3af", marginBottom: 8 }}>{title}</div>
-              <div style={{ fontSize: 12, color: "#9ca3af", marginBottom: 16 }}>Complete the course to unlock this certificate</div>
-              <div style={{ height: 6, background: "#e5e7eb", borderRadius: 4, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${c.progressPercent || 0}%`, background: "#d1d5db", borderRadius: 4 }}/>
-              </div>
-              <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 6 }}>{c.progressPercent || 0}% complete</div>
+            <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 16 }}>ðŸ”‘ Credential ID: <span style={{ fontWeight: 700, color: "#374151" }}>{c.credentialId}</span></div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button style={{ ...S.primaryBtn, flex: 1, textAlign: "center" }}>â¬‡ Download PDF</button>
+              <button style={{ ...S.exportBtn, flex: 1, textAlign: "center" }}>ðŸ”— Share</button>
             </div>
-          );
-        })}
-
-        {courses.length === 0 && (
-          <div style={{ gridColumn: "1 / -1", padding: 40, background: "white", border: "1px dashed #e2e8f0", borderRadius: 20, textAlign: "center", color: "#64748b" }}>
-            🎓 Certificates are unlocked dynamically when you complete your assigned courses.
           </div>
-        )}
+        ))}
+        <div style={{ background: "#f9fafb", borderRadius: 20, padding: "28px 24px", border: "2px dashed #e5e7eb", opacity: 0.7 }}>
+          <div style={{ fontSize: 40, marginBottom: 12, filter: "grayscale(1)" }}>ðŸ”’</div>
+          <div style={{ fontSize: 15, fontWeight: 800, color: "#9ca3af", marginBottom: 8 }}>Curriculum Design Certificate</div>
+          <div style={{ fontSize: 12, color: "#9ca3af", marginBottom: 16 }}>Complete the course to unlock this certificate</div>
+          <div style={{ height: 6, background: "#e5e7eb", borderRadius: 4, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: "45%", background: "#d1d5db", borderRadius: 4 }}/>
+          </div>
+          <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 6 }}>45% complete</div>
+        </div>
       </div>
     </div>
   );
 }
 
-/* ─────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    PROFILE TAB  (with editable Working Center)
-───────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function ProfileTab({ user, onWorkingCenterChange }) {
   const [editing, setEditing] = useState(false);
 
@@ -1209,33 +885,10 @@ function ProfileTab({ user, onWorkingCenterChange }) {
 
   const [savedForm, setSavedForm] = useState({ ...form });
 
-  const handleSave = async () => {
-    try {
-      const payload = {
-        name: form.name,
-        phone: form.phone,
-        address: form.address,
-        workingCenter: form.workingCenter,
-        subject: form.subject,
-        portfolio: {
-          degree: form.degree,
-          university: form.university,
-          netStatus: form.netStatus,
-          netDesc: form.netDesc,
-          expYears: form.expYears,
-          expBio: form.expBio
-        }
-      };
-      if (user.id || user._id) {
-        await updateTeacher(user.id || user._id, payload);
-      }
-      setSavedForm({ ...form });
-      onWorkingCenterChange && onWorkingCenterChange(form.workingCenter);
-      setEditing(false);
-      alert('Profile updated successfully!');
-    } catch (err) {
-      alert('Failed to update profile: ' + err.message);
-    }
+  const handleSave = () => {
+    setSavedForm({ ...form });
+    onWorkingCenterChange && onWorkingCenterChange(form.workingCenter);
+    setEditing(false);
   };
 
   const handleCancel = () => {
@@ -1252,13 +905,13 @@ function ProfileTab({ user, onWorkingCenterChange }) {
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           {editing && (
-            <button onClick={handleCancel} style={S.exportBtn}>✕ Cancel</button>
+            <button onClick={handleCancel} style={S.exportBtn}>âœ• Cancel</button>
           )}
           <button
             onClick={editing ? handleSave : () => setEditing(true)}
             style={editing ? { ...S.primaryBtn, background: "linear-gradient(135deg,#10b981,#059669)" } : S.primaryBtn}
           >
-            {editing ? "💾 Save Changes" : "✏️ Edit Profile"}
+            {editing ? "ðŸ’¾ Save Changes" : "âœï¸ Edit Profile"}
           </button>
         </div>
       </div>
@@ -1285,12 +938,12 @@ function ProfileTab({ user, onWorkingCenterChange }) {
         {/* 2-column info fields */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {[
-            { icon: "📧", label: "Email",      val: user.email,         key: "email",   editable: false },
-            { icon: "📱", label: "Phone",      val: form.phone,         key: "phone",   editable: true  },
-            { icon: "📍", label: "Address",    val: form.address,       key: "address", editable: true  },
-            { icon: "📅", label: "Joined",     val: user.joined,        key: "joined",  editable: false },
-            { icon: "📚", label: "Subject",    val: form.subject,       key: "subject", editable: true  },
-            { icon: "📊", label: "Attendance", val: `${user.attendance||90}%`, key: "", editable: false },
+            { icon: "ðŸ“§", label: "Email",      val: user.email,         key: "email",   editable: false },
+            { icon: "ðŸ“±", label: "Phone",      val: form.phone,         key: "phone",   editable: true  },
+            { icon: "ðŸ“", label: "Address",    val: form.address,       key: "address", editable: true  },
+            { icon: "ðŸ“…", label: "Joined",     val: user.joined,        key: "joined",  editable: false },
+            { icon: "ðŸ“š", label: "Subject",    val: form.subject,       key: "subject", editable: true  },
+            { icon: "ðŸ“Š", label: "Attendance", val: `${user.attendance||90}%`, key: "", editable: false },
           ].map((r,i)=>(
             <div key={i} style={{ background: "#f9fafb", borderRadius: 10, padding: "10px 14px", border: "1px solid #f3f4f6" }}>
               <div style={{ fontSize: 10, color: "#9ca3af", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 4 }}>{r.label}</div>
@@ -1303,7 +956,7 @@ function ProfileTab({ user, onWorkingCenterChange }) {
           ))}
         </div>
 
-        {/* Working Center — full-width, always visible, editable when editing */}
+        {/* Working Center â€” full-width, always visible, editable when editing */}
         <div style={{ marginTop: 12, background: editing ? "#fffbeb" : "#f9fafb", borderRadius: 10, padding: "12px 14px", border: `1px solid ${editing ? "#fbbf24" : "#f3f4f6"}`, transition: "background 0.2s, border-color 0.2s" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
             <div style={{ fontSize: 10, color: "#9ca3af", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>Working Center</div>
@@ -1319,18 +972,18 @@ function ProfileTab({ user, onWorkingCenterChange }) {
               placeholder="e.g. Dhayri, Pune, Maharashtra"
             />
           ) : (
-            <div style={{ fontSize: 13, color: "#374151", fontWeight: 600 }}>📍 {form.workingCenter}</div>
+            <div style={{ fontSize: 13, color: "#374151", fontWeight: 600 }}>ðŸ“ {form.workingCenter}</div>
           )}
         </div>
       </div>
 
       {/* Portfolio & Qualifications */}
       <div style={{ background: "white", borderRadius: 20, padding: "24px 28px", border: "1px solid #f1f5f9", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginBottom: 20 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 800, color: "#1c1917", margin: "0 0 16px" }}>🎓 Portfolio & Qualifications</h3>
+        <h3 style={{ fontSize: 14, fontWeight: 800, color: "#1c1917", margin: "0 0 16px" }}>ðŸŽ“ Portfolio & Qualifications</h3>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
           <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 16px", background: "#f8fafc" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
-              <span style={{ fontSize: 18 }}>📜</span>
+              <span style={{ fontSize: 18 }}>ðŸ“œ</span>
               <Badge children="Highest Degree" color="#1e40af" bg="#dbeafe"/>
             </div>
             {editing ? (
@@ -1347,7 +1000,7 @@ function ProfileTab({ user, onWorkingCenterChange }) {
           </div>
           <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 16px", background: "#f8fafc" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
-              <span style={{ fontSize: 18 }}>⚡</span>
+              <span style={{ fontSize: 18 }}>âš¡</span>
               <Badge children="National Level" color="#065f46" bg="#d1fae5"/>
             </div>
             {editing ? (
@@ -1367,7 +1020,7 @@ function ProfileTab({ user, onWorkingCenterChange }) {
         <div style={{ border: "1px solid #f1f5f9", borderRadius: 12, padding: "14px 16px", background: "#fffbeb" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 16 }}>💼</span>
+              <span style={{ fontSize: 16 }}>ðŸ’¼</span>
               <div style={{ fontSize: 12, fontWeight: 700, color: "#92400e" }}>Professional Work Experience</div>
             </div>
             {editing ? (
@@ -1385,18 +1038,18 @@ function ProfileTab({ user, onWorkingCenterChange }) {
 
         {editing && (
           <button onClick={handleSave} style={{ ...S.primaryBtn, width: "100%", marginTop: 16, background: "linear-gradient(135deg,#f59e0b,#d97706)" }}>
-            💾 Save Portfolio Details
+            ðŸ’¾ Save Portfolio Details
           </button>
         )}
       </div>
 
       {/* Change Password */}
       <div style={{ background: "white", borderRadius: 16, padding: "20px 24px", border: "1px solid #f1f5f9", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
-        <h3 style={{ fontSize: 14, fontWeight: 800, color: "#1c1917", margin: "0 0 14px" }}>🔒 Change Password</h3>
+        <h3 style={{ fontSize: 14, fontWeight: 800, color: "#1c1917", margin: "0 0 14px" }}>ðŸ”’ Change Password</h3>
         {["Current Password","New Password","Confirm New Password"].map((label,i)=>(
           <div key={i} style={{ marginBottom: 12 }}>
             <label style={S.label}>{label}</label>
-            <input style={S.input} type="password" placeholder="⬢⬢⬢⬢⬢⬢⬢⬢"/>
+            <input style={S.input} type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"/>
           </div>
         ))}
         <button style={{ ...S.primaryBtn, marginTop: 4 }}>Update Password</button>
@@ -1406,7 +1059,7 @@ function ProfileTab({ user, onWorkingCenterChange }) {
 }
 
 function NotificationsTab({ notifications = [], onMarkRead, onMarkAllRead }) {
-  const icons = { session: "📹", assignment: "📝", approval: "✅", certificate: "🏆", course: "📚" };
+  const icons = { session: "ðŸ“¹", assignment: "ðŸ“", approval: "âœ…", certificate: "ðŸ†", course: "ðŸ“š" };
 
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
@@ -1415,7 +1068,7 @@ function NotificationsTab({ notifications = [], onMarkRead, onMarkAllRead }) {
           <h1 style={S.pageTitle}>Notifications</h1>
           <p style={S.pageSub}>{notifications.filter(n=>!n.read).length} unread</p>
         </div>
-        <button onClick={onMarkAllRead} style={S.exportBtn}>✓ Mark all read</button>
+        <button onClick={onMarkAllRead} style={S.exportBtn}>âœ“ Mark all read</button>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {notifications.length === 0 ? (
@@ -1425,7 +1078,7 @@ function NotificationsTab({ notifications = [], onMarkRead, onMarkAllRead }) {
         ) : (
           notifications.map(n=>(
             <div key={n.id} onClick={()=>!n.read && onMarkRead(n.id)} style={{ background: n.read?"white":"#fffbeb", borderRadius: 14, padding: "14px 18px", border: `1px solid ${n.read?"#f1f5f9":"#fbbf24"}`, display: "flex", alignItems: "center", gap: 14, cursor: "pointer", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", borderLeft: `4px solid ${n.read?"#e5e7eb":"#f59e0b"}` }}>
-              <div style={{ width: 40, height: 40, borderRadius: 10, background: n.read?"#f3f4f6":"#fef3c7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{icons[n.type] || "🔔"}</div>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: n.read?"#f3f4f6":"#fef3c7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{icons[n.type] || "ðŸ””"}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: n.read?500:700, color: "#1c1917" }}>{n.msg}</div>
                 <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>{n.time}</div>
@@ -1439,9 +1092,9 @@ function NotificationsTab({ notifications = [], onMarkRead, onMarkAllRead }) {
   );
 }
 
-/* ═══════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    MAIN TEACHER DASHBOARD
-═══════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 export default function TeacherDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab]         = useState("overview");
   const [toast, setToast]                 = useState({ msg: "", type: "" });
@@ -1455,9 +1108,6 @@ export default function TeacherDashboard({ user, onLogout }) {
   const [activities, setActivities] = useState([]);
   const [summary, setSummary] = useState({});
   const [loading, setLoading] = useState(true);
-  const [schedule, setSchedule] = useState([]);
-  const [grades, setGrades] = useState([]);
-  const [childrenList, setChildrenList] = useState([]);
 
   // Chatbot States
   const [chatOpen, setChatOpen] = useState(false);
@@ -1480,52 +1130,6 @@ export default function TeacherDashboard({ user, onLogout }) {
       if (assignmentsRes && assignmentsRes.courses) {
         setAssignments(assignmentsRes.courses);
       }
-      
-      // Fetch Schedule
-      try {
-        const scheduleRes = await getTeacherSchedule();
-        if (scheduleRes && scheduleRes.schedule) {
-          if (scheduleRes.schedule.length === 0) {
-            const seedPromises = MOCK_SCHEDULE.map(item => 
-              createTeacherSchedule({
-                time: item.time,
-                className: item.class,
-                topic: item.topic,
-                room: item.room,
-                status: item.status
-              })
-            );
-            await Promise.all(seedPromises);
-            const freshSchedule = await getTeacherSchedule();
-            setSchedule(freshSchedule.schedule || []);
-          } else {
-            setSchedule(scheduleRes.schedule);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching schedule:", err);
-      }
-
-      // Fetch Grades
-      try {
-        const gradesRes = await getTeacherGrades();
-        if (gradesRes && gradesRes.grades) {
-          setGrades(gradesRes.grades);
-        }
-      } catch (err) {
-        console.error("Error fetching grades:", err);
-      }
-
-      // Fetch Children
-      try {
-        const childrenRes = await getTeacherChildren();
-        if (childrenRes && childrenRes.children) {
-          setChildrenList(childrenRes.children);
-        }
-      } catch (err) {
-        console.error("Error fetching children list:", err);
-      }
-
       const notificationsRes = await getNotifications();
       if (notificationsRes && notificationsRes.notifications) {
         const mapped = notificationsRes.notifications.map(n => {
@@ -1564,7 +1168,7 @@ export default function TeacherDashboard({ user, onLogout }) {
   const handleMarkDone = async (assignId, payload) => {
     try {
       await updateCourseAssignmentProgress(assignId, payload);
-      setToast({ msg: "Progress saved! ✓", type: "success" });
+      setToast({ msg: "Progress saved! âœ“", type: "success" });
       refreshData();
     } catch (err) {
       setToast({ msg: "Failed to save progress.", type: "error" });
@@ -1573,7 +1177,7 @@ export default function TeacherDashboard({ user, onLogout }) {
 
   const handleSubmitAssignment = async (assignId, payload) => {
     await updateCourseAssignmentProgress(assignId, payload);
-    setToast({ msg: "Assignment submitted successfully! 📤", type: "success" });
+    setToast({ msg: "Assignment submitted successfully! ðŸ“¤", type: "success" });
     refreshData();
   };
 
@@ -1621,18 +1225,18 @@ export default function TeacherDashboard({ user, onLogout }) {
   const pendingAssignmentsCount = assignments.filter(a=>a.status==="assigned"||a.status==="revision").length;
 
   const navItems = [
-    { key: "overview",      label: "Teacher's Dashboard", icon: "📊" },
-    { key: "children_att",  label: "Daily Attendance",    icon: "📋" },
-    { key: "geotag",        label: "Geotag Attendance",   icon: "📍" },
-    { key: "training",      label: "Training & Lessons",  icon: "🎓" },
-    { key: "courses",       label: "My Courses",          icon: "📚" },
-    { key: "assessment",    label: "Assessments",         icon: "📝" },
-    { key: "schedule",      label: "Schedule",            icon: "📅" },
-    { key: "grades",        label: "Grades",              icon: "📊" },
-    { key: "assignments",   label: "Assignments",         icon: "✏️", badge: pendingAssignmentsCount },
-    { key: "certificates",  label: "Certificates",        icon: "🏆" },
-    { key: "notifications", label: "Notifications",       icon: "🔔", badge: unreadCount },
-    { key: "profile",       label: "My Profile",          icon: "👤" },
+    { key: "overview",      label: "Teacher's Dashboard", icon: "ðŸ“Š" },
+    { key: "children_att",  label: "Daily Attendance",    icon: "ðŸ“‹" },
+    { key: "geotag",        label: "Geotag Attendance",   icon: "ðŸ“" },
+    { key: "training",      label: "Training & Lessons",  icon: "ðŸŽ“" },
+    { key: "courses",       label: "My Courses",          icon: "ðŸ“š" },
+    { key: "assessment",    label: "Assessments",         icon: "ðŸ“" },
+    { key: "schedule",      label: "Schedule",            icon: "ðŸ“…" },
+    { key: "grades",        label: "Grades",              icon: "ðŸ“Š" },
+    { key: "assignments",   label: "Assignments",         icon: "âœï¸", badge: pendingAssignmentsCount },
+    { key: "certificates",  label: "Certificates",        icon: "ðŸ†" },
+    { key: "notifications", label: "Notifications",       icon: "ðŸ””", badge: unreadCount },
+    { key: "profile",       label: "My Profile",          icon: "ðŸ‘¤" },
   ];
 
   const enrichedUser = { ...user, workingCenter };
@@ -1641,7 +1245,7 @@ export default function TeacherDashboard({ user, onLogout }) {
     if (loading) {
       return (
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "60vh", fontSize: 16, fontWeight: 700, color: "#64748b" }}>
-          🔄 Loading Portal Data...
+          ðŸ”„ Loading Portal Data...
         </div>
       );
     }
@@ -1652,8 +1256,8 @@ export default function TeacherDashboard({ user, onLogout }) {
       case "training":      return <TrainingAndClassroomManager user={enrichedUser}/>;
       case "courses":       return <CoursesTab assignments={assignments} onMarkDone={handleMarkDone}/>;
       case "assessment":    return <ProctoredAssessment user={enrichedUser}/>;
-      case "schedule":      return <ScheduleTab user={enrichedUser} schedule={schedule} onRefresh={refreshData}/>;
-      case "grades":        return <GradesTab grades={grades} childrenList={childrenList} onRefresh={refreshData}/>;
+      case "schedule":      return <ScheduleTab user={enrichedUser}/>;
+      case "grades":        return <GradesTab/>;
       case "assignments":   return <AssignmentsTab assignments={assignments} onSubmitAssignment={handleSubmitAssignment}/>;
       case "certificates":  return <CertificatesTab/>;
       case "notifications": return <NotificationsTab notifications={notifications} onMarkRead={handleMarkNotifRead} onMarkAllRead={handleMarkAllNotifRead}/>;
@@ -1672,7 +1276,7 @@ export default function TeacherDashboard({ user, onLogout }) {
         <div style={{ padding: "20px 16px 12px" }}>
           <Logo size={120}/>
           <div style={{ textAlign: "center", padding: "4px 12px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: "#dbeafe", color: "#1e40af", border: "1px solid #bfdbfe", margin: "6px auto 0", display: "inline-block", width: "fit-content" }}>
-            🎓 Teacher Panel
+            ðŸŽ“ Teacher Panel
           </div>
         </div>
         <nav style={{ padding: "4px 10px", flex: 1 }}>
@@ -1690,7 +1294,7 @@ export default function TeacherDashboard({ user, onLogout }) {
             <div style={{ fontSize: 12, fontWeight: 700, color: "#1c1917" }}>{user.name?.split(" ")[0]}</div>
             <div style={{ fontSize: 10, color: "#9ca3af", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.subject}</div>
           </div>
-          <button onClick={onLogout} title="Sign Out" style={{ background: "none", border: "none", cursor: "pointer", fontSize: 16, color: "#9ca3af", padding: 4 }}>⏻</button>
+          <button onClick={onLogout} title="Sign Out" style={{ background: "none", border: "none", cursor: "pointer", fontSize: 16, color: "#9ca3af", padding: 4 }}>â»</button>
         </div>
       </div>
 
@@ -1706,13 +1310,13 @@ export default function TeacherDashboard({ user, onLogout }) {
             {/* Header */}
             <div style={{ background: "linear-gradient(135deg,#f59e0b 0%,#d97706 100%)", padding: "16px 20px", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 24 }}>🤖</span>
+                <span style={{ fontSize: 24 }}>ðŸ¤–</span>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 900, letterSpacing: "-0.2px" }}>SpaceCE Assistant</div>
-                  <div style={{ fontSize: 10, opacity: 0.85, fontWeight: 700 }}>Online · Portal Helper</div>
+                  <div style={{ fontSize: 10, opacity: 0.85, fontWeight: 700 }}>Online Â· Portal Helper</div>
                 </div>
               </div>
-              <button onClick={() => setChatOpen(false)} style={{ background: "none", border: "none", color: "white", fontSize: 18, cursor: "pointer", padding: 0 }}>✕</button>
+              <button onClick={() => setChatOpen(false)} style={{ background: "none", border: "none", color: "white", fontSize: 18, cursor: "pointer", padding: 0 }}>âœ•</button>
             </div>
             {/* Messages Area */}
             <div style={{ flex: 1, padding: 16, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, background: "#fafbfc" }}>
@@ -1758,7 +1362,7 @@ export default function TeacherDashboard({ user, onLogout }) {
                 onClick={handleSendChatMessage}
                 style={{ background: "linear-gradient(135deg,#f59e0b 0%,#d97706 100%)", border: "none", color: "white", borderRadius: 10, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 2px 6px rgba(217,119,6,0.3)" }}
               >
-                ➔
+                âž”
               </button>
             </div>
           </div>
@@ -1781,7 +1385,7 @@ export default function TeacherDashboard({ user, onLogout }) {
             transition: "transform 0.2s ease"
           }}
         >
-          💬
+          ðŸ’¬
         </button>
       </div>
     </div>
