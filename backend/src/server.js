@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import { connectDb } from "./db.js";
@@ -24,6 +25,9 @@ import { FileAsset } from "./models/FileAsset.js";
 import { ChildAttendanceSession, TeacherAttendanceRecord } from "./models/Attendance.js";
 import { Notification } from "./models/Notification.js";
 import { ReportJob } from "./models/ReportJob.js";
+import { AssessmentAttempt } from "./models/AssessmentAttempt.js";
+import { Schedule } from "./models/Schedule.js";
+import { Grade } from "./models/Grade.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, "../.env") });
@@ -32,6 +36,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 const databaseModels = [
   ActivitySubmission,
+  AssessmentAttempt,
   Center,
   ChildAttendanceSession,
   Child,
@@ -40,11 +45,13 @@ const databaseModels = [
   Course,
   Feedback,
   FileAsset,
+  Grade,
   LessonCompletionReport,
   LessonPlan,
   LessonPlanAssignment,
   Notification,
   ReportJob,
+  Schedule,
   TeacherAttendanceRecord,
   Trainer,
   User,
@@ -189,6 +196,77 @@ app.post("/api/auth/register-teacher", async (req, res, next) => {
     if (error.code === 11000) {
       return res.status(409).json({ message: "Email already registered" });
     }
+    next(error);
+  }
+});
+
+app.post("/api/auth/forgot-password", async (req, res, next) => {
+  try {
+    const email = String(req.body.email || "").toLowerCase().trim();
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "No account found with this email address" });
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    user.resetPasswordTokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    user.resetPasswordExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    await user.save();
+
+    const appUrl = process.env.FRONTEND_URL || process.env.CORS_ORIGIN?.split(",")[0] || "http://localhost:5173";
+    res.json({
+      message: "Password reset link generated",
+      resetLink: `${appUrl.replace(/\/$/, "")}?reset_token=${token}`,
+      expiresInMinutes: 15,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/auth/reset-password/:token", async (req, res, next) => {
+  try {
+    const tokenHash = crypto.createHash("sha256").update(req.params.token).digest("hex");
+    const user = await User.findOne({
+      resetPasswordTokenHash: tokenHash,
+      resetPasswordExpiresAt: { $gt: new Date() },
+    }).select("email");
+
+    if (!user) {
+      return res.status(400).json({ message: "Reset link is expired or invalid" });
+    }
+
+    res.json({ email: user.email });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/auth/reset-password", async (req, res, next) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password || String(password).length < 8) {
+      return res.status(400).json({ message: "A valid token and password of at least 8 characters are required" });
+    }
+
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const user = await User.findOne({
+      resetPasswordTokenHash: tokenHash,
+      resetPasswordExpiresAt: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Reset link is expired or invalid" });
+    }
+
+    user.passwordHash = await hashPassword(password);
+    user.resetPasswordTokenHash = undefined;
+    user.resetPasswordExpiresAt = undefined;
+    await user.save();
+
+    res.json({ message: "Password updated successfully" });
+  } catch (error) {
     next(error);
   }
 });
@@ -523,6 +601,132 @@ app.post("/api/teacher/chatbot", requireAuth, requireRole("teacher"), async (req
     }
 
     res.json({ reply });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ==========================================
+// ASSESSMENT ATTEMPTS (TEACHER PANEL)
+// ==========================================
+app.get("/api/teacher/assessments", requireAuth, requireRole("teacher"), async (req, res, next) => {
+  try {
+    const attempts = await AssessmentAttempt.find({ teacher: req.user.id });
+    res.json({ attempts });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/teacher/assessments", requireAuth, requireRole("teacher"), async (req, res, next) => {
+  try {
+    const { courseId, score, percentage, grade, performance, strengths, improvements, recommendation, answers, forced, warnings } = req.body;
+    const date = new Date().toLocaleDateString("en-IN");
+    
+    const attempt = await AssessmentAttempt.findOneAndUpdate(
+      { teacher: req.user.id, courseId },
+      {
+        teacher: req.user.id,
+        courseId,
+        score,
+        percentage,
+        grade,
+        performance,
+        strengths,
+        improvements,
+        recommendation,
+        answers,
+        forced,
+        warnings,
+        date
+      },
+      { upsert: true, new: true }
+    );
+    res.json({ attempt });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ==========================================
+// SCHEDULE / TIMETABLE (TEACHER PANEL)
+// ==========================================
+app.get("/api/teacher/schedule", requireAuth, requireRole("teacher"), async (req, res, next) => {
+  try {
+    const schedule = await Schedule.find({ teacher: req.user.id }).sort({ time: 1 });
+    res.json({ schedule });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/teacher/schedule", requireAuth, requireRole("teacher"), async (req, res, next) => {
+  try {
+    const { time, className, topic, room, status } = req.body;
+    const item = await Schedule.create({
+      teacher: req.user.id,
+      time,
+      className,
+      topic,
+      room,
+      status: status || "upcoming"
+    });
+    res.status(201).json({ item });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete("/api/teacher/schedule/:id", requireAuth, requireRole("teacher"), async (req, res, next) => {
+  try {
+    await Schedule.findOneAndDelete({ _id: req.params.id, teacher: req.user.id });
+    res.json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ==========================================
+// GRADES / CHILD PERFORMANCE (TEACHER PANEL)
+// ==========================================
+app.get("/api/teacher/grades", requireAuth, requireRole("teacher"), async (req, res, next) => {
+  try {
+    const grades = await Grade.find({ teacher: req.user.id })
+      .populate("child", "fullName rollNo")
+      .sort({ createdAt: -1 });
+    res.json({ grades });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/teacher/grades", requireAuth, requireRole("teacher"), async (req, res, next) => {
+  try {
+    const { childId, subject, assignmentName, score, maxScore, grade, remarks } = req.body;
+    const childExists = await Child.findById(childId);
+    if (!childExists) {
+      return res.status(404).json({ message: "Child not found" });
+    }
+    const record = await Grade.create({
+      child: childId,
+      teacher: req.user.id,
+      subject,
+      assignmentName,
+      score,
+      maxScore: maxScore || 100,
+      grade,
+      remarks
+    });
+    res.status(201).json({ record });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete("/api/teacher/grades/:id", requireAuth, requireRole("teacher"), async (req, res, next) => {
+  try {
+    await Grade.findOneAndDelete({ _id: req.params.id, teacher: req.user.id });
+    res.json({ success: true });
   } catch (error) {
     next(error);
   }
@@ -904,6 +1108,21 @@ app.post("/api/teacher/lesson-plans/:id/complete", requireAuth, requireRole("tea
   }
 });
 
+app.get("/api/teacher/lesson-plans/reports", requireAuth, requireRole("teacher"), async (req, res, next) => {
+  try {
+    const reports = await LessonCompletionReport.find({ teacher: req.user.id })
+      .populate({
+        path: "assignment",
+        populate: { path: "lessonPlan" }
+      })
+      .populate("files")
+      .sort({ createdAt: -1 });
+    res.json({ reports });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/admin/lesson-plans/reports", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const reports = await LessonCompletionReport.find()
@@ -1261,6 +1480,22 @@ app.use((error, _req, res, _next) => {
 await connectDb();
 await ensureDatabaseReady();
 
-app.listen(port, () => {
-  console.log(`API running on http://localhost:${port}`);
-});
+function startServer(currentPort) {
+  const server = app.listen(currentPort, () => {
+    console.log(`API running on http://localhost:${currentPort}`);
+  });
+
+  server.on("error", (error) => {
+    if (error.code === "EADDRINUSE") {
+      const nextPort = Number(currentPort) + 1;
+      console.warn(`Port ${currentPort} is in use. Trying port ${nextPort}...`);
+      startServer(nextPort);
+      return;
+    }
+
+    console.error("Backend startup failed:", error);
+    process.exit(1);
+  });
+}
+
+startServer(Number(port));
