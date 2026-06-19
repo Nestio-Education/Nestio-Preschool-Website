@@ -13,7 +13,8 @@ const feedbackSchema = new mongoose.Schema(
     status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending", index: true },
     date: String,
     anonymous: { type: Boolean, default: false },
-    adminResponse: { type: String, default: "" }
+    adminResponse: { type: String, default: "" },
+    sharedWithTrainer: { type: Boolean, default: false }
   },
   { timestamps: true }
 );

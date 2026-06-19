@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { AttendanceBar, Modal, S, SearchBar, SectionCard, StatCard, StatusBadge, Toast } from "../components/Shared";
 import { getAdminTeachers, updateTeacherStatus, updateTeacherProfile, registerTeacher, getCenters } from "../services/api";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const mapTeacherFromApi = (t) => ({
   id: t._id || t.id,
@@ -23,19 +25,52 @@ const mapTeacherFromApi = (t) => ({
   classId: t.teacherProfile?.class?._id || t.teacherProfile?.class || "",
 });
 
-/* ── CSV Export ── */
-function exportCSV(data, filename = "teachers.csv") {
-  const headers = ["Name", "Email", "Phone", "Subject", "Center", "Class/Batch", "Status", "Qualification", "Experience", "Joined", "Attendance"];
-  const rows = data.map(t => [
-    t.name, t.email, t.phone, t.subject, t.assignedCenter || "—", t.batch || "—",
-    t.status, t.qualification || "—", t.experience || "—", t.joined, t.attendance + "%"
-  ]);
-  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = filename; a.click();
-  URL.revokeObjectURL(url);
+/* ── PDF Export ── */
+function exportPDF(data, filename = "teachers.pdf") {
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+
+  // Title & header
+  doc.setFontSize(16);
+  doc.setFont(undefined, "bold");
+  doc.text("Teacher List — SpacECE Training Portal", 14, 16);
+  doc.setFontSize(9);
+  doc.setFont(undefined, "normal");
+  doc.text(`Generated: ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}  |  ${data.length} teacher(s)`, 14, 22);
+
+  // Table
+  autoTable(doc, {
+    startY: 27,
+    head: [["Name", "Email", "Phone", "Subject", "Center", "Batch", "Status", "Qualification", "Experience", "Attendance"]],
+    body: data.map(t => [
+      t.name,
+      t.email,
+      t.phone,
+      t.subject,
+      t.assignedCenter || "—",
+      t.batch || "—",
+      t.status,
+      t.qualification || "—",
+      t.experience || "—",
+      `${t.attendance}%`
+    ]),
+    styles: { fontSize: 7, cellPadding: 2 },
+    headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: "bold", fontSize: 7 },
+    alternateRowStyles: { fillColor: [245, 247, 250] },
+    margin: { left: 10, right: 10 },
+  });
+
+  // Footer
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(7);
+    doc.setFont(undefined, "normal");
+    doc.setTextColor(150);
+    doc.text("SpacECE Teacher Training Portal — Confidential", 14, doc.internal.pageSize.height - 8);
+    doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 8);
+  }
+
+  doc.save(filename);
 }
 
 /* ── Reject Modal ── */
@@ -417,7 +452,7 @@ export default function TeacherManagementTab({ setToast }) {
     password: ""
   });
 
-  const showToast = setToast || console.log;
+  const showToast = setToast || (() => {});
 
   const loadData = () => {
     setLoading(true);
@@ -518,7 +553,7 @@ export default function TeacherManagementTab({ setToast }) {
           <p style={S.pageSub}>{teachers.filter(t => t.status === "approved").length} approved · {pendingCount} pending registration requests</p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={() => exportCSV(filtered)} style={S.tblBtn}>📤 Export CSV</button>
+          <button onClick={() => exportPDF(filtered)} style={S.tblBtn}>📤 Export PDF</button>
           <button onClick={() => setAddModal(true)} style={S.primaryBtn}>+ Add Teacher</button>
         </div>
       </div>

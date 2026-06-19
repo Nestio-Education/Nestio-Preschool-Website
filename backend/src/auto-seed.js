@@ -8,10 +8,9 @@ import { CourseAssignment } from "./models/CourseAssignment.js";
 import { LessonPlan } from "./models/LessonPlan.js";
 import { LessonPlanAssignment } from "./models/LessonPlanAssignment.js";
 import { Trainer } from "./models/Trainer.js";
-import { Feedback } from "./models/Feedback.js";
 
 export async function autoSeed() {
-  console.log("Seeding database with demo data...");
+  console.log("Seeding database with initial portal data...");
 
   const adminPassword = await hashPassword("Admin@123");
   const teacherPassword = await hashPassword("Teacher@123");
@@ -56,29 +55,39 @@ export async function autoSeed() {
     { upsert: true, new: true, setDefaultsOnInsert: true }
   );
 
-  const teacher = await User.findOneAndUpdate(
-    { email: "priya@school.edu" },
-    {
-      role: "teacher",
-      name: "Priya Sharma",
-      email: "priya@school.edu",
-      phone: "9876543210",
-      passwordHash: teacherPassword,
-      status: "approved",
-      teacherProfile: {
-        center: center._id,
-        class: classRecord._id,
-        qualification: "B.Ed",
-        subject: "Pre-Primary",
-        experience: "3-5 yrs",
-        address: "Mumbai",
-        performanceRating: 4.5,
-      },
-    },
-    { upsert: true, new: true, setDefaultsOnInsert: true }
-  );
+  const teacherInputs = [
+    { name: "Dnyaneshwari Thorat", email: "dnyaneshwarit27@gmail.com", phone: "8605689467", subject: "Pre-Primary", qualification: "Graduate" },
+    { name: "Gauri Thorat", email: "dnyaneshwarithrt@gmail.com", phone: "8605689467", subject: "Montessori", qualification: "Graduate" },
+    { name: "Abhishek Thorat", email: "thoratdnyanu@gmail.com", phone: "8605689467", subject: "ECCE", qualification: "Graduate" },
+  ];
 
-  const child1 = await Child.findOneAndUpdate(
+  const teachers = [];
+  for (const input of teacherInputs) {
+    const teacher = await User.findOneAndUpdate(
+      { email: input.email },
+      {
+        role: "teacher",
+        name: input.name,
+        email: input.email,
+        phone: input.phone,
+        passwordHash: teacherPassword,
+        status: "approved",
+        teacherProfile: {
+          center: center._id,
+          class: classRecord._id,
+          qualification: input.qualification,
+          subject: input.subject,
+          experience: "Fresher",
+          address: "Pune, Maharashtra",
+          performanceRating: 0,
+        },
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+    teachers.push(teacher);
+  }
+
+  await Child.findOneAndUpdate(
     { class: classRecord._id, rollNo: "N-A-001" },
     {
       center: center._id,
@@ -92,7 +101,7 @@ export async function autoSeed() {
     { upsert: true, new: true }
   );
 
-  const child2 = await Child.findOneAndUpdate(
+  await Child.findOneAndUpdate(
     { class: classRecord._id, rollNo: "N-A-002" },
     {
       center: center._id,
@@ -137,16 +146,20 @@ export async function autoSeed() {
     { upsert: true, new: true, setDefaultsOnInsert: true }
   );
 
-  await CourseAssignment.updateOne(
-    { course: course._id, teacher: teacher._id },
-    {
-      course: course._id,
-      teacher: teacher._id,
-      assignedBy: admin._id,
-      progressPercent: 25,
-      status: "assigned",
-    },
-    { upsert: true }
+  await CourseAssignment.bulkWrite(
+    teachers.map((teacher) => ({
+      updateOne: {
+        filter: { course: course._id, teacher: teacher._id },
+        update: {
+          course: course._id,
+          teacher: teacher._id,
+          assignedBy: admin._id,
+          progressPercent: 0,
+          status: "assigned",
+        },
+        upsert: true,
+      },
+    }))
   );
 
   const lesson = await LessonPlan.findOneAndUpdate(
@@ -167,12 +180,12 @@ export async function autoSeed() {
   await LessonPlanAssignment.findOneAndUpdate(
     {
       lessonPlan: lesson._id,
-      teacher: teacher._id,
+      teacher: teachers[0]._id,
       assignedDate: new Date(new Date().toDateString()),
     },
     {
       lessonPlan: lesson._id,
-      teacher: teacher._id,
+      teacher: teachers[0]._id,
       center: center._id,
       class: classRecord._id,
       assignedDate: new Date(new Date().toDateString()),
@@ -185,62 +198,24 @@ export async function autoSeed() {
   if (trainerCount === 0) {
     await Trainer.create([
       {
-        name: "Dr. Rekha Iyer",
-        subject: "Early Childhood Ed",
-        email: "rekha@spaceece.in",
-        phone: "9876540001",
-        qualification: "PhD in Child Education",
-        linkedin: "linkedin.com/in/rekha-iyer",
-        bio: "Passionate early childhood educator with 15+ years of training experience.",
-        courses: 3,
-      },
-      {
-        name: "Prof. Amol Desai",
-        subject: "Montessori Methods",
-        email: "desai@spaceece.in",
-        phone: "9876540002",
-        qualification: "M.Ed, Montessori Trainer",
-        linkedin: "linkedin.com/in/amol-desai",
-        bio: "Specialist in Montessori tools, sensory training, and teaching material development.",
-        courses: 2,
+        name: "SpaceECE Lead Trainer",
+        subject: "Teacher Training",
+        email: "trainer@spaceece.in",
+        phone: "8605689467",
+        qualification: "Teacher Trainer",
+        linkedin: "",
+        bio: "Lead trainer for assigned teacher training courses.",
+        courses: 1,
+        sessions: 0,
+        rating: 0,
+        status: "active",
       },
     ]);
   }
 
-  const feedbackCount = await Feedback.countDocuments();
-  if (feedbackCount === 0) {
-    await Feedback.create([
-      {
-        learner: "Asha Kulkarni",
-        course: "Pre-Primary Teacher Training",
-        batch: "Batch A",
-        trainer: "Dr. Rekha Iyer",
-        rating: 5,
-        trainerRating: 5,
-        tag: "Content Quality",
-        suggestion: "Add more classroom demonstration videos in Module 2.",
-        status: "pending",
-        date: "12/06/2026",
-        anonymous: false
-      },
-      {
-        learner: "Neha Joshi",
-        course: "Montessori Teacher Training",
-        batch: "Batch B",
-        trainer: "Prof. Amol Desai",
-        rating: 4,
-        trainerRating: 5,
-        tag: "Platform UX",
-        suggestion: "Provide printable worksheets after each live session.",
-        status: "approved",
-        date: "10/06/2026",
-        anonymous: false,
-        adminResponse: "Thank you for the suggestion! We will add downloadable worksheets soon."
-      }
-    ]);
-  }
+  // Feedback data is created by users through the feedback submission form — no seed data needed
 
   console.log("Automatic database seeding complete.");
   console.log("Admin account: admin@spaceece.com / Admin@123");
-  console.log("Teacher account: priya@school.edu / Teacher@123");
+  console.log("Teacher accounts use the seeded email addresses / Teacher@123");
 }

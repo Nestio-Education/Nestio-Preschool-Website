@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Logo, Toast, globalCSS } from "../components/Shared";
 import OverviewTab from "../admin/OverviewTab";
 import CenterManagementTab from "../admin/CenterManagementTab";
@@ -29,9 +29,9 @@ import { getAdminTeachers, getCourseAssignments, getCourses, updateTeacherStatus
 
 
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ===========================================
    MAIN ADMIN DASHBOARD
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+=========================================== */
 export default function AdminDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [teachers,  setTeachers]  = useState([]);
@@ -47,6 +47,7 @@ export default function AdminDashboard({ user, onLogout }) {
       assigned: "pending",
       in_progress: "under review",
       completed: "reviewed",
+      submitted: "pending",
       reviewed: "reviewed",
       approved: "approved",
       revision: "revision",
@@ -65,8 +66,8 @@ export default function AdminDashboard({ user, onLogout }) {
       title: assignment.title || course.title || "Course Assignment",
       course: course.title || "Training Course",
       batch: assignment.batch || "DB Assignment",
-      submitted: assignment.completedAt ? new Date(assignment.completedAt).toLocaleDateString("en-IN") : "Not submitted",
-      submittedDate: assignment.completedAt || assignment.updatedAt || assignment.createdAt,
+      submitted: (assignment.submittedAt || assignment.completedAt) ? new Date(assignment.submittedAt || assignment.completedAt).toLocaleDateString("en-IN") : "Not submitted",
+      submittedDate: assignment.submittedAt || assignment.completedAt || assignment.updatedAt || assignment.createdAt,
       status: statusMap[assignment.status] || assignment.status || "pending",
       feedback: assignment.feedback || "",
       score: assignment.score,
@@ -78,27 +79,27 @@ export default function AdminDashboard({ user, onLogout }) {
   };
 
   const navItems = [
-    { key:"overview",     label:"Admin Dashboard",          icon:"ðŸ“Š" },
-    { key:"centers",      label:"Center Management", icon:"ðŸ«" },
-    { key:"teachers",     label:"Teacher Management",icon:"ðŸ‘©â€ðŸ«", badge:pending.length },
-    { key: "curriculum", label: "Course Management", icon: "ðŸ“š" },
-    { key: "activities", label: "Activity Monitoring", icon: "ðŸ“¸" },
-    { key: "lessonplans", label: "Lesson Plans", icon: "ðŸ“‹" },
-    { key: "children", label: "Children & Classes", icon: "ðŸ‘¶" },
-    { key:"trainers",     label:"Trainer Management",icon:"ðŸŽ“" },
-    { key:"assignments",  label:"Assignment Review", icon:"ðŸ“", badge:assignments.filter(a=>a.status==="pending").length },
-    { key:"attendance",   label:"Attendance",        icon:"ðŸ“‹" },
+    { key:"overview",     label:"Admin Dashboard",     icon:"DB" },
+    { key:"centers",      label:"Center Management",   icon:"CT" },
+    { key:"teachers",     label:"Teacher Management",  icon:"TM", badge:pending.length },
+    { key: "curriculum",  label: "Course Management",  icon: "CM" },
+    { key: "activities",  label: "Activity Monitoring",icon: "AM" },
+    { key: "lessonplans", label: "Lesson Plans",       icon: "LP" },
+    { key: "children",    label: "Children & Classes", icon: "CC" },
+    { key:"trainers",     label:"Trainer Management",  icon:"TR" },
+    { key:"assignments",  label:"Assignment Review",   icon:"AR", badge:assignments.filter(a=>a.status==="pending").length },
+    { key:"attendance",   label:"Attendance",          icon:"AT" },
    
-    { key:"reports",      label:"Reports & Analytics",icon:"ðŸ“ˆ" },
-    { key:"notifications",label:"Notifications",     icon:"ðŸ””" },
-    { key:"settings",     label:"Settings & Roles",  icon:"âš™ï¸" },
-    { key:"feedback",     label:"Feedback",              icon:"ðŸ’¬" },
-    //{ key:"courses",      label:"Course Management", icon:"ðŸ“š" },
-    //{ key:"batches",      label:"Batch Management",  icon:"ðŸ—‚ï¸" },
-    // { key:"content",      label:"Learning Content",      icon:"ðŸŽ¬" },
-    // { key:"assessments",  label:"Assessment Management", icon:"ðŸ§ " },
-    // { key:"certificates", label:"Certificates",          icon:"ðŸ…" },
-    //{ key:"sessions",     label:"Live Sessions",     icon:"ðŸ“¹" },
+    { key:"reports",      label:"Reports & Analytics",icon:"RA" },
+    { key:"notifications",label:"Notifications",      icon:"NT" },
+    { key:"settings",     label:"Settings & Roles",   icon:"SR" },
+    { key:"feedback",     label:"Feedback",           icon:"FB" },
+    //{ key:"courses",      label:"Course Management", icon:"CR" },
+    //{ key:"batches",      label:"Batch Management",  icon:"BT" },
+    // { key:"content",      label:"Learning Content", icon:"LC" },
+    // { key:"assessments",  label:"Assessment Management", icon:"AS" },
+    // { key:"certificates", label:"Certificates",     icon:"CF" },
+    //{ key:"sessions",     label:"Live Sessions",     icon:"LS" },
     
   ];
   const persistTeachers = (updater) => {
@@ -131,7 +132,7 @@ export default function AdminDashboard({ user, onLogout }) {
       case "attendance":   return <AttendanceTab teachers={teachers} sessions={[]}/>;
       case "reports":      return <ReportsTab teachers={teachers} courses={courses} batches={[]}/>;
       case "notifications":return <NotificationsTab teachers={teachers} setToast={setToast}/>;
-      case "settings":     return <SettingsTab/>;
+      case "settings":     return <SettingsTab setToast={setToast}/>;
       case "feedback":     return <FeedbackManagementTab setToast={setToast}/>;
       //case "sessions": return <LiveSessionsTab sessions={sessions} setSessions={setSessions} teachers={teachers} batches={[]} setToast={setToast}/>;
       //case "courses":      return <CourseManagementTab courses={courses} setCourses={setCourses} categories={categories} setCategories={setCategories} setToast={setToast}/>;
@@ -167,13 +168,13 @@ export default function AdminDashboard({ user, onLogout }) {
       <style>{globalCSS}</style>
       <Toast msg={toast.msg} type={toast.type} onClose={()=>setToast({msg:"",type:""})}/>
 
-      {/* â”€â”€ Sidebar â”€â”€ */}
+      {/* Sidebar */}
       <div style={{ width:250, background:"white", borderRight:"1px solid #f1f5f9", display:"flex", flexDirection:"column", flexShrink:0, boxShadow:"2px 0 12px rgba(0,0,0,0.04)", position:"sticky", top:0, height:"100vh", overflowY:"auto" }}>
         <div style={{ padding:"20px 16px 12px" }}>
           <Logo size={120}/>
           <div style={{ textAlign:"center", padding:"4px 12px", borderRadius:20, fontSize:11, fontWeight:700,
             background:"#fef3c7", color:"#92400e", border:"1px solid #fbbf24", margin:"6px auto 0", display:"inline-block", width:"fit-content", letterSpacing:"0.3px" }}>
-            ðŸ›¡ï¸ Admin Panel
+            Admin Panel
           </div>
         </div>
 
@@ -199,11 +200,11 @@ export default function AdminDashboard({ user, onLogout }) {
             <div style={{ fontSize:10, color:"#9ca3af", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{user?.email}</div>
           </div>
           <button onClick={onLogout} title="Sign Out"
-            style={{ background:"none", border:"none", cursor:"pointer", fontSize:16, color:"#9ca3af", padding:4 }}>â»</button>
+            style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#9ca3af", padding:4, fontWeight:700 }}>Sign Out</button>
         </div>
       </div>
 
-      {/* â”€â”€ Main â”€â”€ */}
+      {/* Main */}
       <div style={{ flex:1, padding:"28px 32px", overflowY:"auto", maxHeight:"100vh" }}>
         {renderContent()}
       </div>

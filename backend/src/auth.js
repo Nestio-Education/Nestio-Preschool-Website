@@ -20,6 +20,22 @@ export function signToken(user) {
   );
 }
 
+export function createPasswordResetToken(email) {
+  return jwt.sign(
+    { email, purpose: "password_reset" },
+    JWT_SECRET,
+    { expiresIn: "15m" }
+  );
+}
+
+export function verifyPasswordResetToken(token) {
+  const payload = jwt.verify(token, JWT_SECRET);
+  if (payload?.purpose !== "password_reset" || !payload?.email) {
+    throw new Error("Invalid reset token");
+  }
+  return payload;
+}
+
 export async function requireAuth(req, res, next) {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : null;

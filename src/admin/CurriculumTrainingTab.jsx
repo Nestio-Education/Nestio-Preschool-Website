@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Modal, S, SearchBar, StatCard, Toast } from "../components/Shared";
-import { getCourses, createCourse, updateCourse, deleteCourse, getCourseAssignments, getAdminTeachers } from "../services/api";
+import { getCourses, createCourse, updateCourse, deleteCourse, getCourseAssignments, getAdminTeachers, generateCourseFromAI } from "../services/api";
 
 const mapCourseFromApi = (c) => ({
   id: c._id || c.id,
@@ -251,6 +251,78 @@ function CourseFormModal({ course, onSave, onClose, setToast }) {
   );
 }
 
+/* ── AI Course Generator Modal ── */
+function AICourseGeneratorModal({ onClose, onSave, setToast }) {
+  const [form, setForm] = useState({
+    topic: "",
+    duration: "2 Weeks",
+    level: "Beginner",
+    category: "Foundations of ECE"
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.topic) {
+      setToast({ msg: "Please enter a course topic", type: "error" });
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const response = await generateCourseFromAI(form);
+      if (response.course) {
+        setToast({ msg: "Course generated successfully!", type: "success" });
+        onSave(response.course);
+        onClose();
+      }
+    } catch (error) {
+      setToast({ msg: error.message || "Failed to generate course", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Modal title="🤖 AI Course Generator" onClose={onClose}>
+      <form onSubmit={handleSubmit}>
+        <label style={S.label}>Course Topic *</label>
+        <input style={{ ...S.input, marginBottom: 12 }} value={form.topic}
+          onChange={e => setForm({ ...form, topic: e.target.value })}
+          placeholder="e.g. Advanced Phonics Instruction, Classroom Management Techniques" />
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
+          <div>
+            <label style={S.label}>Category</label>
+            <select style={S.input} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+              {CATEGORIES.filter(c => c !== "all").map(c => <option key={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={S.label}>Level</label>
+            <select style={S.input} value={form.level} onChange={e => setForm({ ...form, level: e.target.value })}>
+              <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+            </select>
+          </div>
+          <div>
+            <label style={S.label}>Duration</label>
+            <input style={S.input} value={form.duration}
+              onChange={e => setForm({ ...form, duration: e.target.value })} placeholder="e.g. 2 Weeks" />
+          </div>
+        </div>
+
+        <div style={{ background: "#f0f9ff", padding: "12px", borderRadius: 8, marginBottom: 16, fontSize: 12, color: "#0c4a6e" }}>
+          💡 <b>AI Magic:</b> Enter a topic and we'll create a full training course with title, description, objectives, and YouTube content!
+        </div>
+
+        <button type="submit" disabled={loading} style={{ ...S.primaryBtn, width: "100%", opacity: loading ? 0.6 : 1 }}>
+          {loading ? "Generating Course..." : "🤖 Generate Course"}
+        </button>
+      </form>
+    </Modal>
+  );
+}
+
 /* ── Tracking Modal ── */
 function CourseTrackingModal({ course, assignments = [], onClose, setToast }) {
   const courseAssignments = assignments.filter(a => {
@@ -326,6 +398,7 @@ export default function CurriculumTrainingTab({ setToast }) {
   const [levelFilter, setLevelFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [formModal, setFormModal] = useState(false);
+  const [aiModal, setAiModal] = useState(false);
   const [trackingModal, setTrackingModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -431,6 +504,10 @@ export default function CurriculumTrainingTab({ setToast }) {
     <div style={{ animation: "fadeIn 0.3s ease" }}>
       {!setToast && <Toast msg={toast.msg} type={toast.type} onClose={() => setLocalToast({ msg: "", type: "" })} />}
 
+      {aiModal && (
+        <AICourseGeneratorModal onClose={() => { setAiModal(false); }} onSave={handleSave}
+          setToast={showToast} />
+      )}
       {formModal && (
         <CourseFormModal course={selectedCourse} onSave={handleSave}
           onClose={() => { setFormModal(false); setSelectedCourse(null); }} setToast={showToast} />
@@ -446,7 +523,10 @@ export default function CurriculumTrainingTab({ setToast }) {
           <h1 style={S.pageTitle}>Training & Curriculum</h1>
           <p style={S.pageSub}>{courses.length} courses · {overallPct}% overall completion</p>
         </div>
-        <button onClick={() => { setSelectedCourse(null); setFormModal(true); }} style={S.primaryBtn}>+ Create Course</button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={() => { setAiModal(true); }} style={{ ...S.primaryBtn, backgroundColor: "#6366f1", color: "white" }}>🤖 AI Generate</button>
+          <button onClick={() => { setSelectedCourse(null); setFormModal(true); }} style={S.primaryBtn}>+ Create Course</button>
+        </div>
       </div>
 
       {/* KPI Cards */}

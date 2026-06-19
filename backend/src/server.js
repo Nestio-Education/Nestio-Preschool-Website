@@ -6,8 +6,10 @@ import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import { connectDb } from "./db.js";
-import { hashPassword, requireAuth, requireRole, signToken, verifyPassword } from "./auth.js";
+import { createPasswordResetToken, hashPassword, requireAuth, requireRole, signToken, verifyPassword, verifyPasswordResetToken } from "./auth.js";
 import { autoSeed } from "./auto-seed.js";
+import { sendBulkEmails } from "./email.js";
+import courseAiRouter from "./routes/courseAi.js";
 import { User } from "./models/User.js";
 import { Center } from "./models/Center.js";
 import { ClassModel } from "./models/Class.js";
@@ -24,6 +26,7 @@ import { FileAsset } from "./models/FileAsset.js";
 import { ChildAttendanceSession, TeacherAttendanceRecord } from "./models/Attendance.js";
 import { Notification } from "./models/Notification.js";
 import { ReportJob } from "./models/ReportJob.js";
+import { PortalSetting } from "./models/PortalSetting.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, "../.env") });
@@ -48,6 +51,7 @@ const databaseModels = [
   TeacherAttendanceRecord,
   Trainer,
   User,
+  PortalSetting,
 ];
 
 async function ensureDatabaseReady() {
@@ -153,6 +157,11 @@ app.post("/api/auth/login", async (req, res, next) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
+        teacherProfile: user.teacherProfile,
+        subject: user.teacherProfile?.subject,
+        address: user.teacherProfile?.address,
+        qualification: user.teacherProfile?.qualification,
+        experience: user.teacherProfile?.experience,
       },
     });
   } catch (error) {
@@ -298,6 +307,19 @@ app.post("/api/admin/classes", requireAuth, requireRole("admin"), async (req, re
   }
 });
 
+app.get("/api/admin/users", requireAuth, requireRole("admin"), async (req, res, next) => {
+  try {
+    const filter = {};
+    if (req.query.role) filter.role = req.query.role;
+    const users = await User.find(filter)
+      .select("-passwordHash")
+      .sort({ createdAt: -1 });
+    res.json({ users });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/admin/teachers", requireAuth, requireRole("admin"), async (_req, res, next) => {
   try {
     const teachers = await User.find({ role: "teacher" })
@@ -391,6 +413,263 @@ app.get("/api/teacher/me", requireAuth, requireRole("teacher"), async (req, res,
   }
 });
 
+app.post("/api/auth/forgot-password", async (req, res, next) => {
+  try {
+    const email = String(req.body.email || "").toLowerCase().trim();
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email }).select("_id email");
+    const response = {
+      success: true,
+      message: "If the account exists, a password reset link has been generated.",
+    };
+
+    if (!user) {
+      return res.json(response);
+    }
+
+    const resetToken = createPasswordResetToken(user.email);
+    res.json({
+      ...response,
+      resetToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/auth/reset-password/verify", async (req, res, next) => {
+  try {
+    const token = String(req.body.token || "");
+    if (!token) {
+      return res.status(400).json({ message: "Reset token is required" });
+    }
+
+    const payload = verifyPasswordResetToken(token);
+    const user = await User.findOne({ email: payload.email }).select("email");
+
+    if (!user) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+
+    res.json({ valid: true, email: user.email });
+  } catch (error) {
+    res.status(400).json({ message: "Reset link is invalid or expired" });
+  }
+});
+
+app.post("/api/auth/reset-password", async (req, res, next) => {
+  try {
+    const token = String(req.body.token || "");
+    const password = String(req.body.password || "");
+
+    if (!token || !password) {
+      return res.status(400).json({ message: "Reset token and password are required" });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ message: "Password must be at least 8 characters long" });
+    }
+
+    const payload = verifyPasswordResetToken(token);
+    const user = await User.findOne({ email: payload.email });
+
+    if (!user) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+
+    user.passwordHash = await hashPassword(password);
+    await user.save();
+
+    res.json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    res.status(400).json({ message: "Reset link is invalid or expired" });
+  }
+});
+
+app.get("/api/admin/notifications", requireAuth, requireRole("admin"), async (_req, res, next) => {
+  try {
+    const notifications = await Notification.find()
+      .populate("recipient", "name email status")
+      .sort({ createdAt: -1 })
+      .limit(500);
+    res.json({ notifications });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/admin/notifications/broadcast", requireAuth, requireRole("admin"), async (req, res, next) => {
+  try {
+    const {
+      subject,
+      body,
+      channel = "in_app",
+      audience = "all",
+      teacherIds = [],
+    } = req.body;
+
+    if (!subject || !body) {
+      return res.status(400).json({ message: "Subject and message are required" });
+    }
+
+    let filter = { role: "teacher" };
+    if (Array.isArray(teacherIds) && teacherIds.length > 0) {
+      filter._id = { $in: teacherIds };
+    } else if (audience === "approved") {
+      filter.status = "approved";
+    } else if (audience === "pending") {
+      filter.status = "pending";
+    }
+
+    const recipients = await User.find(filter).select("_id name email phone status");
+
+    if (recipients.length === 0) {
+      return res.status(200).json({ notifications: [], recipientCount: 0 });
+    }
+
+    // For in_app channel, just create notification documents
+    if (channel === "in_app") {
+      const docs = recipients.map((teacher) => ({
+        recipient: teacher._id,
+        channel,
+        title: subject,
+        body,
+        status: "delivered",
+        sentAt: new Date(),
+      }));
+
+      const notifications = await Notification.insertMany(docs);
+      return res.status(201).json({ notifications, recipientCount: recipients.length });
+    }
+
+    // For email channel, actually send via SMTP
+    if (channel === "email") {
+      const emailResults = await sendBulkEmails({
+        recipients: recipients.map((r) => ({ _id: r._id, email: r.email, name: r.name })),
+        subject,
+        body,
+      });
+
+      const docs = emailResults.map((result) => ({
+        recipient: result.recipientId,
+        channel: "email",
+        title: subject,
+        body,
+        status: result.success ? "delivered" : "failed",
+        error: result.error || null,
+        sentAt: new Date(),
+      }));
+
+      const notifications = docs.length ? await Notification.insertMany(docs) : [];
+      const failedCount = emailResults.filter((r) => !r.success).length;
+
+      return res.status(201).json({
+        notifications,
+        recipientCount: recipients.length,
+        delivered: recipients.length - failedCount,
+        failed: failedCount,
+      });
+    }
+
+    // SMS and WhatsApp require a configured external provider.
+    if (channel === "sms" || channel === "whatsapp") {
+      const docs = recipients.map((teacher) => ({
+        recipient: teacher._id,
+        channel,
+        title: subject,
+        body,
+        status: "failed",
+        error: `${channel.toUpperCase()} provider is not configured. Add a real provider integration before sending to phone numbers.`,
+        sentAt: new Date(),
+      }));
+
+      const notifications = docs.length ? await Notification.insertMany(docs) : [];
+      return res.status(501).json({
+        notifications,
+        recipientCount: recipients.length,
+        delivered: 0,
+        failed: recipients.length,
+        message: `${channel.toUpperCase()} provider is not configured.`,
+      });
+    }
+
+    const docs = recipients.map((teacher) => ({
+      recipient: teacher._id,
+      channel,
+      title: subject,
+      body,
+      status: "delivered",
+      sentAt: new Date(),
+    }));
+
+    const notifications = docs.length ? await Notification.insertMany(docs) : [];
+    res.status(201).json({ notifications, recipientCount: recipients.length });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.patch("/api/teacher/me", requireAuth, requireRole("teacher"), async (req, res, next) => {
+  try {
+    const { name, phone, photoUrl, teacherProfile = {} } = req.body;
+    const allowedProfileFields = ["qualification", "subject", "experience", "address"];
+    const update = {};
+
+    if (name !== undefined) update.name = name;
+    if (phone !== undefined) update.phone = phone;
+    if (photoUrl !== undefined) update.photoUrl = photoUrl;
+
+    for (const field of allowedProfileFields) {
+      if (teacherProfile[field] !== undefined) {
+        update[`teacherProfile.${field}`] = teacherProfile[field];
+      }
+    }
+
+    const teacher = await User.findByIdAndUpdate(req.user.id, { $set: update }, { new: true })
+      .select("-passwordHash")
+      .populate("teacherProfile.center", "name address city pincode contactPerson phone email")
+      .populate("teacherProfile.class", "name ageGroup curriculumLevel schedule");
+
+    res.json({ teacher });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/teacher/change-password", requireAuth, requireRole("teacher"), async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Current password and new password are required" });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: "New password must be at least 8 characters long" });
+    }
+
+    const user = await User.findById(req.user.id).select("passwordHash");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isCurrentPasswordValid = await verifyPassword(currentPassword, user.passwordHash);
+    if (!isCurrentPasswordValid) {
+      return res.status(401).json({ message: "Current password is incorrect" });
+    }
+
+    const newPasswordHash = await hashPassword(newPassword);
+    await User.findByIdAndUpdate(req.user.id, { $set: { passwordHash: newPasswordHash } });
+
+    res.json({ message: "Password changed successfully" });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/teacher/children", requireAuth, requireRole("teacher"), async (req, res, next) => {
   try {
     const teacher = await User.findById(req.user.id).select("teacherProfile");
@@ -454,11 +733,15 @@ app.post("/api/teacher/children", requireAuth, requireRole("teacher"), async (re
 
 app.get("/api/teacher/progress", requireAuth, requireRole("teacher"), async (req, res, next) => {
   try {
-    const [courses, lessons, activities, attendance] = await Promise.all([
-      CourseAssignment.find({ teacher: req.user.id }).populate("course", "title category level"),
+    const teacher = await User.findById(req.user.id).select("teacherProfile.class");
+    const classId = teacher?.teacherProfile?.class;
+
+    const [courses, lessons, activities, attendance, totalChildren] = await Promise.all([
+      CourseAssignment.find({ teacher: req.user.id }).populate("course"),
       LessonPlanAssignment.find({ teacher: req.user.id }).populate("lessonPlan", "title scheduleDate"),
       ActivitySubmission.find({ teacher: req.user.id }).sort({ activityDate: -1 }),
       TeacherAttendanceRecord.find({ teacher: req.user.id }).sort({ attendanceDate: -1 }),
+      classId ? Child.countDocuments({ class: classId, status: "active" }) : 0,
     ]);
 
     const completedCourses = courses.filter((item) => item.status === "completed" || item.progressPercent === 100).length;
@@ -476,6 +759,7 @@ app.get("/api/teacher/progress", requireAuth, requireRole("teacher"), async (req
           ? Math.round(courses.reduce((sum, item) => sum + (item.progressPercent || 0), 0) / courses.length)
           : 0,
         totalLessons: lessons.length,
+        totalChildren,
         completedLessons,
         pendingLessons: lessons.filter((item) => item.status === "pending").length,
         submittedActivities: activities.length,
@@ -550,7 +834,7 @@ const uploadDir = process.env.UPLOAD_DIR || "uploads";
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
-app.use("/uploads", express.static(uploadDir));
+app.use("/uploads", cors(), express.static(uploadDir));
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
@@ -708,6 +992,9 @@ app.delete("/api/courses/:id", requireAuth, requireRole("admin"), async (req, re
   }
 });
 
+// AI Course Generation (mounted router with auth + admin middleware)
+app.use("/api/courses", requireAuth, requireRole("admin"), courseAiRouter);
+
 app.post("/api/courses/:id/assign", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const { teacherId, dueDate } = req.body;
@@ -767,11 +1054,15 @@ app.patch("/api/admin/courses/assignments/:id", requireAuth, requireRole("admin"
 
 app.patch("/api/teacher/courses/assignments/:id", requireAuth, requireRole("teacher"), async (req, res, next) => {
   try {
-    const { progressPercent, completedContent, status } = req.body;
+    const { progressPercent, completedContent, status, title, feedback, submissionFiles } = req.body;
     const update = {};
     if (progressPercent !== undefined) update.progressPercent = progressPercent;
-    if (completedContent) update.completedContent = completedContent;
+    if (completedContent) update.completedContent = completedContent.map(String);
     if (status) update.status = status;
+    if (title !== undefined) update.title = title;
+    if (feedback !== undefined) update.feedback = feedback;
+    if (submissionFiles !== undefined) update.submissionFiles = submissionFiles;
+    if (status === "submitted") update.submittedAt = new Date();
     if (progressPercent === 100) {
       update.completedAt = new Date();
       update.status = "completed";
@@ -959,6 +1250,12 @@ app.get("/api/activities", requireAuth, async (req, res, next) => {
 app.post("/api/activities", requireAuth, requireRole("teacher"), async (req, res, next) => {
   try {
     const { center, class: classId, lessonPlan, activityDate, description, files } = req.body;
+    if (!center || !classId) {
+      return res.status(400).json({ message: "Teacher center and class assignment are required before submitting activities." });
+    }
+    if (!description) {
+      return res.status(400).json({ message: "Activity description is required." });
+    }
     const activity = await ActivitySubmission.create({
       teacher: req.user.id,
       center,
@@ -1073,15 +1370,17 @@ app.get("/api/attendance/teachers", requireAuth, async (req, res, next) => {
 
 app.post("/api/attendance/teachers", requireAuth, requireRole("teacher"), async (req, res, next) => {
   try {
-    const { status, source, latitude, longitude, note } = req.body;
+    const { status, source, latitude, longitude, note, attendanceDate } = req.body;
     const today = new Date();
     today.setHours(0,0,0,0);
+    const recordDate = attendanceDate ? new Date(attendanceDate) : today;
+    recordDate.setHours(0,0,0,0);
 
     const record = await TeacherAttendanceRecord.findOneAndUpdate(
-      { teacher: req.user.id, attendanceDate: today },
+      { teacher: req.user.id, attendanceDate: recordDate },
       {
         teacher: req.user.id,
-        attendanceDate: today,
+        attendanceDate: recordDate,
         status: status || "present",
         source: source || "geo",
         latitude,
@@ -1193,6 +1492,67 @@ app.patch("/api/notifications/:id/read", requireAuth, async (req, res, next) => 
   }
 });
 
+app.delete("/api/admin/notifications/:id", requireAuth, requireRole("admin"), async (req, res, next) => {
+  try {
+    await Notification.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ==========================================
+// PORTAL SETTINGS
+// ==========================================
+app.get("/api/admin/settings", requireAuth, requireRole("admin"), async (_req, res, next) => {
+  try {
+    const settings = await PortalSetting.find();
+    const map = {};
+    settings.forEach((s) => {
+      map[s.key] = s.value;
+    });
+    res.json({ settings: map });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/admin/settings", requireAuth, requireRole("admin"), async (req, res, next) => {
+  try {
+    const { settings } = req.body;
+    if (!settings || typeof settings !== "object") {
+      return res.status(400).json({ message: "Settings object is required" });
+    }
+
+    const keys = Object.keys(settings);
+    const operations = keys.map((key) => ({
+      updateOne: {
+        filter: { key },
+        update: {
+          $set: {
+            key,
+            value: settings[key],
+            updatedBy: req.user.id,
+          },
+        },
+        upsert: true,
+      },
+    }));
+
+    await PortalSetting.bulkWrite(operations);
+
+    const updated = await PortalSetting.find();
+    const map = {};
+    updated.forEach((s) => {
+      map[s.key] = s.value;
+    });
+
+    res.json({ settings: map });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ==========================================
 // ANALYTICS & REPORTS
 // ==========================================
@@ -1261,6 +1621,17 @@ app.use((error, _req, res, _next) => {
 await connectDb();
 await ensureDatabaseReady();
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`API running on http://localhost:${port}`);
+});
+
+server.on("error", (error) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(`Port ${port} is already in use. Another backend server is probably already running.`);
+    console.error(`Use the existing API at http://localhost:${port}, stop the old process, or start this server with a different PORT value.`);
+    process.exit(1);
+  }
+
+  console.error("Failed to start API server:", error);
+  process.exit(1);
 });

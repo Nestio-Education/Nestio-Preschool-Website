@@ -38,6 +38,27 @@ export function registerTeacher(payload) {
   });
 }
 
+export function requestPasswordReset(email) {
+  return request("/api/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function verifyPasswordResetToken(token) {
+  return request("/api/auth/reset-password/verify", {
+    method: "POST",
+    body: JSON.stringify({ token }),
+  });
+}
+
+export function resetPassword(token, password) {
+  return request("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, password }),
+  });
+}
+
 export function getStoredSession() {
   const token = localStorage.getItem("spaceece_auth_token");
   const rawUser = localStorage.getItem("spaceece_user");
@@ -161,6 +182,12 @@ export function deleteChild(id) {
   });
 }
 
+// User Management APIs
+export function getAdminUsers(params = {}) {
+  const searchParams = new URLSearchParams(params);
+  return request(`/api/admin/users?${searchParams.toString()}`);
+}
+
 // Teacher Management APIs
 export function getAdminTeachers() {
   return request("/api/admin/teachers");
@@ -190,6 +217,20 @@ export function getTeacherMe() {
   return request("/api/teacher/me");
 }
 
+export function updateTeacherMe(profileData) {
+  return request("/api/teacher/me", {
+    method: "PATCH",
+    body: JSON.stringify(profileData)
+  });
+}
+
+export function changeTeacherPassword(currentPassword, newPassword) {
+  return request("/api/teacher/change-password", {
+    method: "POST",
+    body: JSON.stringify({ currentPassword, newPassword })
+  });
+}
+
 export function getTeacherProgress() {
   return request("/api/teacher/progress");
 }
@@ -208,6 +249,13 @@ export function getCourses() {
 
 export function createCourse(courseData) {
   return request("/api/courses", {
+    method: "POST",
+    body: JSON.stringify(courseData)
+  });
+}
+
+export function generateCourseFromAI(courseData) {
+  return request("/api/courses/generate", {
     method: "POST",
     body: JSON.stringify(courseData)
   });
@@ -406,6 +454,18 @@ export function updateFeedback(id, feedbackData) {
   });
 }
 
+// Portal Settings APIs
+export function getPortalSettings() {
+  return request("/api/admin/settings");
+}
+
+export function updatePortalSettings(settings) {
+  return request("/api/admin/settings", {
+    method: "PUT",
+    body: JSON.stringify({ settings }),
+  });
+}
+
 // Notifications APIs
 export function getNotifications() {
   return request("/api/notifications");
@@ -414,6 +474,23 @@ export function getNotifications() {
 export function markNotificationRead(id) {
   return request(`/api/notifications/${id}/read`, {
     method: "PATCH"
+  });
+}
+
+export function getAdminNotifications() {
+  return request("/api/admin/notifications");
+}
+
+export function sendAdminNotification(payload) {
+  return request("/api/admin/notifications/broadcast", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteNotification(id) {
+  return request(`/api/admin/notifications/${id}`, {
+    method: "DELETE"
   });
 }
 
