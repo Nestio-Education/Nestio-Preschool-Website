@@ -66,7 +66,9 @@ export function StatusBadge({ status }) {
     open:        { label:"Open",         color:"#d97706", bg:"#fef3c7" },
     resolved:    { label:"Resolved",     color:"#059669", bg:"#d1fae5" },
     flagged:     { label:"Flagged",      color:"#dc2626", bg:"#fee2e2" },
-
+    sent:        { label:"Sent",         color:"#2563eb", bg:"#dbeafe" },
+    delivered:   { label:"Delivered",    color:"#059669", bg:"#d1fae5" },
+    failed:      { label:"Failed",       color:"#dc2626", bg:"#fee2e2" },
   };
   const s = map[status] || { label:status, color:"#6b7280", bg:"#f3f4f6" };
   return (
