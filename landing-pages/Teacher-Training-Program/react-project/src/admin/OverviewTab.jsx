@@ -1,164 +1,186 @@
-import { useState } from "react";
-import { AttendanceBar, BarChart, S, SectionCard, StatCard, StatusBadge } from "../components/Shared";
-import { MONTHLY_ENROLLMENT, MONTHLY_REVENUE } from "../data/mockData";
+import { useEffect, useMemo, useState } from "react";
+import { BarChart, S, SectionCard, StatCard, StatusBadge } from "../components/Shared";
+import { getAdminDashboard, getAdminTeachers } from "../services/api";
 
-export default function OverviewTab({ teachers, courses, batches, sessions }) {
-  /*const [activePeriod, setActivePeriod] = useState("12m");
-  const [activities, setActivities] = useState([
-    { id:1, action:"Teacher Approved", target:"Priya Sharma", time:"2 mins ago", icon:"✅", type:"success" },
-    { id:2, action:"Course Published", target:"NEP 2020 & FLN", time:"15 mins ago", icon:"📚", type:"info" },
-    { id:3, action:"New Registration", target:"Anita Joshi", time:"28 mins ago", icon:"👩‍🏫", type:"warning" },
-    { id:4, action:"Assignment Submitted", target:"Rahul Verma", time:"1 hr ago", icon:"📝", type:"info" },
-    { id:5, action:"Batch Created", target:"Batch C — Jun 2026", time:"2 hrs ago", icon:"🗂️", type:"success" },
-    { id:6, action:"Certificate Issued", target:"Meera Patel", time:"3 hrs ago", icon:"🏅", type:"success" },
-    { id:7, action:"Session Completed", target:"Classroom Management", time:"4 hrs ago", icon:"🎥", type:"info" },
-    { id:8, action:"Revenue Received", target:"₹45,000", time:"5 hrs ago", icon:"💰", type:"success" },
-    { id:9, action:"Feedback Received", target:"Neha Joshi", time:"6 hrs ago", icon:"💬", type:"warning" },
-    { id:10, action:"Trainer Added", target:"Dr. Vikram Shah", time:"8 hrs ago", icon:"🎓", type:"info" },
-  ]); */
+function buildMonthlyRegistrations(teachers) {
+  const now = new Date();
+  const months = [];
 
-  // Calculate metrics
-  const approved = teachers.filter(t => t.status === "approved");
-  //const pending = teachers.filter(t => t.status === "pending");
-  //const totalRevenue = teachers.reduce((a, t) => a + t.revenue, 0);
-  
-  // MTD Revenue calculation (simplified - assume May 2026)
-  //const mtdRevenue = courses.reduce((a, c) => c.status === "published" ? a + (c.revenue / 12 * 5) : a, 0);
-  // YTD Revenue (Jan-May 2026)
-  //const ytdRevenue = courses.reduce((a, c) => c.status === "published" ? a + (c.revenue / 12 * 5) : a, 0);
-  
-  const avgAttendance = approved.length ? Math.round(approved.reduce((a, t) => a + t.attendance, 0) / approved.length) : 0;
-  const completionRate = courses.filter(c => c.status === "published").length
-    ? Math.round(courses.filter(c => c.status === "published").reduce((a, c) => a + c.completion, 0) / courses.filter(c => c.status === "published").length)
+  for (let i = 5; i >= 0; i -= 1) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const month = date.toLocaleString("en-IN", { month: "short" });
+    const count = teachers.filter((teacher) => {
+      const createdAt = teacher.createdAt ? new Date(teacher.createdAt) : null;
+      return createdAt &&
+        createdAt.getMonth() === date.getMonth() &&
+        createdAt.getFullYear() === date.getFullYear();
+    }).length;
+    months.push({ month, val: count });
+  }
+
+  return months;
+}
+
+export default function OverviewTab() {
+  const [stats, setStats] = useState(null);
+  const [teachers, setTeachers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([getAdminDashboard(), getAdminTeachers()])
+      .then(([dashboardData, teachersData]) => {
+        setStats(dashboardData || {});
+        setTeachers(teachersData?.teachers || []);
+      })
+      .catch((error) => {
+        console.error("Error loading admin dashboard stats:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const approvedTeachers = teachers.filter((teacher) => teacher.status === "approved");
+  const pendingTeachers = teachers.filter((teacher) => teacher.status === "pending");
+  const monthlyRegistrations = useMemo(() => buildMonthlyRegistrations(teachers), [teachers]);
+  const teachersAddedThisMonth = monthlyRegistrations[monthlyRegistrations.length - 1]?.val || 0;
+  const performanceAverage = approvedTeachers.length
+    ? Math.round(
+        approvedTeachers.reduce((sum, teacher) => sum + ((teacher.teacherProfile?.performanceRating || 0) * 20), 0) /
+          approvedTeachers.length
+      )
     : 0;
-  
-  // Teachers MoM growth (simulated - compare this month vs last month)
-  const teacherGrowth = 12; // +12% vs last month
-  const learnerGrowth = 8; // +8% vs last month
-  const revenueGrowth = 23; // +23% vs last month
 
-  // AI Insights (simulated data)
-  /*const aiAnomaly = {
-    enrollmentDrop: false,
-    completionDrop: true, // Flag completion rate drop in Batch B
-    anomalyDetails: "Completion rate dropped 15% in Montessori Teacher Training batch",
-    severity: "medium"
-  };
-  
-  const revenueForecast = {
-    day30: 285000,
-    day60: 320000,
-    day90: 365000,
-    confidence: 87
-  };
-  
-  const churnRisks = teachers.filter(t => t.status === "approved" && t.attendance < 60);
-  
-  // Flagged posts (simulated)
-  const flaggedPosts = [
-    { id:1, title:" inappropriate content in discussion", author:"User_Anonymous", reported:"2 hrs ago", severity:"high" },
-    { id:2, title:"Spam/Advertising detected", author:"External_Bot", reported:"5 hrs ago", severity:"medium" },
-  ];*/
+  if (loading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh", fontSize: 16, fontWeight: 600, color: "#d97706" }}>
+        Loading dashboard overview...
+      </div>
+    );
+  }
 
   return (
-  <div style={{ animation:"fadeIn 0.3s ease" }}>
+    <div style={{ animation: "fadeIn 0.3s ease" }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={S.pageTitle}>Admin Dashboard</h1>
+        <p style={S.pageSub}>
+          Platform overview for {new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+        </p>
+      </div>
 
-    {/* Header */}
-    <div style={{ marginBottom:24 }}>
-      <h1 style={S.pageTitle}>Admin Dashboard 👋</h1>
-      <p style={S.pageSub}>
-        Here's your SpacECE platform overview for today — {new Date().toLocaleDateString("en-IN", { weekday:"long", year:"numeric", month:"long", day:"numeric" })}
-      </p>
-    </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(170px,1fr))", gap: 16, marginBottom: 24 }}>
+        <StatCard icon="🏫" label="Total Centers" val={stats?.totalCenters ?? 0} color="#f59e0b" bg="#fef3c7" sub="Active centers" />
+        <StatCard icon="👩‍🏫" label="Total Teachers" val={stats?.totalTeachers ?? teachers.length} color="#10b981" bg="#d1fae5" sub={`${teachersAddedThisMonth} added this month`} />
+        <StatCard icon="⏳" label="Pending Approvals" val={pendingTeachers.length} color="#ef4444" bg="#fee2e2" sub="Teacher registrations" />
+        <StatCard icon="👶" label="Total Children" val={stats?.totalChildren ?? 0} color="#3b82f6" bg="#dbeafe" sub="Active enrollments" />
+        <StatCard icon="📚" label="Course Completion" val={`${stats?.courseCompletionPercent ?? 0}%`} color="#06b6d4" bg="#cffafe" sub="Assigned vs completed" />
+        <StatCard icon="📋" label="Pending Activities" val={stats?.pendingActivities ?? 0} color="#8b5cf6" bg="#ede9fe" sub="Awaiting review" />
+      </div>
 
-    {/* KPI Cards */}
-    <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(170px,1fr))", gap:16, marginBottom:24 }}>
-      <StatCard icon="🏫" label="Total Centers"     val={12}                color="#f59e0b" bg="#fef3c7" sub="Active training centers"/>
-      <StatCard icon="👩‍🏫" label="Total Teachers"    val={teachers.length}   color="#10b981" bg="#d1fae5" sub={`+${teacherGrowth}% this month`}/>
-      <StatCard icon="👶" label="Total Children"    val={1284}              color="#3b82f6" bg="#dbeafe" sub="Enrolled across all centers"/>
-      <StatCard icon="📊" label="Avg Attendance"    val={`${avgAttendance}%`} color="#8b5cf6" bg="#ede9fe" sub="Teachers & children today"/>
-      <StatCard icon="🎓" label="Course Completion" val={`${completionRate}%`} color="#06b6d4" bg="#cffafe" sub="Completed vs in-progress"/>
-      <StatCard icon="📋" label="Activity Uploads"  val={47}                color="#ef4444" bg="#fee2e2" sub="Submitted this week"/>
-    </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 20, marginBottom: 20 }}>
+        <SectionCard title="Teacher registrations">
+          {teachers.length === 0 ? (
+            <div style={{ color: "#9ca3af", fontSize: 13 }}>No teacher records available.</div>
+          ) : (
+            <BarChart data={monthlyRegistrations} color="#f59e0b" height={140} />
+          )}
+        </SectionCard>
 
-    {/* Attendance Overview + Course Completion */}
-    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, marginBottom:20 }}>
-      <SectionCard title="📅 Attendance Overview — Today">
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:16 }}>
+        <SectionCard title="Operational summary">
           {[
-            { label:"Teachers Present",      val:"18/22",      pct:82, color:"#10b981" },
-            { label:"Children Present",      val:"1,102/1,284", pct:86, color:"#3b82f6" },
-            { label:"This Week (Teachers)",  val:"91%",         pct:91, color:"#f59e0b" },
-            { label:"This Week (Children)",  val:"88%",         pct:88, color:"#8b5cf6" },
-          ].map((item,i) => (
-            <div key={i} style={{ background:"#f9fafb", borderRadius:12, padding:"12px 14px", border:"1px solid #f1f5f9" }}>
-              <div style={{ fontSize:11, color:"#9ca3af", marginBottom:4 }}>{item.label}</div>
-              <div style={{ fontSize:18, fontWeight:800, color:"#1c1917" }}>{item.val}</div>
-              <div style={{ height:5, background:"#e5e7eb", borderRadius:4, overflow:"hidden", marginTop:8 }}>
-                <div style={{ height:"100%", width:`${item.pct}%`, background:item.color, borderRadius:4 }}/>
+            {
+              label: "Teachers present today",
+              value: `${stats?.teacherAttendanceToday ?? 0}/${stats?.totalTeachers ?? teachers.length}`,
+              pct: stats?.totalTeachers ? Math.round(((stats?.teacherAttendanceToday ?? 0) / stats.totalTeachers) * 100) : 0,
+              color: "#10b981",
+            },
+            {
+              label: "Assigned courses",
+              value: `${stats?.assignedCourses ?? 0}`,
+              pct: stats?.assignedCourses ? 100 : 0,
+              color: "#3b82f6",
+            },
+            {
+              label: "Completed courses",
+              value: `${stats?.completedCourses ?? 0}`,
+              pct: stats?.courseCompletionPercent ?? 0,
+              color: "#8b5cf6",
+            },
+            {
+              label: "Pending lessons",
+              value: `${stats?.pendingLessons ?? 0}`,
+              pct: stats?.assignedCourses ? Math.min(100, Math.round(((stats?.pendingLessons ?? 0) / Math.max(1, stats.assignedCourses)) * 100)) : 0,
+              color: "#f59e0b",
+            },
+          ].map((item) => (
+            <div key={item.label} style={{ marginBottom: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>{item.label}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: item.color }}>{item.value}</span>
+              </div>
+              <div style={{ height: 8, background: "#f3f4f6", borderRadius: 6, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${item.pct}%`, background: item.color, borderRadius: 6 }} />
               </div>
             </div>
           ))}
-        </div>
-      </SectionCard>
+        </SectionCard>
+      </div>
 
-      <SectionCard title="🎓 Course Completion Status">
-        {[
-          { label:"Completed",   val:312, pct:52, color:"#10b981" },
-          { label:"In Progress", val:198, pct:33, color:"#f59e0b" },
-          { label:"Not Started", val:91,  pct:15, color:"#ef4444" },
-        ].map((item,i) => (
-          <div key={i} style={{ marginBottom:14 }}>
-            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
-              <span style={{ fontSize:13, fontWeight:600, color:"#374151" }}>{item.label}</span>
-              <span style={{ fontSize:13, fontWeight:800, color:item.color }}>{item.val} ({item.pct}%)</span>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        <SectionCard title="Top teacher performance">
+          {approvedTeachers.length === 0 ? (
+            <div style={{ color: "#9ca3af", fontSize: 13 }}>No approved teachers yet.</div>
+          ) : (
+            approvedTeachers
+              .slice()
+              .sort((a, b) => (b.teacherProfile?.performanceRating || 0) - (a.teacherProfile?.performanceRating || 0))
+              .slice(0, 5)
+              .map((teacher) => {
+                const score = Math.round((teacher.teacherProfile?.performanceRating || 0) * 20);
+                return (
+                  <div key={teacher._id} style={{ padding: "10px 0", borderBottom: "1px solid #f3f4f6" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "#1c1917" }}>{teacher.name}</div>
+                        <div style={{ fontSize: 11, color: "#9ca3af" }}>
+                          {teacher.teacherProfile?.center?.name || "No center assigned"} • {teacher.teacherProfile?.subject || "No subject"}
+                        </div>
+                      </div>
+                      <StatusBadge status={teacher.status} />
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                      <span style={{ fontSize: 11, color: "#6b7280" }}>Performance score</span>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: score >= 75 ? "#10b981" : score >= 50 ? "#f59e0b" : "#ef4444" }}>{score}%</span>
+                    </div>
+                    <div style={{ height: 6, background: "#f3f4f6", borderRadius: 4, overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: `${score}%`, background: score >= 75 ? "#10b981" : score >= 50 ? "#f59e0b" : "#ef4444", borderRadius: 4 }} />
+                    </div>
+                  </div>
+                );
+              })
+          )}
+        </SectionCard>
+
+        <SectionCard title="Teacher status snapshot">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12, marginBottom: 16 }}>
+            <div style={{ background: "#d1fae5", borderRadius: 12, padding: 14, border: "1px solid #86efac" }}>
+              <div style={{ fontSize: 11, color: "#065f46", fontWeight: 700, marginBottom: 4 }}>Approved teachers</div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: "#1c1917" }}>{approvedTeachers.length}</div>
             </div>
-            <div style={{ height:8, background:"#f3f4f6", borderRadius:6, overflow:"hidden" }}>
-              <div style={{ height:"100%", width:`${item.pct}%`, background:item.color, borderRadius:6 }}/>
+            <div style={{ background: "#fef3c7", borderRadius: 12, padding: 14, border: "1px solid #fbbf24" }}>
+              <div style={{ fontSize: 11, color: "#92400e", fontWeight: 700, marginBottom: 4 }}>Average performance</div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: "#1c1917" }}>{performanceAverage}%</div>
             </div>
           </div>
-        ))}
-      </SectionCard>
-    </div>
 
-    {/* Teacher Progress + Activity Upload */}
-    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, marginBottom:20 }}>
-      <SectionCard title="👩‍🏫 Teacher Training Progress">
-        {teachers.filter(t=>t.status==="approved").slice(0,5).map((t,i) => (
-          <div key={i} style={{ marginBottom:12 }}>
-            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}>
-              <span style={{ fontSize:12, fontWeight:600, color:"#374151" }}>{t.name}</span>
-              <span style={{ fontSize:12, fontWeight:700, color:t.attendance>=75?"#10b981":t.attendance>=60?"#f59e0b":"#ef4444" }}>{t.attendance}%</span>
-            </div>
-            <div style={{ height:6, background:"#f3f4f6", borderRadius:4, overflow:"hidden" }}>
-              <div style={{ height:"100%", width:`${t.attendance}%`, background:t.attendance>=75?"#10b981":t.attendance>=60?"#f59e0b":"#ef4444", borderRadius:4 }}/>
-            </div>
-            <div style={{ fontSize:10, color:"#9ca3af", marginTop:2 }}>{t.course || "—"} · {t.batch || "—"}</div>
+          <div style={{ fontSize: 12, color: "#475569", lineHeight: 1.6 }}>
+            <div>Approved: {approvedTeachers.length}</div>
+            <div>Pending: {pendingTeachers.length}</div>
+            <div>Rejected: {teachers.filter((teacher) => teacher.status === "rejected").length}</div>
+            <div>Inactive: {teachers.filter((teacher) => teacher.status === "inactive").length}</div>
           </div>
-        ))}
-      </SectionCard>
-
-      <SectionCard title="📤 Activity Upload Summary">
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:16 }}>
-          {[
-            { label:"Uploaded Today",     val:12, icon:"📅", color:"#10b981", bg:"#d1fae5" },
-            { label:"Uploaded This Week", val:47, icon:"📆", color:"#3b82f6", bg:"#dbeafe" },
-            { label:"Pending Review",     val:8,  icon:"⏳", color:"#f59e0b", bg:"#fef3c7" },
-            { label:"Rejected",           val:3,  icon:"❌", color:"#ef4444", bg:"#fee2e2" },
-          ].map((item,i) => (
-            <div key={i} style={{ background:item.bg, borderRadius:12, padding:"12px 14px", border:`1px solid ${item.color}30`, textAlign:"center" }}>
-              <div style={{ fontSize:20 }}>{item.icon}</div>
-              <div style={{ fontSize:22, fontWeight:800, color:"#1c1917", marginTop:4 }}>{item.val}</div>
-              <div style={{ fontSize:11, color:item.color, fontWeight:700 }}>{item.label}</div>
-            </div>
-          ))}
-        </div>
-        <button style={{ ...S.primaryBtn, width:"100%", fontSize:12 }}>📋 View All Activity Reports →</button>
-      </SectionCard>
+        </SectionCard>
+      </div>
     </div>
-
-  </div>
-);
-
-  
+  );
 }
