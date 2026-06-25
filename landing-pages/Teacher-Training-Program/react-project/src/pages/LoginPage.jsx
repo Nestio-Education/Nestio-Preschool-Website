@@ -2,52 +2,137 @@ import { useState, useEffect } from "react";
 import { Logo, Toast, Particles, S, globalCSS } from "../components/Shared";
 import { loginUser, registerTeacher, requestPasswordReset, resetPassword, verifyPasswordResetToken } from "../services/api";
 
-/* ── Animated illustration (UNCHANGED — original animation kept as-is) ── */
+/* ── Animated illustration ── */
+/* Self-contained: every position is computed inline rather than relying on
+   guessed classes from globalCSS, so chips never collide with the central
+   blob or with each other, and there's a clean gap below for the portal label. */
 function LoginIllustration() {
+  const SIZE = 232;          // outer illustration box
+  const CENTER = SIZE / 2;
+  const BLOB_SIZE = 80;      // central graduation-cap blob
+  const CHIP_RADIUS = 104;   // distance of chips from center
+
+  const subjects = [
+    { label: "Math",       icon: "📐", color: "#d97706", angle: -90 },
+    { label: "Science",    icon: "🔬", color: "#059669", angle: -30 },
+    { label: "Literature", icon: "📖", color: "#db2777", angle: 30 },
+    { label: "Geography",  icon: "🌍", color: "#2563eb", angle: 90 },
+    { label: "Physics",    icon: "⚛️", color: "#7c3aed", angle: 150 },
+    { label: "History",    icon: "📜", color: "#0d9488", angle: 210 },
+  ];
+
   return (
-    <div style={{ position: "relative", width: 320, height: 320, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div className="glow-ring ring-1" /><div className="glow-ring ring-2" /><div className="glow-ring ring-3" />
-      <div className="blob-wrap">
-        <div className="blob blob-a" /><div className="blob blob-b" /><div className="blob blob-c" />
-        <div className="cap-center">🎓</div>
-      </div>
-      <div className="orbit orbit-a"><div className="planet p-amber" /></div>
-      <div className="orbit orbit-b"><div className="planet p-violet" /></div>
-      <div className="orbit orbit-c"><div className="planet p-teal" /></div>
-      <div className="orbit orbit-d"><div className="planet p-amber" /></div>
-      {["📐 Math", "🔬 Science", "📜 History", "📖 Literature", "⚛️ Physics", "🌍 Geography"].map((l, i) => (
-        <div key={i} className={`chip chip-${i + 1}`}>{l}</div>
-      ))}
-      <svg className="arcs-svg" viewBox="0 0 370 370" fill="none">
-        <path d="M185 30 Q340 100 320 185 Q300 270 185 340 Q70 270 50 185 Q30 100 185 30Z"
-          stroke="url(#g1)" strokeWidth="1" strokeDasharray="8 6" opacity="0.35">
-          <animateTransform attributeName="transform" type="rotate" from="0 185 185" to="360 185 185" dur="18s" repeatCount="indefinite" />
-        </path>
-        <path d="M185 55 Q310 110 295 185 Q280 260 185 315 Q90 260 75 185 Q60 110 185 55Z"
-          stroke="url(#g2)" strokeWidth="1.5" strokeDasharray="12 8" opacity="0.28">
-          <animateTransform attributeName="transform" type="rotate" from="360 185 185" to="0 185 185" dur="14s" repeatCount="indefinite" />
-        </path>
+    <div style={{ position: "relative", width: SIZE, height: SIZE, flexShrink: 0, margin: "0 auto" }}>
+      {/* Rotating dashed orbit rings, behind everything */}
+      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} style={{ position: "absolute", top: 0, left: 0 }}>
         <defs>
-          <linearGradient id="g1" x1="0" y1="0" x2="370" y2="370" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor="#f59e0b" /><stop offset="100%" stopColor="#d97706" /></linearGradient>
-          <linearGradient id="g2" x1="370" y1="0" x2="0" y2="370" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor="#1c1917" /><stop offset="100%" stopColor="#f59e0b" /></linearGradient>
+          <linearGradient id="ringGrad1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#d97706" />
+          </linearGradient>
         </defs>
+        <circle cx={CENTER} cy={CENTER} r={CHIP_RADIUS - 6} fill="none" stroke="url(#ringGrad1)" strokeWidth="1" strokeDasharray="5 7" opacity="0.32">
+          <animateTransform attributeName="transform" type="rotate" from={`0 ${CENTER} ${CENTER}`} to={`360 ${CENTER} ${CENTER}`} dur="45s" repeatCount="indefinite" />
+        </circle>
+        <circle cx={CENTER} cy={CENTER} r={BLOB_SIZE / 2 + 13} fill="none" stroke="#fbbf24" strokeWidth="1" strokeDasharray="2 6" opacity="0.4">
+          <animateTransform attributeName="transform" type="rotate" from={`360 ${CENTER} ${CENTER}`} to={`0 ${CENTER} ${CENTER}`} dur="32s" repeatCount="indefinite" />
+        </circle>
       </svg>
+
+      {/* Central graduation-cap blob */}
+      <div style={{
+        position: "absolute",
+        top: CENTER - BLOB_SIZE / 2,
+        left: CENTER - BLOB_SIZE / 2,
+        width: BLOB_SIZE, height: BLOB_SIZE,
+        borderRadius: "38% 62% 60% 40% / 45% 40% 60% 55%",
+        background: "linear-gradient(150deg,#fbbf24,#f59e0b 55%,#d97706)",
+        boxShadow: "0 8px 22px rgba(217,119,6,0.35)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 30,
+        animation: "loginBlobFloat 5s ease-in-out infinite",
+      }}>
+        🎓
+      </div>
+
+      {/* Floating particles of varying sizes, drifting around the subject ring */}
+      {[
+        { size: 10, color: "#f59e0b", angle: 0,   radius: CHIP_RADIUS + 18, dur: "9s",  delay: "0s" },
+        { size: 6,  color: "#34d399", angle: 60,  radius: CHIP_RADIUS - 30, dur: "7s",  delay: "0.6s" },
+        { size: 8,  color: "#60a5fa", angle: 120, radius: CHIP_RADIUS + 14, dur: "10s", delay: "1.2s" },
+        { size: 5,  color: "#f472b6", angle: 180, radius: CHIP_RADIUS - 26, dur: "6.5s",delay: "0.3s" },
+        { size: 9,  color: "#a78bfa", angle: 240, radius: CHIP_RADIUS + 20, dur: "8s",  delay: "0.9s" },
+        { size: 6,  color: "#fbbf24", angle: 300, radius: CHIP_RADIUS - 22, dur: "7.5s",delay: "1.5s" },
+      ].map((p, i) => {
+        const rad = (p.angle * Math.PI) / 180;
+        const x = CENTER + p.radius * Math.cos(rad);
+        const y = CENTER + p.radius * Math.sin(rad);
+        return (
+          <div key={`particle-${i}`} style={{
+            position: "absolute",
+            top: y, left: x,
+            width: p.size, height: p.size,
+            borderRadius: "50%",
+            background: p.color,
+            opacity: 0.55,
+            transform: "translate(-50%, -50%)",
+            animation: `loginParticleDrift ${p.dur} ease-in-out infinite`,
+            animationDelay: p.delay,
+            zIndex: 0,
+          }} />
+        );
+      })}
+
+      {/* Subject chips, evenly spaced on a circle — no overlap with center or each other */}
+      {subjects.map((s, i) => {
+        const rad = (s.angle * Math.PI) / 180;
+        const x = CENTER + CHIP_RADIUS * Math.cos(rad);
+        const y = CENTER + CHIP_RADIUS * Math.sin(rad);
+        return (
+          <div key={i} style={{
+            position: "absolute",
+            top: y, left: x,
+            transform: "translate(-50%, -50%)",
+            display: "flex", alignItems: "center", gap: 4,
+            padding: "4px 9px",
+            borderRadius: 14,
+            background: "#fff",
+            border: `1px solid ${s.color}50`,
+            boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+            fontSize: 10, fontWeight: 600,
+            color: s.color,
+            whiteSpace: "nowrap",
+            animation: "loginChipFloat 4s ease-in-out infinite",
+            animationDelay: `${i * 0.3}s`,
+            zIndex: 2,
+          }}>
+            <span style={{ fontSize: 10.5 }}>{s.icon}</span>{s.label}
+          </div>
+        );
+      })}
+
+      <style>{`
+        @keyframes loginBlobFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        @keyframes loginChipFloat { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, calc(-50% - 4px)); } }
+        @keyframes loginParticleDrift {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.55; }
+          50% { transform: translate(calc(-50% + 6px), calc(-50% - 10px)) scale(1.25); opacity: 0.85; }
+        }
+      `}</style>
     </div>
   );
 }
 
-/* ── Password Strength Indicator (compact sizes/colors) ── */
+/* ── Password Strength Indicator ── */
 function StrengthBar({ password }) {
   let s = 0;
   if (password.length >= 8) s++;
   if (/[A-Z]/.test(password)) s++;
   if (/[0-9]/.test(password)) s++;
   if (/[^A-Za-z0-9]/.test(password)) s++;
-
   const colors = ["#ef4444", "#f59e0b", "#3b82f6", "#10b981"];
   const labels = ["Weak", "Fair", "Good", "Strong"];
   if (!password) return null;
-
   return (
     <div style={{ marginTop: 4, marginBottom: 8 }}>
       <div style={{ display: "flex", gap: 3, marginBottom: 2 }}>
@@ -75,23 +160,15 @@ function LoginForm({ onLogin, onGoRegister, onGoForgot }) {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [toast, setToast]       = useState({ msg: "", type: "" });
-  const [btnHover, setBtnHover] = useState(false);
 
   const handleLogin = (e) => {
     e.preventDefault();
     if (!email || !password) { setToast({ msg: "Please fill in all fields.", type: "error" }); return; }
-
     setLoading(true);
     loginUser({ email, password })
-      .then((data) => {
-        onLogin(data);
-      })
-      .catch((err) => {
-        setToast({ msg: err.message || "Incorrect credentials. Please try again.", type: "error" });
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      .then((data) => { onLogin(data); })
+      .catch((err) => { setToast({ msg: err.message || "Incorrect credentials. Please try again.", type: "error" }); })
+      .finally(() => { setLoading(false); });
   };
 
   return (
@@ -102,7 +179,6 @@ function LoginForm({ onLogin, onGoRegister, onGoForgot }) {
         <span style={ls.badge}>Welcome Back</span>
         <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4, fontStyle: "italic" }}>Sign in to your account</p>
       </div>
-
       <form onSubmit={handleLogin}>
         <div style={ci.mb}>
           <label style={ci.label}>Email Address</label>
@@ -122,37 +198,12 @@ function LoginForm({ onLogin, onGoRegister, onGoForgot }) {
             </button>
           </div>
         </div>
-
-        {/* Forgot Password Link */}
         <div style={{ textAlign: "right", marginBottom: 14 }}>
           <span onClick={onGoForgot} style={{ fontSize: 11, color: "#d97706", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>
             Forgot password?
           </span>
         </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          onMouseEnter={() => setBtnHover(true)}
-          onMouseLeave={() => setBtnHover(false)}
-          style={{
-            ...S.primaryBtn,
-            width: "100%",
-            padding: "9px",
-            fontSize: 13,
-            cursor: loading ? "not-allowed" : "pointer",
-            background: loading
-              ? "linear-gradient(135deg,#9ca3af,#6b7280)"
-              : btnHover
-                ? "linear-gradient(135deg,#d97706,#b45309)"
-                : S.primaryBtn.background,
-            transform: btnHover && !loading ? "translateY(-1px)" : "translateY(0)",
-            boxShadow: btnHover && !loading ? "0 6px 16px rgba(217,119,6,0.35)" : S.primaryBtn.boxShadow,
-            transition: "all 0.2s ease",
-          }}
-        >
-          {loading ? "Signing in…" : "Sign In →"}
-        </button>
+        <button type="submit" style={{ ...S.primaryBtn, width: "100%", padding: "9px", fontSize: 13 }}>Sign In →</button>
       </form>
       <p style={{ textAlign: "center", fontSize: 11, color: "#9ca3af", marginTop: 12, marginBottom: 0 }}>
         New teacher?{" "}
@@ -164,15 +215,14 @@ function LoginForm({ onLogin, onGoRegister, onGoForgot }) {
 
 /* ── Forgot Password Form ── */
 function ForgotPasswordForm({ onBack }) {
-  const [email, setEmail]       = useState("");
-  const [sent, setSent]         = useState(false);
-  const [toast, setToast]       = useState({ msg: "", type: "" });
+  const [email, setEmail]         = useState("");
+  const [sent, setSent]           = useState(false);
+  const [toast, setToast]         = useState({ msg: "", type: "" });
   const [resetLink, setResetLink] = useState("");
 
   const handleForgot = (e) => {
     e.preventDefault();
     if (!email) { setToast({ msg: "Please enter your email address.", type: "error" }); return; }
-
     requestPasswordReset(email)
       .then((data) => {
         const generatedLink = data?.resetToken
@@ -181,9 +231,7 @@ function ForgotPasswordForm({ onBack }) {
         setResetLink(generatedLink);
         setSent(true);
       })
-      .catch((error) => {
-        setToast({ msg: error.message || "Failed to request password reset.", type: "error" });
-      });
+      .catch((error) => { setToast({ msg: error.message || "Failed to request password reset.", type: "error" }); });
   };
 
   if (sent) {
@@ -199,29 +247,18 @@ function ForgotPasswordForm({ onBack }) {
           </p>
           <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 4 }}>Link expires in 15 minutes.</p>
         </div>
-
         <div style={{ background: "#fffbeb", border: "1px dashed #fbbf24", borderRadius: 8, padding: "10px 12px", marginBottom: 14 }}>
-          <p style={{ fontSize: 10, color: "#92400e", fontWeight: 700, marginBottom: 4 }}>
-            Password Reset Link
-          </p>
+          <p style={{ fontSize: 10, color: "#92400e", fontWeight: 700, marginBottom: 4 }}>Password Reset Link</p>
           <p style={{ fontSize: 10, color: "#6b7280", marginBottom: 6, lineHeight: 1.4 }}>
-            Email delivery is not configured yet, so the API generated a secure reset link for immediate use:
+            Email delivery not configured yet — use this secure link directly:
           </p>
           <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            <input
-              readOnly
-              value={resetLink}
-              style={{ ...S.input, fontSize: 9, flex: 1, padding: "5px 8px", color: "#374151", background: "#fff", marginBottom: 0 }}
-            />
-            <button
-              onClick={() => { navigator.clipboard.writeText(resetLink); setToast({ msg: "Link copied!", type: "success" }); }}
-              style={{ ...S.primaryBtn, padding: "5px 10px", fontSize: 10, whiteSpace: "nowrap" }}
-            >
-              Copy
-            </button>
+            <input readOnly value={resetLink}
+              style={{ ...S.input, fontSize: 9, flex: 1, padding: "5px 8px", color: "#374151", background: "#fff", marginBottom: 0 }} />
+            <button onClick={() => { navigator.clipboard.writeText(resetLink); setToast({ msg: "Link copied!", type: "success" }); }}
+              style={{ ...S.primaryBtn, padding: "5px 10px", fontSize: 10, whiteSpace: "nowrap" }}>Copy</button>
           </div>
         </div>
-
         <Toast msg={toast.msg} type={toast.type} onClose={() => setToast({ msg: "", type: "" })} />
         <button onClick={onBack} style={{ ...S.primaryBtn, width: "100%", padding: "9px", fontSize: 13 }}>← Back to Sign In</button>
       </>
@@ -235,29 +272,18 @@ function ForgotPasswordForm({ onBack }) {
       <div style={{ textAlign: "center", marginBottom: 16 }}>
         <div style={{ fontSize: 32, marginBottom: 8 }}>🔑</div>
         <span style={ls.badge}>Reset Password</span>
-        <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4, fontStyle: "italic" }}>
-          Enter your registered email and we'll send a reset link
-        </p>
+        <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4, fontStyle: "italic" }}>Enter your registered email and we'll send a reset link</p>
       </div>
       <form onSubmit={handleForgot}>
         <div style={ci.mb}>
           <label style={ci.label}>Registered Email Address</label>
           <div style={{ position: "relative" }}>
             <span style={ci.fieldIcon}>📧</span>
-            <input
-              style={{ ...S.input, ...ci.input }}
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="your@email.com"
-              autoFocus
-            />
+            <input style={{ ...S.input, ...ci.input }} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" autoFocus />
           </div>
         </div>
         <div style={{ marginBottom: 14 }} />
-        <button type="submit" style={{ ...S.primaryBtn, width: "100%", padding: "9px", fontSize: 13 }}>
-          Send Reset Link →
-        </button>
+        <button type="submit" style={{ ...S.primaryBtn, width: "100%", padding: "9px", fontSize: 13 }}>Send Reset Link →</button>
       </form>
       <p style={{ textAlign: "center", fontSize: 11, color: "#9ca3af", marginTop: 12, marginBottom: 0 }}>
         Remembered it?{" "}
@@ -267,7 +293,7 @@ function ForgotPasswordForm({ onBack }) {
   );
 }
 
-/* ── Reset Password Form (reached via reset link token) ── */
+/* ── Reset Password Form ── */
 function ResetPasswordForm({ token, onDone }) {
   const [password, setPassword]       = useState("");
   const [confirmPassword, setConfirm] = useState("");
@@ -278,13 +304,8 @@ function ResetPasswordForm({ token, onDone }) {
 
   useEffect(() => {
     verifyPasswordResetToken(token)
-      .then((data) => {
-        setTokenValid(Boolean(data?.valid));
-        setTokenEmail(data?.email || "");
-      })
-      .catch(() => {
-        setTokenValid(false);
-      });
+      .then((data) => { setTokenValid(Boolean(data?.valid)); setTokenEmail(data?.email || ""); })
+      .catch(() => { setTokenValid(false); });
   }, [token]);
 
   const handleReset = (e) => {
@@ -292,20 +313,12 @@ function ResetPasswordForm({ token, onDone }) {
     if (!password || !confirmPassword) { setToast({ msg: "Please fill in both fields.", type: "error" }); return; }
     if (password !== confirmPassword)  { setToast({ msg: "Passwords do not match.", type: "error" }); return; }
     if (password.length < 8)           { setToast({ msg: "Password must be at least 8 characters.", type: "error" }); return; }
-
     resetPassword(token, password)
-      .then(() => {
-        setToast({ msg: "Password updated successfully!", type: "success" });
-        setTimeout(onDone, 1800);
-      })
-      .catch((error) => {
-        setToast({ msg: error.message || "Unable to reset password.", type: "error" });
-      });
+      .then(() => { setToast({ msg: "Password updated successfully!", type: "success" }); setTimeout(onDone, 1800); })
+      .catch((error) => { setToast({ msg: error.message || "Unable to reset password.", type: "error" }); });
   };
 
-  if (tokenValid === null) {
-    return <div style={{ textAlign: "center", padding: 30, color: "#9ca3af", fontSize: 12 }}>Verifying link…</div>;
-  }
+  if (tokenValid === null) return <div style={{ textAlign: "center", padding: 30, color: "#9ca3af", fontSize: 12 }}>Verifying link…</div>;
 
   if (tokenValid === false) {
     return (
@@ -315,12 +328,9 @@ function ResetPasswordForm({ token, onDone }) {
           <div style={{ fontSize: 36, marginBottom: 10 }}>⛔</div>
           <span style={ls.badge}>Link Expired or Invalid</span>
           <p style={{ fontSize: 12, color: "#6b7280", marginTop: 8, lineHeight: 1.5 }}>
-            This password reset link is no longer valid.<br />
-            Please request a new one.
+            This password reset link is no longer valid.<br />Please request a new one.
           </p>
-          <button onClick={onDone} style={{ ...S.primaryBtn, marginTop: 18, padding: "9px 24px", fontSize: 13 }}>
-            ← Back to Sign In
-          </button>
+          <button onClick={onDone} style={{ ...S.primaryBtn, marginTop: 18, padding: "9px 24px", fontSize: 13 }}>← Back to Sign In</button>
         </div>
       </>
     );
@@ -334,7 +344,7 @@ function ResetPasswordForm({ token, onDone }) {
         <div style={{ fontSize: 32, marginBottom: 8 }}>🛡️</div>
         <span style={ls.badge}>Set New Password</span>
         <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4, fontStyle: "italic" }}>
-          Resetting password for <strong style={{ color: "#92400e" }}>{tokenEmail}</strong>
+          Resetting for <strong style={{ color: "#92400e" }}>{tokenEmail}</strong>
         </p>
       </div>
       <form onSubmit={handleReset}>
@@ -342,14 +352,7 @@ function ResetPasswordForm({ token, onDone }) {
           <label style={ci.label}>New Password</label>
           <div style={{ position: "relative" }}>
             <span style={ci.fieldIcon}>🔒</span>
-            <input
-              style={{ ...S.input, ...ci.input }}
-              type={showPass ? "text" : "password"}
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="Min. 8 characters"
-              autoFocus
-            />
+            <input style={{ ...S.input, ...ci.input }} type={showPass ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 8 characters" autoFocus />
             <button type="button" onClick={() => setShowPass(!showPass)}
               style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", fontSize: 13 }}>
               {showPass ? "🙈" : "👁️"}
@@ -361,23 +364,15 @@ function ResetPasswordForm({ token, onDone }) {
           <label style={ci.label}>Confirm New Password</label>
           <div style={{ position: "relative" }}>
             <span style={ci.fieldIcon}>🛡️</span>
-            <input
-              style={{ ...S.input, ...ci.input }}
-              type="password"
-              value={confirmPassword}
-              onChange={e => setConfirm(e.target.value)}
-              placeholder="Re-enter new password"
-            />
+            <input style={{ ...S.input, ...ci.input }} type="password" value={confirmPassword} onChange={e => setConfirm(e.target.value)} placeholder="Re-enter new password" />
           </div>
           {confirmPassword && (
             <p style={{ fontSize: 10, marginTop: 3, color: password === confirmPassword ? "#10b981" : "#ef4444", fontWeight: 600 }}>
-              {password === confirmPassword ? "✅ Passwords match" : "❌ Passwords do not match"}
+              {password === confirmPassword ? "✅ Passwords match" : "❌ Do not match"}
             </p>
           )}
         </div>
-        <button type="submit" style={{ ...S.primaryBtn, width: "100%", padding: "9px", fontSize: 13 }}>
-          Update Password →
-        </button>
+        <button type="submit" style={{ ...S.primaryBtn, width: "100%", padding: "9px", fontSize: 13 }}>Update Password →</button>
       </form>
     </>
   );
@@ -393,7 +388,7 @@ function RegisterForm({ onBack }) {
     const file = e.target.files[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) { setToast({ msg: "Please upload an image file (PNG/JPG).", type: "error" }); return; }
-    if (file.size > 1024 * 1024)         { setToast({ msg: "Image is too large. Please select a photo under 1MB.", type: "error" }); return; }
+    if (file.size > 1024 * 1024)         { setToast({ msg: "Image too large. Under 1MB please.", type: "error" }); return; }
     const reader = new FileReader();
     reader.onloadend = () => setForm({ ...form, photo: reader.result });
     reader.readAsDataURL(file);
@@ -402,44 +397,12 @@ function RegisterForm({ onBack }) {
   const handleRegister = (e) => {
     e.preventDefault();
     const { name, email, phone, address, subject, password, confirmPassword } = form;
-    if (!name || !email || !phone || !address || !subject || !password || !confirmPassword) {
-      setToast({ msg: "Please fill all required fields.", type: "error" });
-      return;
-    }
-
-    // Validate email format strictly
-    const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email.trim())) {
-      setToast({ msg: "Please enter a valid email address (e.g. teacher@school.com)", type: "error" });
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setToast({ msg: "Passwords do not match.", type: "error" });
-      return;
-    }
-    if (password.length < 8) {
-      setToast({ msg: "Password must be at least 8 characters.", type: "error" });
-      return;
-    }
-
-    registerTeacher({
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      phone,
-      password,
-      qualification: "B.Ed",
-      subject,
-      experience: "2 years",
-      address,
-    })
-      .then(() => {
-        setToast({ msg: "Registration submitted! Awaiting admin approval.", type: "success" });
-        setTimeout(onBack, 2000);
-      })
-      .catch((err) => {
-        setToast({ msg: err.message || "Failed to submit registration.", type: "error" });
-      });
+    if (!name || !email || !phone || !address || !subject || !password || !confirmPassword) { setToast({ msg: "Please fill all fields.", type: "error" }); return; }
+    if (password !== confirmPassword) { setToast({ msg: "Passwords do not match.", type: "error" }); return; }
+    if (password.length < 8)          { setToast({ msg: "Password must be at least 8 characters.", type: "error" }); return; }
+    registerTeacher({ name, email, phone, password, qualification: "B.Ed", subject, experience: "2 years", address })
+      .then(() => { setToast({ msg: "Registration submitted! Awaiting admin approval.", type: "success" }); setTimeout(onBack, 2000); })
+      .catch((err) => { setToast({ msg: err.message || "Failed to submit registration.", type: "error" }); });
   };
 
   return (
@@ -468,30 +431,15 @@ function RegisterForm({ onBack }) {
           </div>
         </div>
         {[
-          { key: "email", label: "Email Address *", icon: "📧", type: "email", ph: "teacher@school.edu" },
-          { key: "phone", label: "Phone *", icon: "📱", type: "tel", ph: "+91 98765 43210" },
+          { key: "email", label: "Email", icon: "📧", type: "email", ph: "teacher@school.edu" },
+          { key: "phone", label: "Phone", icon: "📱", type: "tel",   ph: "+91 98765 43210" },
         ].map(f => (
           <div key={f.key} style={ci.mb}>
             <label style={ci.label}>{f.label}</label>
             <div style={{ position: "relative" }}>
               <span style={ci.fieldIcon}>{f.icon}</span>
-              <input
-                style={{
-                  ...S.input,
-                  ...ci.input,
-                  borderColor: f.key === "email" && form.email && !/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(form.email) ? "#ef4444" : "#e5e7eb",
-                }}
-                type={f.type}
-                value={form[f.key]}
-                onChange={e => setForm({ ...form, [f.key]: e.target.value })}
-                placeholder={f.ph}
-              />
+              <input style={{ ...S.input, ...ci.input }} type={f.type} value={form[f.key]} onChange={e => setForm({ ...form, [f.key]: e.target.value })} placeholder={f.ph} />
             </div>
-            {f.key === "email" && form.email && (
-              <p style={{ fontSize: 10, fontWeight: 600, marginTop: 3, marginBottom: 0, color: /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(form.email) ? "#10b981" : "#ef4444" }}>
-                {/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(form.email) ? "✅ Valid email address" : "❌ Invalid email — use format: name@domain.com"}
-              </p>
-            )}
           </div>
         ))}
         <div style={ci.mb}>
@@ -541,14 +489,12 @@ function RegisterForm({ onBack }) {
 
 /* ── Main LoginPage Export ── */
 export default function LoginPage({ onLogin }) {
-  const [view, setView] = useState("login"); // login | register | forgot | reset
+  const [view, setView] = useState("login");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token  = params.get("reset_token");
-    if (token) {
-      setView({ type: "reset", token });
-    }
+    if (token) setView({ type: "reset", token });
   }, []);
 
   const handleResetDone = () => {
@@ -563,7 +509,7 @@ export default function LoginPage({ onLogin }) {
       <Particles />
       <style>{globalCSS}</style>
       <div style={ls.panel}>
-        {/* Left — illustration (hidden on reset view for cleaner focus) */}
+        {/* Left — illustration */}
         {!isResetView && (
           <div style={ls.left}>
             <LoginIllustration />
@@ -573,7 +519,6 @@ export default function LoginPage({ onLogin }) {
             </div>
           </div>
         )}
-
         {/* Right — form */}
         <div style={isResetView ? { ...ls.right, maxWidth: 420, margin: "0 auto", flex: "unset", width: "100%" } : ls.right}>
           {isResetView ? (

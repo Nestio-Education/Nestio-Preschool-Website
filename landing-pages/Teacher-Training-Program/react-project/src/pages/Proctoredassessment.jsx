@@ -191,7 +191,7 @@ function PieChart({ correct, wrong, unanswered, total }) {
 /* ═══════════════════════════════════════════════════════════
    MAIN PROCTORED ASSESSMENT COMPONENT
 ═══════════════════════════════════════════════════════════ */
-export default function ProctoredAssessment({ user, assessmentResults = [] }) {
+export default function ProctoredAssessment({ user }) {
   // ── Screen state: list | instructions | exam | result ──
   const [screen,       setScreen]       = useState("list");
   const [activeCourse, setActiveCourse] = useState(null);

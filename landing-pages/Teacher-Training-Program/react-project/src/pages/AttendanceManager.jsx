@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { SectionCard, S, Badge } from "../components/Shared";
-import { getTeacherMe, getTeacherChildren, getChildAttendance, saveChildAttendance, createTeacherChild, getTeacherClasses } from "../services/api";
+import { getTeacherMe, getTeacherChildren, getChildAttendance, saveChildAttendance, createTeacherChild } from "../services/api";
 
 const EMAILJS_SERVICE_ID  = "service_ckzt1le";
 const EMAILJS_TEMPLATE_ID = "template_xycsvf7";
@@ -13,8 +13,6 @@ let emailJsLoaded = false;
 
 export default function AttendanceManager({ user }) {
   const [teacherProfile, setTeacherProfile] = useState(null);
-  const [classes, setClasses] = useState([]);
-  const [selectedClassId, setSelectedClassId] = useState("");
   const [students, setStudents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
   const [attendanceDict, setAttendanceDict] = useState({});
@@ -27,7 +25,7 @@ export default function AttendanceManager({ user }) {
 
   // OTP state
   const [showOtpModal, setShowOtpModal] = useState(false);
-  const [otpStep, setOtpStep] = useState("sending");
+  const [otpStep, setOtpStep] = useState("sending"); // "sending"|"input"|"verifying"
   const [otpInput, setOtpInput] = useState(["","","","","",""]);
   const [pendingChange, setPendingChange] = useState(null);
   const [otpError, setOtpError] = useState("");
@@ -39,34 +37,25 @@ export default function AttendanceManager({ user }) {
   const cooldownRef = useRef(null);
   const otpInputRefs = useRef([]);
 
+  // Load teacher profile, center, and class on mount
   useEffect(() => {
     getTeacherMe()
       .then(res => {
         setTeacherProfile(res.teacher);
-        const defaultClassId = res.teacher?.teacherProfile?.class?._id || res.teacher?.teacherProfile?.class;
-        getTeacherClasses()
-          .then(classRes => {
-            const cls = classRes.classes || [];
-            setClasses(cls);
-            if (defaultClassId) {
-              setSelectedClassId(defaultClassId);
-            } else if (cls.length > 0) {
-              setSelectedClassId(cls[0]._id || cls[0].id);
-            }
-          })
-          .catch(err => console.error("Error fetching teacher classes:", err));
       })
-      .catch(err => console.error("Error fetching teacher profile:", err));
+      .catch(err => {
+        console.error("Error fetching teacher profile:", err);
+      });
   }, []);
 
+  // Fetch children list and attendance for selected date
   const loadRosterAndAttendance = () => {
     if (!teacherProfile) return;
-    const classId = selectedClassId || teacherProfile?.teacherProfile?.class?._id || teacherProfile?.teacherProfile?.class;
     setLoading(true);
 
     Promise.all([
-      getTeacherChildren(classId),
-      getChildAttendance({ date: selectedDate, classId: classId })
+      getTeacherChildren(),
+      getChildAttendance({ date: selectedDate })
     ]).then(([childrenRes, attendanceRes]) => {
       const dbChildren = childrenRes.children || [];
       const roster = dbChildren.map(c => ({
@@ -77,6 +66,7 @@ export default function AttendanceManager({ user }) {
       setStudents(roster);
 
       const sessions = attendanceRes.sessions || [];
+      const classId = teacherProfile?.teacherProfile?.class?._id || teacherProfile?.teacherProfile?.class;
       const classSession = sessions.find(s => {
         const scid = s.class?._id || s.class?.id || s.class;
         return scid === classId;
@@ -93,7 +83,9 @@ export default function AttendanceManager({ user }) {
         setIsSavedRecord(true);
       } else {
         const dict = {};
-        roster.forEach(st => { dict[st.id] = "P"; });
+        roster.forEach(st => {
+          dict[st.id] = "P";
+        });
         setAttendanceDict(dict);
         setIsSavedRecord(false);
       }
@@ -106,9 +98,12 @@ export default function AttendanceManager({ user }) {
   };
 
   useEffect(() => {
-    if (teacherProfile) loadRosterAndAttendance();
-  }, [selectedDate, teacherProfile, selectedClassId]);
+    if (teacherProfile) {
+      loadRosterAndAttendance();
+    }
+  }, [selectedDate, teacherProfile]);
 
+  // OTP expiry countdown
   useEffect(() => {
     if (!otpExpiry) return;
     const tick = setInterval(() => {
@@ -144,6 +139,20 @@ export default function AttendanceManager({ user }) {
       document.head.appendChild(script);
     });
 
+  const sendOtpEmail = async (otp, studentName, oldStatus, newStatus) => {
+    await ensureEmailJs();
+    const label = s => s === "P" ? "Present" : s === "A" ? "Absent" : "Leave";
+    await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email: user.email,
+      teacher_name: user.name || "Teacher",
+      passcode: otp,
+      student_name: studentName,
+      date: selectedDate,
+      old_status: label(oldStatus),
+      new_status: label(newStatus),
+    });
+  };
+
   const startCooldown = () => {
     clearInterval(cooldownRef.current);
     setResendCooldown(30);
@@ -160,20 +169,10 @@ export default function AttendanceManager({ user }) {
     otpRef.current = otp;
     setOtpStep("sending");
     try {
-      await ensureEmailJs();
-      const label = s => s === "P" ? "Present" : s === "A" ? "Absent" : "Leave";
-      await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        to_email: user.email,
-        teacher_name: user.name || "Teacher",
-        passcode: otp,
-        student_name: studentName,
-        date: selectedDate,
-        old_status: label(oldStatus),
-        new_status: label(newStatus),
-      });
+      await sendOtpEmail(otp, studentName, oldStatus, newStatus);
       setOtpExpiry(Date.now() + OTP_EXPIRY_MS);
-      setTimeLeft(Math.floor(OTP_EXPIRY_MS / 1000));
       setOtpStep("input");
+      setTimeout(() => otpInputRefs.current[0]?.focus(), 100);
       startCooldown();
     } catch (err) {
       console.error("EmailJS error:", err);
@@ -229,7 +228,7 @@ export default function AttendanceManager({ user }) {
 
   const saveAttendanceToDb = (dict) => {
     const centerId = teacherProfile?.teacherProfile?.center?._id || teacherProfile?.teacherProfile?.center;
-    const classId = selectedClassId || teacherProfile?.teacherProfile?.class?._id || teacherProfile?.teacherProfile?.class;
+    const classId = teacherProfile?.teacherProfile?.class?._id || teacherProfile?.teacherProfile?.class;
 
     if (!centerId || !classId) {
       return Promise.reject(new Error("Center/Class assignment missing in teacher profile."));
@@ -237,7 +236,10 @@ export default function AttendanceManager({ user }) {
 
     const recordsPayload = Object.entries(dict).map(([childId, status]) => {
       const statusMap = { P: "present", A: "absent", L: "late" };
-      return { childId, status: statusMap[status] || "present" };
+      return {
+        childId,
+        status: statusMap[status] || "present"
+      };
     });
 
     return saveChildAttendance({
@@ -259,8 +261,13 @@ export default function AttendanceManager({ user }) {
           const updatedDict = { ...attendanceDict, [pendingChange.childId]: pendingChange.nextStatus };
           setAttendanceDict(updatedDict);
           saveAttendanceToDb(updatedDict)
-            .then(() => triggerToast("✅ OTP verified and attendance updated in database!"))
-            .catch(err => triggerToast("Failed to save to database: " + err.message, true));
+            .then(() => {
+              triggerToast("✅ OTP verified and attendance updated in database!");
+            })
+            .catch(err => {
+              console.error("Error saving attendance:", err);
+              triggerToast("Failed to save to database: " + err.message, true);
+            });
         }
         setShowOtpModal(false);
         setPendingChange(null);
@@ -296,15 +303,18 @@ export default function AttendanceManager({ user }) {
   const handleAddStudent = (e) => {
     e.preventDefault();
     if (!newStudentName.trim()) return;
-    const classId = selectedClassId || teacherProfile?.teacherProfile?.class?._id || teacherProfile?.teacherProfile?.class;
-    createTeacherChild({ fullName: newStudentName.trim(), classId, status: "active" })
+
+    createTeacherChild({ fullName: newStudentName.trim(), status: "active" })
       .then(() => {
         triggerToast("Child enrolled successfully in database!");
         setNewStudentName("");
         setShowAddModal(false);
         loadRosterAndAttendance();
       })
-      .catch(err => triggerToast("Failed to add child: " + err.message, true));
+      .catch(err => {
+        console.error("Error adding child:", err);
+        triggerToast("Failed to add child: " + err.message, true);
+      });
   };
 
   const handleSaveSheet = () => {
@@ -313,7 +323,10 @@ export default function AttendanceManager({ user }) {
         setIsSavedRecord(true);
         triggerToast(`Attendance sheet submitted to database for ${selectedDate}`);
       })
-      .catch(err => triggerToast("Failed to submit sheet: " + err.message, true));
+      .catch(err => {
+        console.error("Error saving attendance:", err);
+        triggerToast("Failed to submit sheet: " + err.message, true);
+      });
   };
 
   const handleClearSheetRecord = () => {
@@ -326,10 +339,13 @@ export default function AttendanceManager({ user }) {
         setIsSavedRecord(false);
         triggerToast("Attendance record reset to defaults.");
       })
-      .catch(err => triggerToast("Failed to reset record: " + err.message, true));
+      .catch(err => {
+        console.error("Error resetting sheet:", err);
+        triggerToast("Failed to reset record: " + err.message, true);
+      });
   };
 
-  const maskedEmail = user?.email
+  const maskedEmail = user.email
     ? user.email.replace(/(.{2})(.*)(@.*)/, (_, a, b, c) => a + "*".repeat(Math.min(b.length, 5)) + c)
     : "your registered email";
 
@@ -338,7 +354,7 @@ export default function AttendanceManager({ user }) {
     return `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
   };
 
-  const otpFilled = otpInput.every(d => d !== "");
+  const otpFilled = otpInput.join("").length === 6;
 
   if (loading && students.length === 0) {
     return (
@@ -350,19 +366,6 @@ export default function AttendanceManager({ user }) {
 
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
-
-      {/* Toast messages */}
-      {successMsg && (
-        <div style={{ marginBottom: 16, padding: "10px 16px", background: "#d1fae5", border: "1px solid #6ee7b7", borderRadius: 8, color: "#065f46", fontSize: 13, fontWeight: 600 }}>
-          ✅ {successMsg}
-        </div>
-      )}
-      {errorMsg && (
-        <div style={{ marginBottom: 16, padding: "10px 16px", background: "#fee2e2", border: "1px solid #fca5a5", borderRadius: 8, color: "#991b1b", fontSize: 13, fontWeight: 600 }}>
-          ❌ {errorMsg}
-        </div>
-      )}
-
       {/* Page header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
@@ -372,10 +375,22 @@ export default function AttendanceManager({ user }) {
         <button onClick={() => setShowAddModal(true)} style={S.primaryBtn}>+ Enroll Child</button>
       </div>
 
-      {/* Date & Class picker */}
-      <SectionCard title="📅 Daily Register Date & Class Lookup">
+      {/* Toast banners */}
+      {successMsg && (
+        <div style={{ padding: "12px 16px", marginBottom: 16, background: "#d1fae5", color: "#065f46", borderRadius: 10, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+          ✓ {successMsg}
+        </div>
+      )}
+      {errorMsg && (
+        <div style={{ padding: "12px 16px", marginBottom: 16, background: "#fee2e2", color: "#991b1b", borderRadius: 10, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+          ⚠️ {errorMsg}
+        </div>
+      )}
+
+      {/* Date picker */}
+      <SectionCard title="📅 Daily Register Date Lookup">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <label style={{ ...S.label, margin: 0, fontWeight: 700 }}>Select Sheet Date:</label>
             <input
               type="date"
@@ -383,29 +398,20 @@ export default function AttendanceManager({ user }) {
               onChange={e => setSelectedDate(e.target.value)}
               style={{ ...S.input, width: "auto", padding: "8px 12px" }}
             />
-            {classes.length > 0 && (
-              <>
-                <label style={{ ...S.label, margin: 0, fontWeight: 700, marginLeft: 12 }}>Select Class:</label>
-                <select
-                  value={selectedClassId}
-                  onChange={e => setSelectedClassId(e.target.value)}
-                  style={{ ...S.input, width: "auto", padding: "8px 12px", minWidth: 150 }}
-                >
-                  {classes.map(c => (
-                    <option key={c._id || c.id} value={c._id || c.id}>{c.name} ({c.ageGroup || "All Ages"})</option>
-                  ))}
-                </select>
-              </>
-            )}
             {isSavedRecord
-              ? <Badge>📝 Reviewing Saved Sheet History</Badge>
-              : <Badge>✨ New Unsaved Data Register</Badge>
+              ? <Badge children="📝 Reviewing Saved Sheet History" color="#1e40af" bg="#dbeafe" />
+              : <Badge children="✨ New Unsaved Data Register"     color="#854d0e" bg="#fef9c3" />
             }
           </div>
-          {classes.length > 0 && selectedClassId && (
-            <Badge>{`Class: ${classes.find(c => (c._id || c.id) === selectedClassId)?.name || "Selected"}`}</Badge>
-          )}
+          <Badge children={`Class: ${teacherProfile?.teacherProfile?.class?.name || "Unassigned"}`} color="#d97706" bg="#fef3c7" />
         </div>
+
+        {isSavedRecord && (
+          <div style={{ marginTop: 12, padding: "10px 14px", background: "#fef3c7", border: "1px solid #fbbf24", borderRadius: 8, fontSize: 12, color: "#92400e", display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 16 }}>🔐</span>
+            <span>This is a <strong>saved record</strong>. Any change requires <strong>Email OTP verification</strong> sent to <strong>{maskedEmail}</strong>.</span>
+          </div>
+        )}
       </SectionCard>
 
       {/* Roster table */}
@@ -426,12 +432,12 @@ export default function AttendanceManager({ user }) {
 
               {students.map(st => {
                 const status = attendanceDict[st.id] || "P";
-                const badge =
+                const badge  =
                   status === "P" ? { bg: "#d1fae5", text: "#065f46", lbl: "Present" } :
                   status === "A" ? { bg: "#fee2e2", text: "#991b1b", lbl: "Absent"  } :
                                    { bg: "#fef3c7", text: "#92400e", lbl: "Leave"   };
                 return (
-                  <div key={st.id} style={{ display: "flex", alignItems: "center", padding: "12px 16px", background: "white", border: "1px solid #f1f5f9", borderRadius: 10 }}>
+                  <div key={st.id} style={{ display: "flex", alignItems: "center", padding: "12px 16px", background: "white", border: "1px solid #f1f5f9", borderRadius: 10, transition: "all 0.15s" }}>
                     <div style={{ width: 100, fontSize: 13, fontWeight: 800, color: "#d97706" }}>{st.rollNo}</div>
                     <div style={{ flex: 1, fontSize: 14, fontWeight: 600, color: "#1c1917" }}>{st.name}</div>
                     <div style={{ width: 160, display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 6 }}>
@@ -482,7 +488,7 @@ export default function AttendanceManager({ user }) {
                 value={newStudentName}
                 onChange={e => setNewStudentName(e.target.value)}
               />
-              <button type="submit" style={{ ...S.primaryBtn, width: "100%" }}>Enrol Pupil →</button>
+              <button type="submit" style={{ ...S.primaryBtn, width: "100%" }}>Enrole Pupil →</button>
             </form>
           </div>
         </div>
@@ -492,16 +498,16 @@ export default function AttendanceManager({ user }) {
       {showOtpModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(6px)" }}>
           <div style={{ background: "white", borderRadius: 24, padding: "32px 28px", width: "100%", maxWidth: 440, boxShadow: "0 24px 64px rgba(0,0,0,0.25)", position: "relative" }}>
-            <button onClick={closeOtpModal} style={{ position: "absolute", top: 14, right: 16, background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#9ca3af" }}>✕</button>
+            <button onClick={closeOtpModal} style={{ position: "absolute", top: 14, right: 16, background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#9ca3af", lineHeight: 1 }}>✕</button>
 
             <div style={{ textAlign: "center", marginBottom: 22 }}>
               <div style={{ fontSize: 44, marginBottom: 10 }}>
                 {otpStep === "sending" ? "📤" : otpStep === "verifying" ? "⏳" : "📧"}
               </div>
               <h3 style={{ fontSize: 18, fontWeight: 800, color: "#1c1917", margin: "0 0 6px" }}>
-                {otpStep === "sending"   ? "Sending OTP…"   :
-                 otpStep === "verifying" ? "Verifying OTP…" :
-                                          "Email OTP Verification"}
+                {otpStep === "sending"   ? "Sending OTP…"      :
+                 otpStep === "verifying" ? "Verifying OTP…"    :
+                                           "Email OTP Verification"}
               </h3>
               <p style={{ fontSize: 12, color: "#64748b", margin: 0, lineHeight: 1.6 }}>
                 {otpStep === "sending" ? "Checking network parameters..." : `We've sent a 6-digit OTP passcode to ${maskedEmail}.`}
@@ -514,7 +520,7 @@ export default function AttendanceManager({ user }) {
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
                     <span style={{
                       fontSize: 12, fontWeight: 700,
-                      color: timeLeft > 60 ? "#059669" : timeLeft > 30 ? "#d97706" : "#dc2626",
+                      color:      timeLeft > 60 ? "#059669" : timeLeft > 30 ? "#d97706" : "#dc2626",
                       background: timeLeft > 60 ? "#f0fdf4" : timeLeft > 30 ? "#fef3c7" : "#fef2f2",
                       border: `1px solid ${timeLeft > 60 ? "#a7f3d0" : timeLeft > 30 ? "#fde68a" : "#fca5a5"}`,
                       padding: "5px 16px", borderRadius: 20
@@ -541,7 +547,8 @@ export default function AttendanceManager({ user }) {
                         border: `2px solid ${otpError ? "#ef4444" : digit ? "#f59e0b" : "#e2e8f0"}`,
                         borderRadius: 10, outline: "none",
                         background: digit ? "#fffbf0" : "white",
-                        color: "#1c1917", transition: "border-color 0.15s",
+                        color: "#1c1917",
+                        transition: "border-color 0.15s, background 0.15s",
                         caretColor: "#f59e0b"
                       }}
                     />
@@ -560,9 +567,10 @@ export default function AttendanceManager({ user }) {
                   style={{
                     width: "100%", padding: 13, marginBottom: 12,
                     background: (!otpFilled || timeLeft === 0) ? "#e2e8f0" : "linear-gradient(135deg,#f59e0b,#d97706)",
-                    color: (!otpFilled || timeLeft === 0) ? "#94a3b8" : "white",
+                    color:  (!otpFilled || timeLeft === 0) ? "#94a3b8" : "white",
                     border: "none", borderRadius: 10, fontSize: 13, fontWeight: 800,
-                    cursor: (!otpFilled || timeLeft === 0) ? "not-allowed" : "pointer"
+                    cursor: (!otpFilled || timeLeft === 0) ? "not-allowed" : "pointer",
+                    transition: "all 0.2s"
                   }}
                 >
                   ✅ Verify OTP & Apply Change
