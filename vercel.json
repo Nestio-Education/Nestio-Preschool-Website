@@ -1,4 +1,17 @@
 ﻿{
-  "trailingSlash": false,
-  "cleanUrls": false
+  "outputDirectory": ".",
+  "routes": [
+    {
+      "src": "/landing-pages/Teacher-Training-Program/react-project/dist/assets/(.*)",
+      "dest": "/landing-pages/Teacher-Training-Program/react-project/dist/assets/$1"
+    },
+    {
+      "src": "/landing-pages/Teacher-Training-Program/react-project/dist/(.*)",
+      "dest": "/landing-pages/Teacher-Training-Program/react-project/dist/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
 }
