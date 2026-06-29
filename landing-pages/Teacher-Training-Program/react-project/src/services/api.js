@@ -59,6 +59,21 @@ export function resetPassword(token, password) {
   });
 }
 
+// OTP-based Password Reset APIs
+export function requestPasswordResetOtp(email) {
+  return request("/api/auth/forgot-password-otp", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function verifyPasswordOtp(email, otp) {
+  return request("/api/auth/verify-otp", {
+    method: "POST",
+    body: JSON.stringify({ email, otp }),
+  });
+}
+
 export function getStoredSession() {
   const token = localStorage.getItem("spaceece_auth_token");
   const rawUser = localStorage.getItem("spaceece_user");
@@ -119,6 +134,16 @@ export function deleteCenter(id) {
   });
 }
 
+export function getCenterTeacherAssignments(centerId) {
+  return request(`/api/centers/${centerId}/teacher-assignments`);
+}
+
+export function validateCenterAssignments(centerId) {
+  return request(`/api/centers/${centerId}/validate-assignments`, {
+    method: "POST"
+  });
+}
+
 // Class Management APIs
 export function getClasses(centerId = "") {
   const path = centerId ? `/api/admin/classes?centerId=${centerId}` : "/api/admin/classes";
@@ -167,13 +192,6 @@ export function getTeacherClasses() {
 
 export function createTeacherChild(childData) {
   return request("/api/teacher/children", {
-    method: "POST",
-    body: JSON.stringify(childData)
-  });
-}
-
-export function createChild(childData) {
-  return request("/api/admin/children", {
     method: "POST",
     body: JSON.stringify(childData)
   });
@@ -320,6 +338,39 @@ export function deleteSchedule(id) {
 
 export function getTeacherAssessmentResults() {
   return request("/api/teacher/assessment-results");
+}
+
+// Certificate APIs
+export function getTeacherCertificates() {
+  return request("/api/certificates/teacher");
+}
+
+export function getAdminCertificates() {
+  return request("/api/certificates/admin");
+}
+
+export function generateCertificate(payload) {
+  return request("/api/certificates/generate", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export function autoGenerateCertificate(assignmentId, force = false) {
+  return request(`/api/certificates/auto-generate/${assignmentId}`, {
+    method: "POST",
+    body: JSON.stringify({ force })
+  });
+}
+
+export function revokeCertificate(id) {
+  return request(`/api/certificates/${id}/revoke`, {
+    method: "PATCH"
+  });
+}
+
+export function verifyCertificate(certNumber) {
+  return request(`/api/certificates/verify/${certNumber}`);
 }
 
 export function getTrainerMe() {
@@ -515,6 +566,20 @@ export function reviewLessonReport(reportId, payload) {
   });
 }
 
+export function autoGenerateLessonPlan(data) {
+  return request("/api/lesson-plans/auto-generate", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+export function autoPublishLessonPlan(data) {
+  return request("/api/lesson-plans/auto-publish", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
 // Activity APIs
 export function getActivities(params = {}) {
   const searchParams = new URLSearchParams(params);
@@ -585,6 +650,64 @@ export function deleteTrainer(id) {
   });
 }
 
+// Trainer Messages APIs
+export function getTrainerMessages(trainerId) {
+  return request(`/api/trainers/${trainerId}/messages`);
+}
+
+export function sendTrainerMessage(trainerId, data) {
+  return request(`/api/trainers/${trainerId}/messages`, {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+export function markTrainerMessageRead(messageId) {
+  return request(`/api/trainers/messages/${messageId}/read`, {
+    method: "PATCH"
+  });
+}
+
+// Trainer Payouts APIs
+export function getTrainerPayouts(trainerId) {
+  return request(`/api/trainers/${trainerId}/payouts`);
+}
+
+export function createTrainerPayout(trainerId, data) {
+  return request(`/api/trainers/${trainerId}/payouts`, {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+export function markPayoutPaid(payoutId) {
+  return request(`/api/trainers/payouts/${payoutId}/pay`, {
+    method: "PATCH"
+  });
+}
+
+// Notifications mark-all-read API
+export function markAllNotificationsRead() {
+  return request("/api/notifications/mark-all-read", {
+    method: "POST"
+  });
+}
+
+// Test SMS/WhatsApp APIs
+export function testSmsNotification(to) {
+  return request("/api/admin/settings/test-sms", {
+    method: "POST",
+    body: JSON.stringify({ to })
+  });
+}
+
+export function testWhatsAppNotification(to) {
+  return request("/api/admin/settings/test-whatsapp", {
+    method: "POST",
+    body: JSON.stringify({ to })
+  });
+}
+
 // Feedback APIs
 export function getFeedbacks() {
   return request("/api/feedbacks");
@@ -652,6 +775,25 @@ export function testSmtpEmail(to) {
 }
 
 
+// Automation APIs
+export function getAutomationStatus() {
+  return request("/api/automation/status");
+}
+
+export function sendAttendanceReminders(channel = "in_app") {
+  return request("/api/automation/attendance-reminders", {
+    method: "POST",
+    body: JSON.stringify({ channel }),
+  });
+}
+
+export function autoAssignCourse(courseId) {
+  return request("/api/automation/auto-assign-courses", {
+    method: "POST",
+    body: JSON.stringify({ courseId }),
+  });
+}
+
 // Reports/Analytics API
 export function getAdminDashboard() {
   return request("/api/admin/dashboard");
@@ -677,4 +819,128 @@ export function updateReportJob(id, reportData) {
     method: "PATCH",
     body: JSON.stringify(reportData)
   });
+}
+
+// ── Admin SMTP/Twilio Config (persisted to Atlas) ──
+export function saveSmtpConfig(smtpData) {
+  return request("/api/admin/settings/smtp", {
+    method: "POST",
+    body: JSON.stringify(smtpData),
+  });
+}
+
+export function saveTwilioConfig(twilioData) {
+  return request("/api/admin/settings/twilio", {
+    method: "POST",
+    body: JSON.stringify(twilioData),
+  });
+}
+
+// ── Admin language preference ──
+export function updateAdminLanguage(lang) {
+  return request("/api/admin/me/language", {
+    method: "PATCH",
+    body: JSON.stringify({ language: lang }),
+  });
+}
+
+// ── Teacher notification preference ──
+export function updateTeacherNotificationPreference(channel) {
+  return request("/api/teacher/me/notification-preference", {
+    method: "PATCH",
+    body: JSON.stringify({ preferredNotificationChannel: channel }),
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// PHASE 1: User Management APIs
+// ═══════════════════════════════════════════════════
+
+export function importUsers(users) {
+  return request("/api/admin/users/import", { method: "POST", body: JSON.stringify({ users }) });
+}
+
+export function restoreUser(userId) {
+  return request(`/api/admin/users/${userId}/restore`, { method: "PATCH" });
+}
+
+// ═══════════════════════════════════════════════════
+// PHASE 1: Course Publishing APIs
+// ═══════════════════════════════════════════════════
+
+export function publishCourse(courseId) {
+  return request(`/api/courses/${courseId}/publish`, { method: "POST" });
+}
+
+export function archiveCourse(courseId) {
+  return request(`/api/courses/${courseId}/archive`, { method: "POST" });
+}
+
+export function reviewCourse(courseId) {
+  return request(`/api/courses/${courseId}/review`, { method: "POST" });
+}
+
+// ═══════════════════════════════════════════════════
+// PHASE 1: Schedule Conflict API
+// ═══════════════════════════════════════════════════
+
+export function checkScheduleConflicts(data) {
+  return request("/api/schedules/check-conflicts", { method: "POST", body: JSON.stringify(data) });
+}
+
+// ═══════════════════════════════════════════════════
+// PHASE 1: System Health & Admin Profile APIs
+// ═══════════════════════════════════════════════════
+
+export function getSystemHealth() {
+  return request("/api/admin/system-health");
+}
+
+export function getAdminProfile() {
+  return request("/api/admin/profile");
+}
+
+export function updateAdminProfile(data) {
+  return request("/api/admin/profile", { method: "PATCH", body: JSON.stringify(data) });
+}
+
+export function changeAdminPassword(data) {
+  return request("/api/admin/profile/change-password", { method: "POST", body: JSON.stringify(data) });
+}
+
+// ═══════════════════════════════════════════════════
+// PHASE 2: Notification Engine APIs
+// ═══════════════════════════════════════════════════
+
+export function getNotificationHistory(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return request(`/api/admin/notifications/history${qs ? `?${qs}` : ""}`);
+}
+
+export function checkAutoTriggers() {
+  return request("/api/admin/notifications/auto-triggers/check", { method: "POST" });
+}
+
+export function getDeadlineReminders() {
+  return request("/api/teacher/deadline-reminders", { method: "POST" });
+}
+
+// ═══════════════════════════════════════════════════
+// PHASE 3: AI/ML APIs
+// ═══════════════════════════════════════════════════
+
+export function analyzeSentiment(text) {
+  return request("/api/ai/sentiment", { method: "POST", body: JSON.stringify({ text }) });
+}
+
+export function detectRiskFlags(text, description) {
+  return request("/api/ai/risk-flags", { method: "POST", body: JSON.stringify({ text, description }) });
+}
+
+export function autoGradeAssessment(assessmentId, answers) {
+  return request("/api/ai/auto-grade", { method: "POST", body: JSON.stringify({ assessmentId, answers }) });
+}
+
+export function askEnhancedChatbot(message) {
+  return request("/api/teacher/chatbot/enhanced", { method: "POST", body: JSON.stringify({ message }) });
 }

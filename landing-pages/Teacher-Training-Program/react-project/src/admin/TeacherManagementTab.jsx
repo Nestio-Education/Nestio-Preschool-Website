@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { AttendanceBar, Modal, S, SearchBar, SectionCard, StatCard, StatusBadge, Toast } from "../components/Shared";
-import { getAdminTeachers, updateTeacherStatus, updateTeacherProfile, registerTeacher, getCenters, sendDirectMessageToTeacher, blockTeacher, unblockTeacher, deleteTeacher } from "../services/api";
+import { getAdminTeachers, updateTeacherStatus, updateTeacherProfile, registerTeacher, getCenters, getClasses, sendDirectMessageToTeacher, blockTeacher, unblockTeacher, deleteTeacher } from "../services/api";
 import { t } from "../services/i18n";
 
 // Reuse same base URL pattern as ActivityMonitoringTab
@@ -35,8 +35,10 @@ const mapTeacherFromApi = (t) => ({
   classes: t.teacherProfile?.lessonsCompleted || 0,
   assignedCenter: t.teacherProfile?.center?.name || "Not Assigned",
   centerId: t.teacherProfile?.center?._id || t.teacherProfile?.center || "",
-  classId: t.teacherProfile?.class?._id || t.teacherProfile?.class || "",
-  batch: t.teacherProfile?.class?.name || "—",
+  classId: (t.teacherProfile?.classes || [])[0]?._id || "",
+  classIds: (t.teacherProfile?.classes || []).map(c => c?._id || c),
+  classNames: (t.teacherProfile?.classes || []).map(c => c?.name || "—"),
+  batch: (t.teacherProfile?.classes || []).map(c => c?.name).filter(Boolean).join(", ") || "—",
   // NEW: resolve real profile photo from any common API shape (including t.photoUrl from User model)
   photoUrl: t.photoUrl ? getPhotoUrl(t.photoUrl) : getPhotoUrl(
     t.teacherProfile?.profilePhoto ||
@@ -176,36 +178,189 @@ function DirectMessageModal({ teacher, onClose, setToast }) {
   );
 }
 
+/* ── Edit Teacher Modal ── */
+function EditTeacherModal({ teacher, onSave, onClose, setToast }) {
+  const [form, setForm] = useState({
+    name: teacher.name || "",
+    email: teacher.email || "",
+    phone: teacher.phone || "",
+    subject: teacher.subject || "",
+    qualification: teacher.qualification || "",
+    experience: teacher.experience || "",
+    address: teacher.address || "",
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name || !form.email) {
+      setToast({ msg: "Name and email are required.", type: "error" });
+      return;
+    }
+    setSaving(true);
+    try {
+      await updateTeacherProfile(teacher.id, {
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        teacherProfile: {
+          subject: form.subject,
+          qualification: form.qualification,
+          experience: form.experience,
+          address: form.address,
+        },
+      });
+      setToast({ msg: "Teacher profile updated!", type: "success" });
+      onSave();
+      onClose();
+    } catch (err) {
+      setToast({ msg: err.message || "Failed to update teacher", type: "error" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal title={`✏️ Edit Teacher — ${teacher.name}`} onClose={onClose}>
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div>
+            <label style={S.label}>Full Name *</label>
+            <input style={S.input} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Teacher name" />
+          </div>
+          <div>
+            <label style={S.label}>Email *</label>
+            <input style={S.input} type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="teacher@email.com" />
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
+          <div>
+            <label style={S.label}>Phone</label>
+            <input style={S.input} value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="+91 98765 43210" />
+          </div>
+          <div>
+            <label style={S.label}>Subject</label>
+            <input style={S.input} value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} placeholder="e.g. Early Childhood" />
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
+          <div>
+            <label style={S.label}>Qualification</label>
+            <select style={S.input} value={form.qualification} onChange={e => setForm({ ...form, qualification: e.target.value })}>
+              {["", "Graduate", "Post-Graduate", "B.Ed", "D.El.Ed", "Other"].map(o => <option key={o} value={o}>{o || "Select..."}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={S.label}>Experience</label>
+            <select style={S.input} value={form.experience} onChange={e => setForm({ ...form, experience: e.target.value })}>
+              {["", "Fresher", "1-2 yrs", "3-5 yrs", "5-10 yrs", "10+ yrs"].map(o => <option key={o} value={o}>{o || "Select..."}</option>)}
+            </select>
+          </div>
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <label style={S.label}>Address</label>
+          <textarea style={{ ...S.input, height: 60, resize: "none" }} value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} placeholder="Teacher address" />
+        </div>
+        <button type="submit" disabled={saving} style={{ ...S.primaryBtn, width: "100%", marginTop: 16, opacity: saving ? 0.7 : 1 }}>
+          {saving ? "Saving..." : "Save Changes →"}
+        </button>
+      </form>
+    </Modal>
+  );
+}
+
 /* ── Change Center Modal ── */
-function ChangeCenterModal({ teacher, centers = [], onSave, onClose }) {
+function ChangeCenterModal({ teacher, centers = [], classes = [], onSave, onClose }) {
   const [selectedCenter, setSelectedCenter] = useState(teacher.centerId || "");
+  const [selectedClassIds, setSelectedClassIds] = useState(teacher.classIds || []);
+
+  const filteredClasses = selectedCenter
+    ? classes.filter(c => String(c.center || c.centerId || c.center?._id) === String(selectedCenter))
+    : [];
+
+  useEffect(() => {
+    if (selectedCenter) {
+      const allIds = filteredClasses.map(c => c._id || c.id);
+      setSelectedClassIds(allIds);
+    } else {
+      setSelectedClassIds([]);
+    }
+  }, [selectedCenter]);
+
+  const toggleClass = (classId) => {
+    setSelectedClassIds(prev =>
+      prev.includes(classId) ? prev.filter(id => id !== classId) : [...prev, classId]
+    );
+  };
+
+  const selectAll = () => setSelectedClassIds(filteredClasses.map(c => c._id || c.id));
+  const clearAll = () => setSelectedClassIds([]);
+
   return (
     <Modal title={`🏫 Change Center — ${teacher.name}`} onClose={onClose}>
       <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 8, padding: "10px 12px", marginBottom: 14, fontSize: 12, color: "#0c4a6e" }}>
-        ℹ️ This will update the center shown on the teacher's dashboard immediately.
+        ℹ️ Select a center — all classes will be auto-assigned. You can uncheck classes you don't want.
       </div>
       <label style={S.label}>Select Training Center</label>
-      <select style={{ ...S.input, marginBottom: 20 }} value={selectedCenter}
+      <select style={{ ...S.input, marginBottom: 12 }} value={selectedCenter}
         onChange={e => setSelectedCenter(e.target.value)}>
         <option value="">No Center Assigned</option>
         {centers.map(c => (
           <option key={c._id || c.id} value={c._id || c.id}>{c.name}</option>
         ))}
       </select>
-      <button onClick={() => onSave(selectedCenter)} style={{ ...S.primaryBtn, width: "100%" }}>
-        Save Center Assignment →
+
+      {selectedCenter && filteredClasses.length > 0 && (
+        <>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <label style={{ ...S.label, marginBottom: 0 }}>Select Classes ({selectedClassIds.length}/{filteredClasses.length})</label>
+            <div style={{ display: "flex", gap: 6 }}>
+              <button type="button" onClick={selectAll}
+                style={{ fontSize: 10, padding: "3px 8px", borderRadius: 6, border: "1px solid #d1d5db", background: "#f9fafb", cursor: "pointer", fontWeight: 600, color: "#374151" }}>
+                All
+              </button>
+              <button type="button" onClick={clearAll}
+                style={{ fontSize: 10, padding: "3px 8px", borderRadius: 6, border: "1px solid #d1d5db", background: "#f9fafb", cursor: "pointer", fontWeight: 600, color: "#374151" }}>
+                None
+              </button>
+            </div>
+          </div>
+          <div style={{ maxHeight: 180, overflowY: "auto", border: "1px solid #e5e7eb", borderRadius: 8, padding: 8, marginBottom: 16, background: "#fafafa" }}>
+            {filteredClasses.map(cls => (
+              <label key={cls._id || cls.id}
+                style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", borderRadius: 6, cursor: "pointer", fontSize: 12, color: "#374151", background: selectedClassIds.includes(cls._id || cls.id) ? "#eff6ff" : "transparent", marginBottom: 2 }}>
+                <input type="checkbox" checked={selectedClassIds.includes(cls._id || cls.id)}
+                  onChange={() => toggleClass(cls._id || cls.id)}
+                  style={{ accentColor: "#3b82f6", width: 14, height: 14 }} />
+                <span>{cls.name}</span>
+                {cls.ageGroup && <span style={{ fontSize: 10, color: "#9ca3af" }}>({cls.ageGroup})</span>}
+              </label>
+            ))}
+          </div>
+        </>
+      )}
+
+      {selectedCenter && filteredClasses.length === 0 && (
+        <div style={{ textAlign: "center", padding: "16px", color: "#9ca3af", fontSize: 12, marginBottom: 16, background: "#f9fafb", borderRadius: 8, border: "1px dashed #e5e7eb" }}>
+          No classes found for this center. Create classes first.
+        </div>
+      )}
+
+      <button onClick={() => onSave(selectedCenter, null, selectedClassIds)} style={{ ...S.primaryBtn, width: "100%" }}>
+        Save Center & Classes Assignment →
       </button>
     </Modal>
   );
 }
 
 /* ── Teacher Full Profile View ── */
-function TeacherProfileView({ teacher, centers = [], onBack, onUpdate, setToast }) {
+function TeacherProfileView({ teacher, centers = [], classes = [], onBack, onUpdate, setToast }) {
   const [activeSection, setActiveSection] = useState("overview");
   const [showReject,   setShowReject]   = useState(false);
   const [showBlock,    setShowBlock]    = useState(false);
   const [showMsg,      setShowMsg]      = useState(false);
   const [showCourses,  setShowCourses]  = useState(false);
+  const [showEdit,     setShowEdit]     = useState(false);
   // NEW: lightbox to view full-size profile photo
   const [photoLightbox, setPhotoLightbox] = useState(false);
 
@@ -241,14 +396,15 @@ function TeacherProfileView({ teacher, centers = [], onBack, onUpdate, setToast 
       .catch(err => setToast({ msg: err.message, type: "error" }));
   };
 
-  const doChangeCenter = (centerId) =>
-    updateTeacherProfile(teacher.id, { teacherProfile: { center: centerId } })
-      .then(() => { onUpdate(); setToast({ msg: "Center assignment updated!", type: "success" }); setShowCourses(false); })
+  const doChangeCenter = (centerId, classId, classIds) =>
+    updateTeacherProfile(teacher.id, { teacherProfile: { center: centerId, class: classId, classes: classIds || [] } })
+      .then(() => { onUpdate(); setToast({ msg: "Center & classes assignment updated!", type: "success" }); setShowCourses(false); })
       .catch(err => setToast({ msg: err.message, type: "error" }));
 
   const quickActions = [
     { icon: "💬", label: "Send Message",   onClick: () => setShowMsg(true),     color: "#8b5cf6", bg: "#ede9fe" },
     { icon: "🏫", label: "Change Center",  onClick: () => setShowCourses(true), color: "#f59e0b", bg: "#fef3c7" },
+    { icon: "✏️", label: "Edit Profile",   onClick: () => setShowEdit(true),    color: "#2563eb", bg: "#dbeafe" },
   ];
 
   return (
@@ -256,7 +412,8 @@ function TeacherProfileView({ teacher, centers = [], onBack, onUpdate, setToast 
       {showReject   && <RejectModal  teacher={teacher} onClose={() => setShowReject(false)}  onConfirm={doReject} />}
       {showBlock    && <BlockModal   teacher={teacher} onClose={() => setShowBlock(false)}   onConfirm={doBlock} />}
       {showMsg      && <DirectMessageModal teacher={teacher} onClose={() => setShowMsg(false)} setToast={setToast} />}
-      {showCourses  && <ChangeCenterModal  teacher={teacher} centers={centers} onClose={() => setShowCourses(false)} onSave={doChangeCenter} />}
+      {showCourses  && <ChangeCenterModal  teacher={teacher} centers={centers} classes={classes} onClose={() => setShowCourses(false)} onSave={doChangeCenter} />}
+      {showEdit     && <EditTeacherModal  teacher={teacher} onClose={() => setShowEdit(false)} onSave={() => { onUpdate(); }} setToast={setToast} />}
 
       {/* NEW: full-size photo lightbox */}
       {photoLightbox && teacher.photoUrl && (
@@ -332,6 +489,7 @@ function TeacherProfileView({ teacher, centers = [], onBack, onUpdate, setToast 
           {isApproved && <button onClick={() => setShowBlock(true)} style={{ ...S.tblBtn, color: "#dc2626", borderColor: "#fca5a5" }}>🚫 Block</button>}
           {isBlocked  && <button onClick={doUnblock} style={S.primaryBtn}>✓ Unblock</button>}
           {isRejected && <button onClick={doApprove} style={S.primaryBtn}>✓ Reactivate</button>}
+          <button onClick={() => setShowEdit(true)} style={{ ...S.tblBtn, color: "#2563eb", borderColor: "#93c5fd" }}>✏️ Edit</button>
           <button onClick={doDelete} style={{ ...S.tblBtn, color: "#dc2626", borderColor: "#fca5a5" }}>🗑️ Delete</button>
         </div>
       </div>
@@ -387,6 +545,7 @@ function TeacherProfileView({ teacher, centers = [], onBack, onUpdate, setToast 
                 { icon: "📅", label: "Joined",           val: teacher.joined },
                 { icon: "📍", label: "Address",          val: teacher.address },
                 { icon: "🗂️", label: "Class Assigned",   val: teacher.batch },
+                ...(teacher.classNames?.length ? [{ icon: "📚", label: "Assigned Classes", val: teacher.classNames.join(", ") }] : []),
                 ...(teacher.gender    ? [{ icon: "⚧",  label: "Gender",    val: teacher.gender }] : []),
                 ...(teacher.dob       ? [{ icon: "🎂",  label: "DOB",       val: teacher.dob }]    : []),
                 ...(teacher.languages?.length ? [{ icon: "🗣️", label: "Languages", val: teacher.languages.join(", ") }] : []),
@@ -454,6 +613,7 @@ function TeacherProfileView({ teacher, centers = [], onBack, onUpdate, setToast 
 export default function TeacherManagementTab({ setToast }) {
   const [teachers, setTeachers]   = useState([]);
   const [centers, setCenters]     = useState([]);
+  const [classes, setClasses]     = useState([]);
   const [search, setSearch]       = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [centerFilter, setCenterFilter] = useState("all");
@@ -463,7 +623,7 @@ export default function TeacherManagementTab({ setToast }) {
   const [toast, setLocalToast]    = useState({ msg: "", type: "" });
   const [newT, setNewT] = useState({
     name: "", email: "", phone: "", subject: "", address: "",
-    qualification: "Graduate", experience: "Fresher", assignedCenter: "", password: ""
+    qualification: "Graduate", experience: "Fresher", assignedCenter: "", assignedClasses: [], password: ""
   });
 
   const showToast = setToast || setLocalToast;
@@ -471,9 +631,14 @@ export default function TeacherManagementTab({ setToast }) {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [teachersRes, centersRes] = await Promise.all([getAdminTeachers(), getCenters()]);
+      const [teachersRes, centersRes, classesRes] = await Promise.all([
+        getAdminTeachers(),
+        getCenters(),
+        getClasses()
+      ]);
       setTeachers((teachersRes.teachers || []).map(mapTeacherFromApi));
       setCenters(centersRes.centers || []);
+      setClasses(classesRes.classes || []);
     } catch (err) {
       showToast({ msg: "Failed to fetch teachers: " + err.message, type: "error" });
     } finally {
@@ -501,15 +666,23 @@ export default function TeacherManagementTab({ setToast }) {
         name: newT.name, email: newT.email, phone: newT.phone, password: newT.password,
         qualification: newT.qualification, subject: newT.subject,
         experience: newT.experience, address: newT.address,
+        center: newT.assignedCenter || undefined,
+        class: newT.assignedClasses.length === 1 ? newT.assignedClasses[0] : undefined,
+        classIds: newT.assignedClasses.length > 0 ? newT.assignedClasses : undefined,
       });
       const newId = res.teacher?.id || res.teacher?._id;
       await updateTeacherStatus(newId, "approved");
-      if (newT.assignedCenter && newId) {
-        await updateTeacherProfile(newId, { teacherProfile: { center: newT.assignedCenter } });
+      if ((newT.assignedCenter || newT.assignedClasses.length > 0) && newId) {
+        await updateTeacherProfile(newId, {
+          teacherProfile: {
+            center: newT.assignedCenter || undefined,
+            classes: newT.assignedClasses,
+          }
+        });
       }
-      showToast({ msg: "Teacher registered, approved & center assigned!", type: "success" });
+      showToast({ msg: "Teacher registered, approved & assigned!", type: "success" });
       setAddModal(false);
-      setNewT({ name: "", email: "", phone: "", subject: "", address: "", qualification: "Graduate", experience: "Fresher", assignedCenter: "", password: "" });
+      setNewT({ name: "", email: "", phone: "", subject: "", address: "", qualification: "Graduate", experience: "Fresher", assignedCenter: "", assignedClasses: [], password: "" });
       await loadData();
     } catch (err) {
       showToast({ msg: "Error: " + err.message, type: "error" });
@@ -528,6 +701,7 @@ export default function TeacherManagementTab({ setToast }) {
       <TeacherProfileView
         teacher={teachers.find(t => t.id === selected.id) || selected}
         centers={centers}
+        classes={classes}
         onBack={() => { setSelected(null); loadData(); }}
         onUpdate={loadData}
         setToast={showToast}
@@ -614,7 +788,18 @@ export default function TeacherManagementTab({ setToast }) {
                   </div>
                 </td>
                 <td style={{ padding: "12px 14px", fontSize: 12, color: "#374151" }}>{t.phone || "—"}</td>
-                <td style={{ padding: "12px 14px", fontSize: 12, color: "#374151" }}>{t.assignedCenter}</td>
+                <td style={{ padding: "12px 14px", fontSize: 12, color: "#374151" }}>
+                  <div>{t.assignedCenter}</div>
+                  {t.classNames?.length > 0 ? (
+                    <div style={{ fontSize: 10, color: "#10b981", marginTop: 2, fontWeight: 600 }}>
+                      {t.classNames.length} class{t.classNames.length > 1 ? "es" : ""} assigned
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 10, color: "#dc2626", marginTop: 2, fontWeight: 600 }}>
+                      No class assigned
+                    </div>
+                  )}
+                </td>
                 <td style={{ padding: "12px 14px", fontSize: 12, color: "#9ca3af" }}>{t.joined}</td>
                 <td style={{ padding: "12px 14px" }}><StatusBadge status={t.status} /></td>
                 <td style={{ padding: "12px 14px" }}>
@@ -696,11 +881,60 @@ export default function TeacherManagementTab({ setToast }) {
             </div>
             <div style={{ marginTop: 12 }}>
               <label style={S.label}>Assigned Center</label>
-              <select style={S.input} value={newT.assignedCenter} onChange={e => setNewT({ ...newT, assignedCenter: e.target.value })}>
+              <select style={S.input} value={newT.assignedCenter} onChange={e => {
+                const centerId = e.target.value;
+                setNewT(prev => {
+                  if (centerId) {
+                    const allIds = classes.filter(c => String(c.center || c.centerId || c.center?._id) === String(centerId)).map(c => c._id || c.id);
+                    return { ...prev, assignedCenter: centerId, assignedClasses: allIds };
+                  }
+                  return { ...prev, assignedCenter: centerId, assignedClasses: [] };
+                });
+              }}>
                 <option value="">Select Center (optional)</option>
                 {centers.map(c => <option key={c._id||c.id} value={c._id||c.id}>{c.name}</option>)}
               </select>
             </div>
+            {newT.assignedCenter && (() => {
+              const filteredCls = classes.filter(c => String(c.center || c.centerId || c.center?._id) === String(newT.assignedCenter));
+              if (filteredCls.length === 0) return null;
+              const allSelected = filteredCls.every(c => newT.assignedClasses.includes(c._id || c.id));
+              return (
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <label style={{ ...S.label, marginBottom: 0 }}>Assigned Classes ({newT.assignedClasses.length}/{filteredCls.length})</label>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button type="button" onClick={() => setNewT(prev => ({ ...prev, assignedClasses: filteredCls.map(c => c._id || c.id) }))}
+                        style={{ fontSize: 10, padding: "3px 8px", borderRadius: 6, border: "1px solid #d1d5db", background: "#f9fafb", cursor: "pointer", fontWeight: 600, color: "#374151" }}>
+                        All
+                      </button>
+                      <button type="button" onClick={() => setNewT(prev => ({ ...prev, assignedClasses: [] }))}
+                        style={{ fontSize: 10, padding: "3px 8px", borderRadius: 6, border: "1px solid #d1d5db", background: "#f9fafb", cursor: "pointer", fontWeight: 600, color: "#374151" }}>
+                        None
+                      </button>
+                    </div>
+                  </div>
+                  <div style={{ maxHeight: 140, overflowY: "auto", border: "1px solid #e5e7eb", borderRadius: 8, padding: 8, background: "#fafafa" }}>
+                    {filteredCls.map(cls => (
+                      <label key={cls._id || cls.id}
+                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 8px", borderRadius: 6, cursor: "pointer", fontSize: 12, color: "#374151", background: newT.assignedClasses.includes(cls._id || cls.id) ? "#eff6ff" : "transparent", marginBottom: 2 }}>
+                        <input type="checkbox" checked={newT.assignedClasses.includes(cls._id || cls.id)}
+                          onChange={() => {
+                            const id = cls._id || cls.id;
+                            setNewT(prev => ({
+                              ...prev,
+                              assignedClasses: prev.assignedClasses.includes(id) ? prev.assignedClasses.filter(x => x !== id) : [...prev.assignedClasses, id]
+                            }));
+                          }}
+                          style={{ accentColor: "#3b82f6", width: 14, height: 14 }} />
+                        <span>{cls.name}</span>
+                        {cls.ageGroup && <span style={{ fontSize: 10, color: "#9ca3af" }}>({cls.ageGroup})</span>}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
             <div style={{ marginTop: 12 }}>
               <label style={S.label}>Password *</label>
               <div style={{ position: "relative" }}>
