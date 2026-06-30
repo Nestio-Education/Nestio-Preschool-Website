@@ -15,6 +15,12 @@ import ReportsTab from "../admin/ReportsTab";
 import NotificationsTab from "../admin/NotificationsTab";
 import SettingsTab from "../admin/SettingsTab";
 import FeedbackManagementTab from "../admin/FeedbackManagementTab";
+import ScheduleManagementTab from "../admin/ScheduleManagementTab";
+import CertificateManagementTab from "../admin/CertificateManagementTab";
+import AutomationTab from "../admin/AutomationTab";
+import SystemHealthTab from "../admin/SystemHealthTab";
+import AdminProfileTab from "../admin/AdminProfileTab";
+import HelpFAQTab from "../admin/HelpFAQTab";
 import { getAdminTeachers, getCourseAssignments, getCourses, updateTeacherStatus } from "../services/api";
 //import CourseManagementTab from "../admin/CourseManagementTab";
 //import BatchManagementTab from "../admin/BatchManagementTab";
@@ -29,16 +35,10 @@ import { getAdminTeachers, getCourseAssignments, getCourses, updateTeacherStatus
 
 
 
-const API = '/api';
-async function fetchAPI(url) {
-  const res = await fetch(`${API}${url}`);
-  if (!res.ok) throw new Error('API Error');
-  return res.json();
-}
 
 /* ===========================================
    MAIN ADMIN DASHBOARD
-   =========================================== */
+=========================================== */
 export default function AdminDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [teachers,  setTeachers]  = useState([]);
@@ -54,7 +54,7 @@ export default function AdminDashboard({ user, onLogout }) {
       assigned: "pending",
       in_progress: "under review",
       completed: "reviewed",
-      submitted: "pending",
+      submitted: "submitted",
       reviewed: "reviewed",
       approved: "approved",
       revision: "revision",
@@ -102,7 +102,10 @@ export default function AdminDashboard({ user, onLogout }) {
     { key:"reports",      label:"Reports & Analytics",icon:"\uD83D\uDCC8" },
     { key:"notifications",label:"Notifications",     icon:"\uD83D\uDD14" },
     { key:"settings",     label:"Settings & Roles",  icon:"\u2699\uFE0F" },
+    { key:"schedules",    label:"Schedule Management", icon:"\uD83D\uDCC5" },
+    { key:"certificates", label:"Certificates",        icon:"\uD83C\uDFC6" },
     { key:"feedback",     label:"Feedback",              icon:"\uD83D\uDCAC" },
+    { key:"automation",   label:"Automation Center",     icon:"\u2699\uFE0F" },
   ];
   const persistTeachers = (updater) => {
   setTeachers(prev => {
@@ -119,23 +122,7 @@ export default function AdminDashboard({ user, onLogout }) {
   });
 };
 
-/*
-  const persistTeachers = (updater) => {
-    setTeachers(prev => {
-      const next = typeof updater === "function" ? updater(prev) : updater;
-      const toStore = next.filter(t => t.password);
-      localStorage.setItem("spaceece_teachers", JSON.stringify(toStore));
-      return next;
-    });
-  };*/
-const refreshDB = {
-    teachers: async () => { try { setTeachers(await fetchAPI('/teachers')); } catch(e){} },
-    children: async () => { try { setChildren(await fetchAPI('/children')); } catch(e){} },
-    centers: async () => { try { setCenters(await fetchAPI('/centers')); } catch(e){} },
-    courses:  async () => { try { setCourses(await fetchAPI('/courses')); } catch(e){} },
-    activities: async () => { try { setActivities(await fetchAPI('/activities')); } catch(e){} },
-    attendance: async () => { try { setAttendance(await fetchAPI('/attendance')); } catch(e){} },
-  };
+
   const renderContent = () => {
     switch(activeTab) {
       case "overview":     return <OverviewTab teachers={teachers} courses={courses} batches={[]} sessions={[]}/>;
@@ -151,7 +138,10 @@ const refreshDB = {
       case "reports":      return <ReportsTab teachers={teachers} courses={courses} batches={[]}/>;
       case "notifications":return <NotificationsTab teachers={teachers} setToast={setToast}/>;
       case "settings":     return <SettingsTab setToast={setToast}/>;
+      case "schedules":    return <ScheduleManagementTab setToast={setToast}/>;
+      case "certificates": return <CertificateManagementTab setToast={setToast}/>;
       case "feedback":     return <FeedbackManagementTab setToast={setToast}/>;
+      case "automation":   return <AutomationTab user={user} setToast={setToast}/>;
       default:             return null;
     }
   };

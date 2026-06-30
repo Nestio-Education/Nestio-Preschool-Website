@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Modal, S, SearchBar, StatCard, StatusBadge, Toast } from "../components/Shared";
-import { getActivities, reviewActivity, getCenters } from "../services/api";
+import { getActivities, reviewActivity, getCenters, sendAdminNotification, getClasses, getAdminTeachers } from "../services/api";
 import { t } from "../services/i18n";
 
 // BUG FIX: was hardcoded to http://localhost:5000, which breaks in any
@@ -306,6 +306,46 @@ export default function ActivityMonitoringTab({ setToast }) {
     }
   };
 
+  const handleExportCsv = () => {
+    const rows = [["Date", "Teacher", "Center", "Class", "Description", "Status", "Admin Comments"]];
+    filtered.forEach(a => {
+      rows.push([a.date, a.teacherName, a.centerName, a.className, a.description.substring(0, 100), a.status, a.adminComments || ""]);
+    });
+    const csv = rows.map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `activity-monitoring-${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast({ msg: `Exported ${filtered.length} activities to CSV.`, type: "success" });
+  };
+
+  const handleSendReminders = async () => {
+    const overdue = filtered.filter(a => a.status === "pending");
+    if (overdue.length === 0) {
+      showToast({ msg: "No pending activities to send reminders for.", type: "error" });
+      return;
+    }
+    if (!window.confirm(`Send reminder notifications to ${overdue.length} teacher(s) with pending activities?`)) return;
+    let sent = 0;
+    for (const act of overdue) {
+      try {
+        await sendAdminNotification({
+          recipient: act.id,
+          title: "⏰ Activity Reminder",
+          body: `You have a pending activity submission for "${act.className}" at ${act.centerName}. Please complete and submit it.`,
+          channel: "in_app",
+        });
+        sent++;
+      } catch (err) {
+        console.error("Reminder failed for", act.id, err);
+      }
+    }
+    showToast({ msg: `Sent ${sent} reminder notification(s).`, type: "success" });
+  };
+
   if (loading) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "40vh", gap: 12 }}>
@@ -341,39 +381,8 @@ export default function ActivityMonitoringTab({ setToast }) {
     rejected: { color: "#6b7280", bg: "#f3f4f6" },
   };
 
-  const getTypeColor = (type) => {
-    switch (type) {
-      case 'photo': return '#3b82f6';
-      case 'video': return '#ef4444';
-      case 'document': return '#10b981';
-      default: return '#6b7280';
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this activity?')) return;
-    try {
-      const res = await fetch(`${API}/activities/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        setActivities(prev => prev.filter(a => a._id !== id));
-        showToast({ msg: "Activity deleted", type: "success" });
-      }
-    } catch (err) {
-      showToast({ msg: "Failed to delete", type: "error" });
-    }
-  };
-
-  if (loading) {
-    return (
-      <div style={{ textAlign: "center", padding: 60, color: "#9ca3af" }}>
-        <div style={{ fontSize: 48, marginBottom: 12 }}>⏳</div>
-        <div style={{ fontSize: 14, fontWeight: 700 }}>Loading activities from database...</div>
-      </div>
-    );
-  }
-
   return (
-    <div style={{ animation: "fadeIn 0.3s ease", fontFamily: "inherit" }}>
+    <div style={{ animation: "fadeIn 0.3s ease" }}>
       {!setToast && <Toast msg={toast.msg} type={toast.type} onClose={() => setLocalToast({ msg: "", type: "" })} />}
 
       {selectedActivity && (
@@ -447,6 +456,10 @@ export default function ActivityMonitoringTab({ setToast }) {
           <button onClick={clearFilters}
             style={{ ...S.tblBtn, color: "#ef4444", borderColor: "#fca5a5" }}>✕ Clear</button>
         )}
+        <button onClick={handleExportCsv}
+          style={{ ...S.tblBtn, color: "#2563eb", borderColor: "#93c5fd" }}>📥 Export CSV</button>
+        <button onClick={handleSendReminders}
+          style={{ ...S.tblBtn, color: "#f59e0b", borderColor: "#fcd34d" }}>🔔 Send Reminders ({filtered.filter(a => a.status === "pending").length})</button>
       </div>
 
       {/* FEATURE: bulk approve bar — only relevant when there are pending items in view */}

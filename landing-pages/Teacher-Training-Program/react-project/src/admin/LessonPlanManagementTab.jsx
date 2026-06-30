@@ -3,14 +3,16 @@ import { Modal, S, SearchBar, StatCard, StatusBadge, Toast } from "../components
 import { 
   getLessonPlans, createLessonPlan, updateLessonPlan, deleteLessonPlan,
   getCenters, getClasses, getCourses, getAdminTeachers,
-  getAdminLessonAssignments, assignLessonPlan, updateLessonPlanAssignment 
+  getAdminLessonAssignments, assignLessonPlan, updateLessonPlanAssignment,
+  getAdminLessonReports, reviewLessonReport,
+  autoGenerateLessonPlan, autoPublishLessonPlan
 } from "../services/api";
 
 const mapTeacherFromApi = (t) => ({
   id: t._id || t.id,
   name: t.name,
   centerId: t.teacherProfile?.center?._id || t.teacherProfile?.center || "",
-  classId: t.teacherProfile?.class?._id || t.teacherProfile?.class || "",
+  classId: (t.teacherProfile?.classes || [])[0]?._id || "",
 });
 
 const mapPlanFromApi = (p, assignments = []) => {
@@ -54,6 +56,65 @@ function resolveName(list, id, key = "name") {
   if (!id) return "—";
   const found = list.find(x => (x._id || x.id) === id);
   return found ? found[key] : "—";
+}
+
+/* ── Report Review Actions ── */
+function ReportReviewActions({ reportId, onReview, setToast }) {
+  const [feedback, setFeedback] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleApprove = async () => {
+    setLoading(true);
+    await onReview(reportId, "approved", feedback || "Approved by admin");
+    setLoading(false);
+    setFeedback("");
+  };
+
+  const handleReject = async () => {
+    if (!feedback.trim()) {
+      setToast({ msg: "Please provide feedback before rejecting.", type: "error" });
+      return;
+    }
+    setLoading(true);
+    await onReview(reportId, "rejected", feedback);
+    setLoading(false);
+    setFeedback("");
+  };
+
+  const handleRequestRevision = async () => {
+    if (!feedback.trim()) {
+      setToast({ msg: "Please provide feedback for revision.", type: "error" });
+      return;
+    }
+    setLoading(true);
+    await onReview(reportId, "revision_requested", feedback);
+    setLoading(false);
+    setFeedback("");
+  };
+
+  return (
+    <div style={{ marginTop: 12, padding: "12px 14px", background: "#f9fafb", borderRadius: 10, border: "1px solid #f3f4f6" }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 8 }}>Admin Review</div>
+      <textarea
+        value={feedback}
+        onChange={(e) => setFeedback(e.target.value)}
+        placeholder="Write feedback for the teacher..."
+        rows={3}
+        style={{ ...S.input, resize: "none", marginBottom: 10, fontSize: 12 }}
+      />
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button onClick={handleApprove} disabled={loading} style={{ ...S.btnGreen, flex: 1 }}>
+          {loading ? "..." : "✓ Approve"}
+        </button>
+        <button onClick={handleRequestRevision} disabled={loading} style={{ ...S.btnOrange, flex: 1 }}>
+          {loading ? "..." : "↻ Revision"}
+        </button>
+        <button onClick={handleReject} disabled={loading} style={{ ...S.btnRed, flex: 1 }}>
+          {loading ? "..." : "✕ Reject"}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 /* ── Plan Form Modal ── */
@@ -225,6 +286,203 @@ function PlanDetailModal({ plan, centers = [], classes = [], teachers = [], onOv
   );
 }
 
+/* ── Auto-Generation Wizard ── */
+function AutoGenerateWizard({ centers, classes, courses, teachers, onPublish, onClose, setToast }) {
+  const [step, setStep] = useState(1);
+  const [config, setConfig] = useState({
+    courseId: "", classId: "", centerId: "",
+    startDate: new Date().toISOString().split("T")[0],
+    durationWeeks: 4, maxActivitiesPerDay: 2,
+    title: "",
+  });
+  const [preview, setPreview] = useState(null);
+  const [generating, setGenerating] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [dragIdx, setDragIdx] = useState(null);
+
+  const handleGenerate = async () => {
+    if (!config.courseId) { setToast({ msg: "Please select a course.", type: "error" }); return; }
+    setGenerating(true);
+    try {
+      const res = await autoGenerateLessonPlan(config);
+      setPreview(res);
+      setStep(2);
+    } catch (err) {
+      setToast({ msg: err.message || "Failed to generate plan.", type: "error" });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    setPublishing(true);
+    try {
+      const res = await autoPublishLessonPlan({
+        courseId: config.courseId,
+        classId: config.classId,
+        centerId: config.centerId,
+        title: config.title || `${preview.course.title} Plan`,
+        schedule: preview.schedule,
+      });
+      setToast({ msg: res.message, type: "success" });
+      onPublish();
+      onClose();
+    } catch (err) {
+      setToast({ msg: err.message || "Failed to publish.", type: "error" });
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const moveDay = (from, to) => {
+    if (to < 0 || to >= preview.schedule.length) return;
+    const newSchedule = [...preview.schedule];
+    const [item] = newSchedule.splice(from, 1);
+    newSchedule.splice(to, 0, item);
+    setPreview({ ...preview, schedule: newSchedule });
+  };
+
+  const moveActivity = (dayIdx, from, to) => {
+    if (to < 0 || to >= preview.schedule[dayIdx].activities.length) return;
+    const newSchedule = [...preview.schedule];
+    const day = { ...newSchedule[dayIdx], activities: [...newSchedule[dayIdx].activities] };
+    const [item] = day.activities.splice(from, 1);
+    day.activities.splice(to, 0, item);
+    day.activities.forEach((a, i) => a.order = i + 1);
+    newSchedule[dayIdx] = day;
+    setPreview({ ...preview, schedule: newSchedule });
+  };
+
+  const removeActivity = (dayIdx, actIdx) => {
+    const newSchedule = [...preview.schedule];
+    const day = { ...newSchedule[dayIdx], activities: [...newSchedule[dayIdx].activities] };
+    day.activities.splice(actIdx, 1);
+    day.activities.forEach((a, i) => a.order = i + 1);
+    newSchedule[dayIdx] = day;
+    setPreview({ ...preview, schedule: newSchedule });
+  };
+
+  const filteredClasses = config.centerId
+    ? classes.filter(c => String(c.center?._id || c.center) === config.centerId)
+    : classes;
+
+  return (
+    <Modal title="🤖 Auto-Generate Lesson Plan" onClose={onClose}>
+      {step === 1 && (
+        <div>
+          <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+            {[1, 2, 3].map(s => (
+              <div key={s} style={{ flex: 1, height: 4, borderRadius: 2, background: s <= step ? "#f59e0b" : "#e5e7eb" }} />
+            ))}
+          </div>
+
+          <label style={S.label}>Course * (source of activities)</label>
+          <select style={S.input} value={config.courseId} onChange={e => setConfig({ ...config, courseId: e.target.value })}>
+            <option value="">Select a course...</option>
+            {courses.map(c => <option key={c._id || c.id} value={c._id || c.id}>{c.title} ({(c.modules || []).length} modules)</option>)}
+          </select>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
+            <div>
+              <label style={S.label}>Center</label>
+              <select style={S.input} value={config.centerId} onChange={e => setConfig({ ...config, centerId: e.target.value, classId: "" })}>
+                <option value="">All Centers</option>
+                {centers.map(c => <option key={c._id || c.id} value={c._id || c.id}>{c.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={S.label}>Class</label>
+              <select style={S.input} value={config.classId} onChange={e => setConfig({ ...config, classId: e.target.value })}>
+                <option value="">All Classes</option>
+                {filteredClasses.map(c => <option key={c._id || c.id} value={c._id || c.id}>{c.name}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 12 }}>
+            <div>
+              <label style={S.label}>Start Date *</label>
+              <input style={S.input} type="date" value={config.startDate} onChange={e => setConfig({ ...config, startDate: e.target.value })} />
+            </div>
+            <div>
+              <label style={S.label}>Duration (weeks)</label>
+              <input style={S.input} type="number" min={1} max={52} value={config.durationWeeks} onChange={e => setConfig({ ...config, durationWeeks: parseInt(e.target.value) || 4 })} />
+            </div>
+            <div>
+              <label style={S.label}>Max Activities/Day</label>
+              <input style={S.input} type="number" min={1} max={5} value={config.maxActivitiesPerDay} onChange={e => setConfig({ ...config, maxActivitiesPerDay: parseInt(e.target.value) || 2 })} />
+            </div>
+          </div>
+
+          <label style={{ ...S.label, marginTop: 12 }}>Plan Title (optional)</label>
+          <input style={S.input} value={config.title} onChange={e => setConfig({ ...config, title: e.target.value })} placeholder="e.g. Early Childhood — Week 1-4" />
+
+          <button onClick={handleGenerate} disabled={generating} style={{ ...S.primaryBtn, width: "100%", marginTop: 16, opacity: generating ? 0.7 : 1 }}>
+            {generating ? "⏳ Generating Schedule..." : "🤖 Generate Day-by-Day Schedule →"}
+          </button>
+        </div>
+      )}
+
+      {step === 2 && preview && (
+        <div>
+          <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+            {[1, 2, 3].map(s => (
+              <div key={s} style={{ flex: 1, height: 4, borderRadius: 2, background: s <= 2 ? "#f59e0b" : "#e5e7eb" }} />
+            ))}
+          </div>
+
+          <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, padding: 14, marginBottom: 16 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#065f46" }}>✅ Generated Schedule</div>
+            <div style={{ fontSize: 12, color: "#374151", marginTop: 4 }}>
+              <strong>{preview.course.title}</strong> · {preview.totalActivities} activities across {preview.totalDays} working days · {preview.durationWeeks} weeks
+            </div>
+          </div>
+
+          <div style={{ maxHeight: 400, overflowY: "auto", paddingRight: 4 }}>
+            {preview.schedule.map((day, di) => (
+              <div key={di} style={{ marginBottom: 12, border: "1px solid #f1f5f9", borderRadius: 10, overflow: "hidden" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: "#f8fafc", borderBottom: "1px solid #f1f5f9" }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#374151" }}>
+                    📅 {day.date} ({day.dayOfWeek}) — {day.activities.length} activity(ies)
+                  </div>
+                  <div style={{ display: "flex", gap: 4 }}>
+                    <button onClick={() => moveDay(di, di - 1)} disabled={di === 0} style={{ ...S.tblBtn, fontSize: 10, padding: "2px 6px", opacity: di === 0 ? 0.4 : 1 }}>↑</button>
+                    <button onClick={() => moveDay(di, di + 1)} disabled={di === preview.schedule.length - 1} style={{ ...S.tblBtn, fontSize: 10, padding: "2px 6px", opacity: di === preview.schedule.length - 1 ? 0.4 : 1 }}>↓</button>
+                  </div>
+                </div>
+                {day.activities.map((act, ai) => (
+                  <div key={ai} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderBottom: ai < day.activities.length - 1 ? "1px solid #f9fafb" : "none" }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", width: 16 }}>{act.order}.</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: "#1c1917" }}>{act.contentTitle}</div>
+                      <div style={{ fontSize: 10, color: "#9ca3af" }}>{act.moduleTitle} · {act.contentType} · {act.durationMinutes}min</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 2 }}>
+                      <button onClick={() => moveActivity(di, ai, ai - 1)} disabled={ai === 0} style={{ ...S.tblBtn, fontSize: 9, padding: "2px 4px", opacity: ai === 0 ? 0.4 : 1 }}>↑</button>
+                      <button onClick={() => moveActivity(di, ai, ai + 1)} disabled={ai === day.activities.length - 1} style={{ ...S.tblBtn, fontSize: 9, padding: "2px 4px", opacity: ai === day.activities.length - 1 ? 0.4 : 1 }}>↓</button>
+                      <button onClick={() => removeActivity(di, ai)} style={{ ...S.tblBtn, fontSize: 9, padding: "2px 4px", color: "#dc2626", borderColor: "#fca5a5" }}>✕</button>
+                    </div>
+                  </div>
+                ))}
+                {day.activities.length === 0 && (
+                  <div style={{ padding: "12px", textAlign: "center", fontSize: 11, color: "#9ca3af" }}>No activities — free day</div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+            <button onClick={() => setStep(1)} style={{ ...S.tblBtn, flex: 1 }}>← Back</button>
+            <button onClick={handlePublish} disabled={publishing} style={{ ...S.primaryBtn, flex: 2, opacity: publishing ? 0.7 : 1 }}>
+              {publishing ? "⏳ Publishing..." : `🚀 Publish ${preview.schedule.length} Plans & Assign Teachers →`}
+            </button>
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
+}
+
 /* ── Main Tab ── */
 export default function LessonPlanManagementTab({ setToast }) {
   const [plans, setPlans] = useState([]);
@@ -233,7 +491,9 @@ export default function LessonPlanManagementTab({ setToast }) {
   const [courses, setCourses] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [assignments, setAssignments] = useState([]);
+  const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("plans");
 
   const [search, setSearch] = useState("");
   const [filterCenter, setFilterCenter] = useState("all");
@@ -242,6 +502,7 @@ export default function LessonPlanManagementTab({ setToast }) {
   const [formModal, setFormModal] = useState(false);
   const [editPlan, setEditPlan] = useState(null);
   const [detailPlan, setDetailPlan] = useState(null);
+  const [autoModal, setAutoModal] = useState(false);
   const [localToast, setLocalToast] = useState({ msg: "", type: "" });
 
   const showToast = setToast || setLocalToast;
@@ -254,19 +515,22 @@ export default function LessonPlanManagementTab({ setToast }) {
       getClasses(),
       getCourses(),
       getAdminTeachers(),
-      getAdminLessonAssignments()
-    ]).then(([plansRes, centersRes, classesRes, coursesRes, teachersRes, assnsRes]) => {
+      getAdminLessonAssignments(),
+      getAdminLessonReports()
+    ]).then(([plansRes, centersRes, classesRes, coursesRes, teachersRes, assnsRes, reportsRes]) => {
       const dbCenters = centersRes.centers || [];
       const dbClasses = classesRes.classes || [];
       const dbCourses = coursesRes.courses || [];
       const dbTeachers = (teachersRes.teachers || []).map(mapTeacherFromApi);
       const dbAssns = assnsRes.assignments || [];
+      const dbReports = reportsRes.reports || [];
 
       setCenters(dbCenters);
       setClasses(dbClasses);
       setCourses(dbCourses);
       setTeachers(dbTeachers);
       setAssignments(dbAssns);
+      setReports(dbReports);
 
       const dbPlans = (plansRes.lessonPlans || []).map(p => mapPlanFromApi(p, dbAssns));
       setPlans(dbPlans);
@@ -375,6 +639,16 @@ export default function LessonPlanManagementTab({ setToast }) {
   const openEdit = (plan) => { setEditPlan(plan); setFormModal(true); };
   const openAdd  = ()     => { setEditPlan(null); setFormModal(true); };
 
+  const handleReviewReport = async (reportId, status, feedback) => {
+    try {
+      await reviewLessonReport(reportId, { status, adminFeedback: feedback });
+      showToast({ msg: `Report ${status} successfully!`, type: "success" });
+      loadData();
+    } catch (err) {
+      showToast({ msg: err.message || "Failed to review report.", type: "error" });
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "40vh", fontSize: 14, fontWeight: 600, color: "#d97706" }}>
@@ -386,6 +660,8 @@ export default function LessonPlanManagementTab({ setToast }) {
   const activePlansCount = plans.length;
   const completedTeacherEntries = assignments.filter(a => a.status === "completed" || a.status === "reviewed").length;
   const pendingTeacherEntries   = assignments.filter(a => a.status === "pending").length;
+  const pendingReports = reports.filter(r => r.status === "pending").length;
+  const reviewedReports = reports.filter(r => r.status === "approved" || r.status === "reviewed").length;
 
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
@@ -413,6 +689,17 @@ export default function LessonPlanManagementTab({ setToast }) {
           onOverride={handleOverride}
         />
       )}
+      {autoModal && (
+        <AutoGenerateWizard
+          centers={centers}
+          classes={classes}
+          courses={courses}
+          teachers={teachers}
+          onPublish={loadData}
+          onClose={() => setAutoModal(false)}
+          setToast={showToast}
+        />
+      )}
 
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
@@ -421,6 +708,34 @@ export default function LessonPlanManagementTab({ setToast }) {
           <p style={S.pageSub}>{activePlansCount} active base plans · {completedTeacherEntries} completions delivered</p>
         </div>
         <button onClick={openAdd} style={S.primaryBtn}>+ Create Base Plan</button>
+        <button onClick={() => setAutoModal(true)} style={{ ...S.primaryBtn, background: "#7c3aed", marginLeft: 8 }}>🤖 Auto-Generate</button>
+      </div>
+
+      {/* Sub-tabs */}
+      <div style={{ display: "flex", gap: 4, marginBottom: 20, borderBottom: "2px solid #f3f4f6" }}>
+        {[
+          { key: "plans", label: "Base Plans" },
+          { key: "reports", label: `Completion Reports (${pendingReports} pending)` },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            style={{
+              padding: "10px 18px",
+              border: "none",
+              borderBottom: `2px solid ${activeTab === tab.key ? "#f59e0b" : "transparent"}`,
+              background: "none",
+              color: activeTab === tab.key ? "#92400e" : "#9ca3af",
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              marginBottom: -2,
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* KPI Display */}
@@ -428,8 +743,12 @@ export default function LessonPlanManagementTab({ setToast }) {
         <StatCard icon="📋" label="Base Plans" val={activePlansCount} color="#f59e0b" bg="#fef3c7" />
         <StatCard icon="⏳" label="Teacher Pending" val={pendingTeacherEntries} color="#3b82f6" bg="#dbeafe" />
         <StatCard icon="✅" label="Delivered Done" val={completedTeacherEntries} color="#10b981" bg="#d1fae5" />
+        {activeTab === "reports" && <StatCard icon="📝" label="Pending Reports" val={pendingReports} color="#8b5cf6" bg="#ede9fe" />}
+        {activeTab === "reports" && <StatCard icon="✅" label="Reviewed Reports" val={reviewedReports} color="#10b981" bg="#d1fae5" />}
       </div>
 
+      {activeTab === "plans" && (
+        <>
       {/* Filter Toolbar */}
       <div style={{ background: "white", borderRadius: 14, padding: "14px 18px", border: "1px solid #f1f5f9", marginBottom: 16, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         <div style={{ flex: 1, minWidth: 200 }}>
@@ -505,6 +824,67 @@ export default function LessonPlanManagementTab({ setToast }) {
           <div style={{ fontSize: 48, marginBottom: 12 }}>📋</div>
           <div style={{ fontSize: 14, fontWeight: 700 }}>No lesson plans found</div>
           <div style={{ fontSize: 12, marginTop: 4 }}>Create a new base plan or check filters.</div>
+        </div>
+      )}
+        </>
+      )}
+
+      {activeTab === "reports" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {reports.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px 20px", color: "#9ca3af" }}>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>📝</div>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>No completion reports yet</div>
+              <div style={{ fontSize: 12, marginTop: 4 }}>Reports will appear here when teachers submit lesson completions.</div>
+            </div>
+          ) : reports.map(r => {
+            const teacherName = r.teacher?.name || "Unknown Teacher";
+            const planTitle = r.assignment?.lessonPlan?.title || "Unknown Plan";
+            const centerName = r.assignment?.center?.name || "—";
+            const className = r.assignment?.class?.name || "—";
+            const isPending = r.status === "pending";
+            return (
+              <div key={r._id || r.id} style={{ background: "white", borderRadius: 14, padding: "18px 22px", border: "1px solid #f1f5f9", borderLeft: `4px solid ${isPending ? "#f59e0b" : "#10b981"}`, boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", marginBottom: 4 }}>{planTitle}</div>
+                    <div style={{ fontSize: 12, color: "#6b7280", display: "flex", gap: 12, flexWrap: "wrap" }}>
+                      <span>Teacher: {teacherName}</span>
+                      <span>Center: {centerName}</span>
+                      <span>Class: {className}</span>
+                      <span>Submitted: {r.createdAt ? new Date(r.createdAt).toLocaleDateString("en-IN", { dateStyle: "medium" }) : "—"}</span>
+                    </div>
+                  </div>
+                  <StatusBadge status={r.status} />
+                </div>
+
+                {r.teachingNotes && (
+                  <div style={{ marginBottom: 10, padding: "10px 12px", background: "#f9fafb", borderRadius: 8, border: "1px solid #f3f4f6" }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", marginBottom: 4 }}>Teaching Notes</div>
+                    <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.5 }}>{r.teachingNotes}</div>
+                  </div>
+                )}
+
+                {r.activityDescription && (
+                  <div style={{ marginBottom: 10, padding: "10px 12px", background: "#f9fafb", borderRadius: 8, border: "1px solid #f3f4f6" }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", marginBottom: 4 }}>Activity Description</div>
+                    <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.5 }}>{r.activityDescription}</div>
+                  </div>
+                )}
+
+                {r.adminFeedback && (
+                  <div style={{ marginBottom: 10, padding: "10px 12px", background: "#f0fdf4", borderRadius: 8, border: "1px solid #bbf7d0" }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#065f46", textTransform: "uppercase", marginBottom: 4 }}>Admin Feedback</div>
+                    <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.5 }}>{r.adminFeedback}</div>
+                  </div>
+                )}
+
+                {isPending && (
+                  <ReportReviewActions reportId={r._id || r.id} onReview={handleReviewReport} setToast={showToast} />
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
