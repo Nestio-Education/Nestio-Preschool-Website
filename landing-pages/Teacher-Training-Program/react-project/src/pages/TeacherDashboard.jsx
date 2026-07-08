@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { Logo, Toast, Badge, StatusBadge, StatCard, SectionCard, S, globalCSS } from "../components/Shared";
 import { t, setLanguage, getLanguageList, getCurrentLanguage, LANG_CHANGE_EVENT } from "../services/i18n";
 import { updateTeacherNotificationPreference } from "../services/api";
@@ -344,7 +344,6 @@ const getCourseContent = (assignment, notes = []) => {
 
   const mapContentItem = (content, moduleIndex, contentIndex) => {
     const id = content._id || `content-${moduleIndex}-${contentIndex}`;
-    // Support both externalUrl (from DB contents) and videoUrl (from admin form lessons)
     const url = content.externalUrl || content.videoUrl || content.url || content.file?.publicUrl || "";
     const youtubeMatch = url.match(/(?:youtube\.com\/(?:.*[?&]v=|embed\/)|youtu\.be\/)([^"&?\/\s]{11})/);
     const contentNotes = notes.filter(n => n.moduleIndex === moduleIndex && n.contentIndex === contentIndex);
@@ -361,12 +360,10 @@ const getCourseContent = (assignment, notes = []) => {
 
   let modules;
   if (rawModules.length > 0) {
-    // Check if ANY module has content items; if none do, treat as contentLink-backed course
     const anyHasContent = rawModules.some(m => (m.contents?.length || m.lessons?.length || 0) > 0);
     if (!anyHasContent && (dbCourse.contentLink || dbCourse.youtubeId)) {
       // Fall through to contentLink handling below
     } else if (!anyHasContent) {
-      // Modules exist but all are empty — show as "no content" placeholder
       modules = [{
         id: `module-0`,
         title: dbCourse.title || "Course Content",
@@ -377,7 +374,6 @@ const getCourseContent = (assignment, notes = []) => {
       }];
     } else {
       modules = rawModules.map((module, moduleIndex) => {
-        // Support both module.contents (DB schema) and module.lessons (admin form schema)
         const rawItems = module.contents?.length ? module.contents
           : module.lessons?.length ? module.lessons
           : [];
@@ -481,7 +477,6 @@ function CoursesTab({ assignments = [], onMarkDone }) {
       completedContent.push(videoId);
     }
     const allVids = enrichedContent.modules.flatMap(m => m.items);
-    // Guard against division by zero
     const progressPercent = allVids.length > 0
       ? Math.round((completedContent.length / allVids.length) * 100)
       : completedContent.length > 0 ? 100 : 0;
@@ -503,7 +498,6 @@ function CoursesTab({ assignments = [], onMarkDone }) {
     return { done, total: allKeys.length };
   };
 
-  // ── Course list view ──
   if (!activeAssignmentId) {
     return (
       <div style={{ animation: "fadeIn 0.3s ease" }}>
@@ -566,14 +560,12 @@ function CoursesTab({ assignments = [], onMarkDone }) {
     );
   }
 
-  // ── Course player view ──
   const activeModule  = enrichedContent?.modules.find(m => m.id === activeModuleId);
   const activeVideo   = activeModule?.items.find(v => v.id === activeVideoId);
   const overallProg   = activeAssignment?.progressPercent || 0;
 
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
-      {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
         <button onClick={() => setActiveAssignmentId(null)} style={{ background: "#f3f4f6", border: "none", borderRadius: 10, padding: "8px 14px", fontWeight: 700, fontSize: 13, cursor: "pointer", color: "#374151" }}>← Back</button>
         <div style={{ flex: 1 }}>
@@ -588,7 +580,6 @@ function CoursesTab({ assignments = [], onMarkDone }) {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 20, alignItems: "start" }}>
-        {/* ── Sidebar: module/video list ── */}
         <div style={{ background: "white", borderRadius: 16, border: "1px solid #f1f5f9", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
           <div style={{ padding: "14px 16px", background: "#f8fafc", borderBottom: "1px solid #f1f5f9" }}>
             <div style={{ fontSize: 13, fontWeight: 800, color: "#1c1917" }}>Course Content</div>
@@ -600,7 +591,6 @@ function CoursesTab({ assignments = [], onMarkDone }) {
               const isModActive = mod.id === activeModuleId;
               return (
                 <div key={mod.id}>
-                  {/* Module header */}
                   <div
                     onClick={() => { setActiveModuleId(mod.id); setActiveVideoId(mod.items[0]?.id); setActiveTab("video"); }}
                     style={{ padding: "12px 16px", background: isModActive ? "#fffbeb" : "white", borderBottom: "1px solid #f9fafb", cursor: "pointer", borderLeft: `3px solid ${isModActive ? (enrichedContent?.color || "#f59e0b") : "transparent"}` }}
@@ -613,7 +603,6 @@ function CoursesTab({ assignments = [], onMarkDone }) {
                       </span>
                     </div>
                   </div>
-                  {/* items under module */}
                   {isModActive && mod.items.map((vid) => {
                     const isActive = vid.id === activeVideoId;
                     const done = isVideoDone(activeAssignment, vid.id);
@@ -639,13 +628,10 @@ function CoursesTab({ assignments = [], onMarkDone }) {
           </div>
         </div>
 
-        {/* ── Main content area ── */}
         <div>
           {activeVideo ? (
             <>
-              {/* Video + Notes tabs */}
               <div style={{ background: "white", borderRadius: 16, border: "1px solid #f1f5f9", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", marginBottom: 16 }}>
-                {/* Tab bar */}
                 <div style={{ display: "flex", borderBottom: "1px solid #f1f5f9" }}>
                   {["video","notes"].map(t => (
                     <button key={t} onClick={() => setActiveTab(t)} style={{ flex: 1, padding: "12px", border: "none", background: activeTab===t?"#fffbeb":"white", color: activeTab===t?"#92400e":"#6b7280", fontWeight: activeTab===t?800:600, fontSize: 13, cursor: "pointer", borderBottom: `2px solid ${activeTab===t?(enrichedContent?.color || "#f59e0b"):"transparent"}`, transition: "all 0.15s" }}>
@@ -656,7 +642,6 @@ function CoursesTab({ assignments = [], onMarkDone }) {
 
                 {activeTab === "video" ? (
                   <div>
-                    {/* YouTube embed */}
                     <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, background: "#000" }}>
                       <iframe
                         src={`https://www.youtube.com/embed/${activeVideo.ytId}?rel=0&modestbranding=1`}
@@ -703,7 +688,6 @@ function CoursesTab({ assignments = [], onMarkDone }) {
                 )}
               </div>
 
-              {/* Next video navigation */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ fontSize: 12, color: "#6b7280" }}>
                   {(() => {
@@ -1100,13 +1084,11 @@ function ProfileTab({ user, onWorkingCenterChange, onUserUpdate }) {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState(""); // "success" | "error"
   
-  // Profile picture state
   const [profilePhoto, setProfilePhoto] = useState(user.photoUrl || null);
   const [imageLoadError, setImageLoadError] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileInputRef = useRef(null);
   
-  // Password change state
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -1138,7 +1120,6 @@ function ProfileTab({ user, onWorkingCenterChange, onUserUpdate }) {
     }
   }, [user.photoUrl]);
 
-  // Profile picture upload handler
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1162,20 +1143,16 @@ function ProfileTab({ user, onWorkingCenterChange, onUserUpdate }) {
       if (uploadRes && uploadRes.asset) {
         let photoUrl = uploadRes.asset.publicUrl;
         
-        // Convert relative URL to absolute if needed
         if (photoUrl.startsWith("/uploads/")) {
           const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
           photoUrl = `${API_BASE_URL}${photoUrl}`;
         }
         
-        // Set the photo URL immediately for display
         setProfilePhoto(photoUrl);
         setImageLoadError(false);
         
-        // Then save to backend
         const res = await updateTeacherMe({ photoUrl });
         
-        // Update parent user object if callback provided
         if (res.teacher && onUserUpdate) {
           onUserUpdate(res.teacher);
         }
@@ -1191,7 +1168,6 @@ function ProfileTab({ user, onWorkingCenterChange, onUserUpdate }) {
     }
   };
 
-  // Profile save handler
   const handleSave = async () => {
     setSaving(true);
     setMessage("");
@@ -1230,12 +1206,10 @@ function ProfileTab({ user, onWorkingCenterChange, onUserUpdate }) {
       setForm(nextForm);
       setSavedForm(nextForm);
       
-      // Update profile photo state if backend returned a different URL
       if (updated.photoUrl && updated.photoUrl !== profilePhoto) {
         setProfilePhoto(updated.photoUrl);
       }
       
-      // Update parent user object if callback provided
       if (onUserUpdate) {
         onUserUpdate(updated);
       }
@@ -1252,7 +1226,6 @@ function ProfileTab({ user, onWorkingCenterChange, onUserUpdate }) {
     }
   };
 
-  // Password change handler
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -1318,7 +1291,6 @@ function ProfileTab({ user, onWorkingCenterChange, onUserUpdate }) {
         </div>
       </div>
 
-      {/* Profile Picture Card */}
       <div style={{ background: "white", borderRadius: 20, padding: "28px", border: "1px solid #f1f5f9", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginBottom: 20 }}>
         <h3 style={{ fontSize: 14, fontWeight: 800, color: "#1c1917", margin: "0 0 16px" }}>📷 Profile Picture</h3>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
@@ -1374,7 +1346,6 @@ function ProfileTab({ user, onWorkingCenterChange, onUserUpdate }) {
         </div>
       </div>
 
-      {/* Personal Information Card */}
       <div style={{ background: "white", borderRadius: 20, padding: "28px", border: "1px solid #f1f5f9", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginBottom: 20 }}>
         <h3 style={{ fontSize: 14, fontWeight: 800, color: "#1c1917", margin: "0 0 16px" }}>👤 Personal Information</h3>
         
@@ -1442,7 +1413,6 @@ function ProfileTab({ user, onWorkingCenterChange, onUserUpdate }) {
         </div>
       </div>
 
-      {/* Professional Information Card */}
       <div style={{ background: "white", borderRadius: 20, padding: "28px", border: "1px solid #f1f5f9", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginBottom: 20 }}>
         <h3 style={{ fontSize: 14, fontWeight: 800, color: "#1c1917", margin: "0 0 16px" }}>💼 Professional Information</h3>
         
@@ -1483,7 +1453,6 @@ function ProfileTab({ user, onWorkingCenterChange, onUserUpdate }) {
         </div>
       </div>
 
-      {/* Account Information Card */}
       <div style={{ background: "white", borderRadius: 20, padding: "28px", border: "1px solid #f1f5f9", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginBottom: 20 }}>
         <h3 style={{ fontSize: 14, fontWeight: 800, color: "#1c1917", margin: "0 0 16px" }}>🔐 Account Information</h3>
         
@@ -1571,7 +1540,6 @@ function ProfileTab({ user, onWorkingCenterChange, onUserUpdate }) {
         </div>
       </div>
 
-      {/* Change Password Card */}
       <div style={{ background: "white", borderRadius: 20, padding: "28px", border: "1px solid #f1f5f9", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
         <h3 style={{ fontSize: 14, fontWeight: 800, color: "#1c1917", margin: "0 0 16px" }}>🔒 Change Password</h3>
         
@@ -1716,7 +1684,6 @@ function TeacherFeedbackTab({ user, setToast }) {
   useEffect(() => {
     getFeedbacks()
       .then(data => {
-        // Show only feedbacks from current user
         const mine = (data.feedbacks || []).filter(f =>
           (f.learner && f.learner !== "Anonymous" && f.learner === user.name) ||
           (f.teacherId && String(f.teacherId) === String(user._id))
@@ -1760,7 +1727,6 @@ function TeacherFeedbackTab({ user, setToast }) {
       <p style={S.pageSub}>Share your training experience and help us improve.</p>
 
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
-        {/* Submit Form */}
         <SectionCard title="📝 New Feedback">
           <form onSubmit={handleSubmit}>
             <label style={S.label}>Course / Training (optional)</label>
@@ -1819,7 +1785,6 @@ function TeacherFeedbackTab({ user, setToast }) {
           </form>
         </SectionCard>
 
-        {/* My Previous Feedbacks */}
         <SectionCard title="📋 My Previous Submissions">
           {loading ? (
             <div style={{textAlign:"center", padding:30, color:"#9ca3af"}}>Loading...</div>
@@ -2045,7 +2010,6 @@ export default function TeacherDashboard({ user, onLogout }) {
 
   const navItems = [
     { key: "overview",      label: "Teacher's Dashboard", icon: "📊" },
-    //{ key: "my_children",   label: "My Children",         icon: "👶" },
     { key: "children_att",  label: "Daily Attendance",    icon: "📋" },
     { key: "geotag",        label: "Geotag Attendance",   icon: "📍" },
     { key: "training",      label: "Training & Lessons",  icon: "🎓" },
@@ -2064,7 +2028,7 @@ export default function TeacherDashboard({ user, onLogout }) {
 
   // Pages that are fully wired to backend/database and should render normally.
   // Every other page shows an "Under Construction" placeholder instead.
-  const WORKING_TABS = new Set(["overview", "children_att", "geotag", "profile"]);
+  const WORKING_TABS = new Set(["overview", "children_att", "geotag", "profile", "training"]);
 
   const renderContent = () => {
     if (loading) {
@@ -2082,9 +2046,6 @@ export default function TeacherDashboard({ user, onLogout }) {
       );
     }
 
-    // Gate: only the explicitly whitelisted tabs render their real component.
-    // Everything else shows the Under Construction placeholder, without
-    // touching any of the existing tab implementations or data wiring.
     if (!WORKING_TABS.has(activeTab)) {
       const navItem = navItems.find(n => n.key === activeTab);
       return <UnderConstructionTab label={navItem ? t(navItem.label) : "This page"} icon={navItem?.icon || "🚧"} />;
@@ -2092,89 +2053,6 @@ export default function TeacherDashboard({ user, onLogout }) {
 
     switch(activeTab) {
       case "overview":      return <OverviewTab user={enrichedUser} setActiveTab={handleTabSwitch} courses={courses} assignments={courses} lessons={lessons} activities={activities} summary={summary}/>;
-      /*case "my_children":   return (
-        <div style={{ padding: 24 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>My Children</h2>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              {teacherClasses.length > 1 && (
-                <select
-                  value={selectedChildClassId}
-                  onChange={e => setSelectedChildClassId(e.target.value)}
-                  style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "white" }}
-                >
-                  {teacherClasses.map(c => (
-                    <option key={c._id || c.id} value={c._id || c.id}>{c.name}</option>
-                  ))}
-                </select>
-              )}
-              <button onClick={async()=>{
-                if (!childForm.name) return;
-                setChildSaving(true);
-                try {
-                  await createTeacherChild({ ...childForm, classId: selectedChildClassId });
-                  setChildForm({ name: "", age: "", gender: "Male", parentName: "", phone: "", email: "", address: "" });
-                  const res = await getTeacherChildren(selectedChildClassId);
-                  if (res?.children) setTeacherChildren(res.children);
-                  setToast({ msg: "Child added successfully!", type: "success" });
-                } catch(e) { setToast({ msg: e.message || "Failed to add child", type: "error" }); }
-                finally { setChildSaving(false); }
-              }} style={{ padding: "8px 18px", borderRadius: 10, background: "#2563eb", color: "white", border: "none", fontWeight: 700, fontSize: 13, cursor: childSaving ? "not-allowed" : "pointer", opacity: childSaving ? 0.6 : 1 }}>
-                {childSaving ? "Saving..." : "+ Add Child"}
-              </button>
-            </div>
-          </div>
-          <div style={{ background: "white", borderRadius: 14, padding: 20, border: "1px solid #e2e8f0", marginBottom: 20 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14, color: "#334155" }}>Add New Child</div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
-              {[
-                { label: "Child Name *", field: "name", type: "text", placeholder: "Full name" },
-                { label: "Age", field: "age", type: "number", placeholder: "Age" },
-                { label: "Gender", field: "gender", type: "select", options: ["Male", "Female", "Other"] },
-                { label: "Parent/Guardian Name", field: "parentName", type: "text", placeholder: "Parent name" },
-                { label: "Parent Phone", field: "phone", type: "text", placeholder: "Phone number" },
-                { label: "Parent Email", field: "email", type: "text", placeholder: "Email (optional)" },
-                { label: "Address", field: "address", type: "text", placeholder: "Address" },
-              ].map(({ label, field, type, placeholder, options }) => (
-                <div key={field}>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 4, display: "block" }}>{label}</label>
-                  {type === "select" ? (
-                    <select value={childForm[field]} onChange={e => setChildForm({...childForm, [field]: e.target.value})}
-                      style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, background: "white" }}>
-                      {options.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  ) : (
-                    <input type={type} value={childForm[field]} onChange={e => setChildForm({...childForm, [field]: e.target.value})} placeholder={placeholder}
-                      style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, boxSizing: "border-box" }} />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={{ background: "white", borderRadius: 14, padding: 20, border: "1px solid #e2e8f0" }}>
-            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14, color: "#334155" }}>Children in My Class ({teacherChildren.length})</div>
-            {teacherChildren.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 30, color: "#94a3b8", fontSize: 13 }}>
-                No children added yet. Use the form above to add children to your class.
-              </div>
-            ) : (
-              <div style={{ display: "grid", gap: 10 }}>
-                {teacherChildren.map((child, i) => (
-                  <div key={child._id || i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "#f8fafc", borderRadius: 10, border: "1px solid #e2e8f0" }}>
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: 14 }}>{child.name}</div>
-                      <div style={{ fontSize: 11, color: "#6b7280" }}>
-                        Age: {child.age || "N/A"} · Gender: {child.gender || "N/A"} · Parent: {child.parentName || "N/A"} {child.phone ? `· 📞 ${child.phone}` : ""}
-                      </div>
-                    </div>
-                    <div style={{ fontSize: 11, color: "#9ca3af" }}>{child.class?.name || child.class?.grade || ""}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      );*/
       case "children_att":  return <AttendanceManager user={enrichedUser}/>;
       case "geotag":        return <GeotagAttendance user={enrichedUser}/>;
       case "training":      return <TrainingAndClassroomManager user={enrichedUser}/>;
@@ -2196,7 +2074,6 @@ export default function TeacherDashboard({ user, onLogout }) {
       <style>{globalCSS}</style>
       <Toast msg={toast.msg} type={toast.type} onClose={()=>setToast({msg:"",type:""})}/>
 
-      {/* Sidebar */}
       <div style={{ width: 240, background: "white", borderRight: "1px solid #f1f5f9", display: "flex", flexDirection: "column", flexShrink: 0, boxShadow: "2px 0 12px rgba(0,0,0,0.04)", position: "sticky", top: 0, height: "100vh", overflowY: "auto" }}>
         <div style={{ padding: "20px 16px 12px" }}>
           <Logo size={120}/>
@@ -2223,9 +2100,7 @@ export default function TeacherDashboard({ user, onLogout }) {
         </div>
       </div>
 
-      {/* Main Content */}
       <div style={{ flex: 1, width: "0px", minWidth: "0px", padding: "28px 32px", overflowY: "auto", maxHeight: "100vh" }}>
-        {/* Top bar with profile icon */}
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
           <button
             onClick={() => setActiveTab("profile")}
@@ -2248,11 +2123,9 @@ export default function TeacherDashboard({ user, onLogout }) {
         {renderContent()}
       </div>
 
-      {/* Floating Chatbot Widget */}
       <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000, display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
         {chatOpen && (
           <div style={{ width: 340, height: 460, background: "rgba(255, 255, 255, 0.95)", backdropFilter: "blur(12px)", border: "1px solid #fbbf24", borderRadius: 20, boxShadow: "0 10px 40px rgba(0,0,0,0.12)", marginBottom: 16, display: "flex", flexDirection: "column", overflow: "hidden", animation: "slideUp 0.3s ease" }}>
-            {/* Header */}
             <div style={{ background: "linear-gradient(135deg,#f59e0b 0%,#d97706 100%)", padding: "16px 20px", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 24 }}>🤖</span>
@@ -2263,7 +2136,6 @@ export default function TeacherDashboard({ user, onLogout }) {
               </div>
               <button onClick={() => setChatOpen(false)} style={{ background: "none", border: "none", color: "white", fontSize: 18, cursor: "pointer", padding: 0 }}>✕</button>
             </div>
-            {/* Messages Area */}
             <div style={{ flex: 1, padding: 16, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, background: "#fafbfc" }}>
               {chatMessages.map((msg, idx) => (
                 <div key={idx} style={{ display: "flex", justifyContent: msg.sender === "user" ? "flex-end" : "flex-start" }}>
@@ -2293,7 +2165,6 @@ export default function TeacherDashboard({ user, onLogout }) {
                 </div>
               )}
             </div>
-            {/* Input Area */}
             <div style={{ padding: 12, background: "white", borderTop: "1px solid #f1f5f9", display: "flex", gap: 8 }}>
               <input
                 type="text"
