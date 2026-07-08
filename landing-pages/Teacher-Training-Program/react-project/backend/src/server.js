@@ -15,6 +15,8 @@ import { generateOtp, storeOtp, verifyOtp, deleteOtp, OTP_TTL_MINUTES } from "./
 import { sendNotification, broadcastNotification, CHANNELS, TEMPLATES } from "./services/notificationService.js";
 import { autoSeed } from "./auto-seed.js";
 import { generateAICourse } from "./services/aiCourseGenerator.js";
+import dailyTaskAutomationRoutes from "./routes/dailyTaskAutomationRoutes.js";
+import { startDailyTaskAutomationCron } from "./cron/dailyTaskCron.js";
 import { User } from "./models/User.js";
 import { Center } from "./models/Center.js";
 import { ClassModel } from "./models/Class.js";
@@ -33,6 +35,11 @@ import { FileAsset } from "./models/FileAsset.js";
 import { ChildAttendanceSession, TeacherAttendanceRecord } from "./models/Attendance.js";
 import { Notification } from "./models/Notification.js";
 import { ReportJob } from "./models/ReportJob.js";
+import ActivityBank from "./models/ActivityBank.js";
+import AutomationTeacher from "./models/AutomationTeacher.js";
+import DailyTaskAssignment from "./models/DailyTaskAssignment.js";
+import TeacherNotification from "./models/TeacherNotification.js";
+import TaskReplacementLog from "./models/TaskReplacementLog.js";
 import { PortalSetting } from "./models/PortalSetting.js";
 import { TrainerMessage } from "./models/TrainerMessage.js";
 import { TrainerPayout } from "./models/TrainerPayout.js";
@@ -45,6 +52,11 @@ dotenv.config({ path: path.join(__dirname, "../.env") });
 const app = express();
 const port = process.env.PORT || 5000;
 const databaseModels = [
+   ActivityBank,
+   AutomationTeacher,
+   DailyTaskAssignment,
+   TeacherNotification,
+   TaskReplacementLog,
    ActivitySubmission,
    Center,
    ChildAttendanceSession,
@@ -241,6 +253,8 @@ app.use(
   })
 );
 app.use(express.json({ limit: "2mb" }));
+
+app.use("/api/daily-task-automation", dailyTaskAutomationRoutes);
 
 const bypassRoutes = [
   "/health",
@@ -4092,6 +4106,7 @@ const server = http.createServer(app);
 // Initialize Socket.IO for real-time communication
 const io = initSocket(server);
 
+startDailyTaskAutomationCron();
 
 server.listen(port, () => {
   console.log(`API running on http://localhost:${port}`);

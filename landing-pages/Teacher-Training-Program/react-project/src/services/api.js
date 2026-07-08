@@ -944,3 +944,51 @@ export function autoGradeAssessment(assessmentId, answers) {
 export function askEnhancedChatbot(message) {
   return request("/api/teacher/chatbot/enhanced", { method: "POST", body: JSON.stringify({ message }) });
 }
+// Daily Task Automation
+export const generateDummyTeachers = async () => {
+  const res = await fetch(`${API_BASE}/daily-task-automation/teachers/generate-dummy`, { method: "POST" });
+  return res.json();
+};
+
+export const uploadActivityBank = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch(`${API_BASE}/daily-task-automation/activities/upload`, {
+    method: "POST",
+    body: formData
+  });
+  return res.json();
+};
+
+export const generateDailyTasks = async ({ activityCount = 4, replaceExisting = false } = {}) => {
+  const res = await fetch(`${API_BASE}/daily-task-automation/generate-daily`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ activityCount, replaceExisting })
+  });
+  return res.json();
+};
+
+export const getTodayAssignments = async () => {
+  const res = await fetch(`${API_BASE}/daily-task-automation/today`);
+  return res.json();
+};
+
+export const getTeacherTodayTasks = async (teacherId) => {
+  const res = await fetch(`${API_BASE}/daily-task-automation/teacher/${teacherId}/today`);
+  return res.json();
+};
+
+export const getTeacherNotifications = async (teacherId) => {
+  const res = await fetch(`${API_BASE}/daily-task-automation/teacher/${teacherId}/notifications`);
+  return res.json();
+};
+
+export const updateTaskStatus = async (assignmentId, taskId, status) => {
+  const res = await fetch(`${API_BASE}/daily-task-automation/assignments/${assignmentId}/tasks/${taskId}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status })
+  });
+  return res.json();
+};
