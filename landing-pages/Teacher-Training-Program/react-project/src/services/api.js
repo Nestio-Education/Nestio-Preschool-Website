@@ -992,3 +992,64 @@ export const updateTaskStatus = async (assignmentId, taskId, status) => {
   });
   return res.json();
 };
+// ── Course Library (parsed from the .docx source of truth) ──
+export function getCourseLibrary() {
+  return request("/api/course-library");
+}
+
+export function getCourseLibraryDetail(libraryId) {
+  return request(`/api/course-library/${libraryId}`);
+}
+
+// Admin: create an actual Course document from a library template (no video —
+// modules/topics + notes are copied straight from the docx-derived library entry)
+export function createCourseFromLibrary(libraryId) {
+  return request("/api/courses/from-library", {
+    method: "POST",
+    body: JSON.stringify({ libraryId }),
+  });
+}
+
+// ── Assessment bank + result persistence ──
+export function getAssessmentBank(libraryId) {
+  return request(`/api/assessment-bank/${libraryId}`);
+}
+
+// Teacher: submit a completed assessment attempt (persists to DB so admin can see it)
+export function submitAssessmentResult(payload) {
+  return request("/api/assessments", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+// Teacher: fetch own past assessment results
+export function getMyAssessmentResults() {
+  return request("/api/assessments/mine");
+}
+
+// Admin: fetch every teacher's assessment results
+export function getAdminAssessmentResults() {
+  return request("/api/admin/assessments");
+}
+
+
+export async function downloadCertificatePdf(certificateId, filenameHint) {
+  const token = localStorage.getItem("spaceece_auth_token");
+  const res = await fetch(`${API_BASE_URL}/api/certificates/${certificateId}/pdf`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.message || "Failed to download certificate");
+  }
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filenameHint || "certificate.pdf";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+}

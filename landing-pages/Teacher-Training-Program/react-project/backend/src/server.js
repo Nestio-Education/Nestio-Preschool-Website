@@ -45,6 +45,7 @@ import { TrainerMessage } from "./models/TrainerMessage.js";
 import { TrainerPayout } from "./models/TrainerPayout.js";
 import { sendBulkEmails, sendEmail, getTwilioConfig } from "./email.js";
 import { initSocket, createAndEmitNotification } from "./socket.js";
+import { autoIssueCertificateForAssignment } from "./routes/certificates.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, "../.env") });
@@ -1985,6 +1986,14 @@ app.patch("/api/teacher/courses/assignments/:id", requireAuth, requireRole("teac
       update,
       { new: true }
     ).populate("course");
+
+    if (progressPercent === 100 && assignment) {
+      try {
+        await autoIssueCertificateForAssignment(assignment._id);
+      } catch (certErr) {
+        console.error("[certificate] auto_issue_failed", certErr.message);
+      }
+    }
 
     // Notify admin when teacher submits an assignment
     if (status === "submitted" && assignment) {

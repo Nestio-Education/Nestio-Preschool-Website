@@ -5,7 +5,7 @@ import OverviewTab from "../admin/OverviewTab";
 import CenterManagementTab from "../admin/CenterManagementTab";
 import TeacherManagementTab from "../admin/TeacherManagementTab";
 import LessonPlanManagementTab from "../admin/LessonPlanManagementTab";
-import CurriculumTrainingTab from "../admin/CurriculumTrainingTab";
+import CurriculumTrainingTab from "../pages/CurriculumTrainingTab"; // already imported — just confirm it points at the new file
 import ActivityMonitoringTab from "../admin/ActivityMonitoringTab";
 import ChildrenManagementTab from "../admin/ChildrenManagement";
 import TrainerManagementTab from "../admin/TrainerManagementTab";
@@ -15,9 +15,9 @@ import ReportsTab from "../admin/ReportsTab";
 import NotificationsTab from "../admin/NotificationsTab";
 import SettingsTab from "../admin/SettingsTab";
 import FeedbackManagementTab from "../admin/FeedbackManagementTab";
-import ScheduleManagementTab from "../admin/ScheduleManagementTab";
-import CertificateManagementTab from "../admin/CertificateManagementTab";
-import AutomationTab from "../admin/AutomationTab";
+//import ScheduleManagementTab from "../admin/ScheduleManagementTab";
+//import CertificateManagementTab from "../admin/CertificateManagementTab";
+//import AutomationTab from "../admin/AutomationTab";
 import SystemHealthTab from "../admin/SystemHealthTab";
 import AdminProfileTab from "../admin/AdminProfileTab";
 import HelpFAQTab from "../admin/HelpFAQTab";
@@ -96,16 +96,16 @@ export default function AdminDashboard({ user, onLogout }) {
     { key: "lessonplans", label: "Lesson Plans", icon: "\uD83D\uDCCB" },
     { key: "children", label: "Children & Classes", icon: "\uD83D\uDC76" },
     { key:"trainers",     label:"Trainer Management",icon:"\uD83C\uDF93" },
-    { key:"assignments",  label:"Assignment Review", icon:"\uD83D\uDCDD", badge:assignments.filter(a=>a.status==="pending").length },
+   // { key:"assignments",  label:"Assignment Review", icon:"\uD83D\uDCDD", badge:assignments.filter(a=>a.status==="pending").length },
     { key:"attendance",   label:"Attendance",        icon:"\uD83D\uDCC5" },
    
     { key:"reports",      label:"Reports & Analytics",icon:"\uD83D\uDCC8" },
     { key:"notifications",label:"Notifications",     icon:"\uD83D\uDD14" },
     { key:"settings",     label:"Settings & Roles",  icon:"\u2699\uFE0F" },
-    { key:"schedules",    label:"Schedule Management", icon:"\uD83D\uDCC5" },
-    { key:"certificates", label:"Certificates",        icon:"\uD83C\uDFC6" },
+    //{ key:"schedules",    label:"Schedule Management", icon:"\uD83D\uDCC5" },
+    //{ key:"certificates", label:"Certificates",        icon:"\uD83C\uDFC6" },
     { key:"feedback",     label:"Feedback",              icon:"\uD83D\uDCAC" },
-    { key:"automation",   label:"Automation Center",     icon:"\u2699\uFE0F" },
+    //{ key:"automation",   label:"Automation Center",     icon:"\u2699\uFE0F" },
   ];
   const persistTeachers = (updater) => {
   setTeachers(prev => {
@@ -129,19 +129,20 @@ export default function AdminDashboard({ user, onLogout }) {
       case "centers": return <CenterManagementTab allTeachers={teachers} setToast={setToast}/>;
       case "teachers": return <TeacherManagementTab teachers={teachers} setTeachers={persistTeachers} setToast={setToast}/>;
       case "curriculum": return <CurriculumTrainingTab setToast={setToast}/>;
+      // case "assessments": return <AssessmentResultsTab setToast={setToast}/>;
       case "activities": return <ActivityMonitoringTab setToast={setToast}/>;
       case "lessonplans": return <LessonPlanManagementTab setToast={setToast} />;
       case "children": return <ChildrenManagementTab setToast={setToast}/>;
       case "trainers": return <TrainerManagementTab batches={[]} setToast={setToast}/>;
-      case "assignments":  return <AssignmentReviewTab assignments={assignments} setAssignments={setAssignments} setToast={setToast} teachers={teachers} user={user}/>;
+     // case "assignments":  return <AssignmentReviewTab assignments={assignments} setAssignments={setAssignments} setToast={setToast} teachers={teachers} user={user}/>;
       case "attendance":   return <AttendanceTab teachers={teachers} sessions={[]}/>;
       case "reports":      return <ReportsTab teachers={teachers} courses={courses} batches={[]}/>;
       case "notifications":return <NotificationsTab teachers={teachers} setToast={setToast}/>;
       case "settings":     return <SettingsTab setToast={setToast}/>;
-      case "schedules":    return <ScheduleManagementTab setToast={setToast}/>;
-      case "certificates": return <CertificateManagementTab setToast={setToast}/>;
+      //case "schedules":    return <ScheduleManagementTab setToast={setToast}/>;
+     // case "certificates": return <CertificateManagementTab setToast={setToast}/>;
       case "feedback":     return <FeedbackManagementTab setToast={setToast}/>;
-      case "automation":   return <AutomationTab user={user} setToast={setToast}/>;
+      //case "automation":   return <AutomationTab user={user} setToast={setToast}/>;
       default:             return null;
     }
   };
