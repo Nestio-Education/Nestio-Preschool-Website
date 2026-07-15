@@ -991,6 +991,7 @@ export const updateTaskStatus = async (assignmentId, taskId, status) => {
     body: JSON.stringify({ status })
   });
   return res.json();
+<<<<<<< HEAD
 };
 // ── Course Library (parsed from the .docx source of truth) ──
 export function getCourseLibrary() {
@@ -1053,3 +1054,6 @@ export async function downloadCertificatePdf(certificateId, filenameHint) {
   a.remove();
   window.URL.revokeObjectURL(url);
 }
+=======
+};
+>>>>>>> origin/main
