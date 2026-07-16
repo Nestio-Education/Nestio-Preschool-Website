@@ -1053,3 +1053,120 @@ export async function downloadCertificatePdf(certificateId, filenameHint) {
   a.remove();
   window.URL.revokeObjectURL(url);
 }
+// ── Activity Bank API ──
+export function createActivityBank(data) {
+  return request("/api/daily-task-automation/activities", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+// ── Mentor Management APIs ──
+export function updateMentorStatus(id, status) {
+  return request(`/api/admin/mentors/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status })
+  });
+}
+
+export function updateMentorProfile(id, data) {
+  return request(`/api/admin/mentors/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data)
+  });
+}
+
+export function deleteMentor(id) {
+  return request(`/api/admin/mentors/${id}`, {
+    method: "DELETE"
+  });
+}
+
+
+// ── Activity Bank: additional APIs ──
+export function getActivityBank(params = {}) {
+  const searchParams = new URLSearchParams(params);
+  return request(`/api/daily-task-automation/activities?${searchParams.toString()}`);
+}
+
+export function getActivitySubmissions(params = {}) {
+  const searchParams = new URLSearchParams(params);
+  return request(`/api/daily-task-automation/activities/submissions?${searchParams.toString()}`);
+}
+
+export function submitActivityCompletion(assignmentId, taskId, payload) {
+  return request(`/api/daily-task-automation/assignments/${assignmentId}/tasks/${taskId}/complete`, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export function deleteActivity(id) {
+  return request(`/api/daily-task-automation/activities/${id}`, {
+    method: "DELETE"
+  });
+}
+
+export function blockMentor(id) {
+  return request(`/api/admin/mentors/${id}/block`, {
+    method: "PATCH"
+  });
+}
+
+export function unblockMentor(id) {
+  return request(`/api/admin/mentors/${id}/unblock`, {
+    method: "PATCH"
+  });
+}
+
+// ── Mentor APIs (missing stubs) ──
+export function registerMentor(payload) {
+  return request("/api/auth/register-mentor", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export function getAdminMentors() {
+  return request("/api/admin/mentors");
+}
+
+export function getMyCenter() {
+  return request("/api/mentor/center");
+}
+
+export function updateMentorMe(data) {
+  return request("/api/mentor/me", {
+    method: "PATCH",
+    body: JSON.stringify(data)
+  });
+}
+
+export function changeMentorPassword(currentPassword, newPassword) {
+  return request("/api/mentor/change-password", {
+    method: "POST",
+    body: JSON.stringify({ currentPassword, newPassword })
+  });
+}
+
+// ── Mentor Tabs APIs ──
+export function recordMenteeObservation(data) {
+  return request("/api/mentor/observations", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+export function submitCapstoneMilestone(data) {
+  return request("/api/mentor/capstone", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+export function submitPDCACycle(data) {
+  return request("/api/mentor/pdca", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
