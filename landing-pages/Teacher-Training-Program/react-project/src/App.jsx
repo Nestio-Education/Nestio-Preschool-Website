@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import LoginPage       from "./pages/LoginPage";
-import AdminDashboard  from "./pages/AdminDashboard";
+import LoginPage        from "./pages/LoginPage";
+import AdminDashboard   from "./pages/AdminDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
+import MentorDashboard  from "./mentor/MentorDashboard";
 import { getStoredSession, storeSession, clearSession } from "./services/api";
 import { LANG_CHANGE_EVENT, setLanguage } from "./services/i18n";
 import { SocketProvider } from "./context/SocketContext";
@@ -10,7 +11,9 @@ export default function App() {
   const [initialSession] = useState(getStoredSession);
   const [screen, setScreen] = useState(() => {
     if (!initialSession) return "login";
-    return initialSession.user.role === "admin" ? "admin" : "teacher";
+    if (initialSession.user.role === "admin") return "admin";
+    if (initialSession.user.role === "mentor") return "mentor";
+    return "teacher";
   });
   const [currentUser, setCurrentUser] = useState(initialSession?.user || null);
   // Language key forces re-render of entire tree when language changes
@@ -31,7 +34,14 @@ export default function App() {
     if (session.token) storeSession(session);
 
     setCurrentUser(user);
-    setScreen(user.role === "admin" ? "admin" : "teacher");
+
+    if (user.role === "admin") {
+      setScreen("admin");
+    } else if (user.role === "mentor") {
+      setScreen("mentor");
+    } else {
+      setScreen("teacher");
+    }
 
     // Sync language from Atlas on login
     if (user.language) {
@@ -47,7 +57,8 @@ export default function App() {
 
   const dashboardContent = (
     <>
-      {screen === "admin" && <AdminDashboard key={`admin-${langKey}`} user={currentUser} onLogout={handleLogout}/>}
+      {screen === "admin"   && <AdminDashboard   key={`admin-${langKey}`}   user={currentUser} onLogout={handleLogout}/>}
+      {screen === "mentor"  && <MentorDashboard  key={`mentor-${langKey}`}  user={currentUser} onLogout={handleLogout}/>}
       {screen === "teacher" && <TeacherDashboard key={`teacher-${langKey}`} user={currentUser} onLogout={handleLogout}/>}
     </>
   );

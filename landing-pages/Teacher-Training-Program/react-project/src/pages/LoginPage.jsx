@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Logo, Toast, Particles, S, globalCSS } from "../components/Shared";
-import { loginUser, registerTeacher, requestPasswordReset, resetPassword, verifyPasswordResetToken, requestPasswordResetOtp, verifyPasswordOtp } from "../services/api";
+import { loginUser, registerTeacher, registerMentor, requestPasswordReset, resetPassword, verifyPasswordResetToken, requestPasswordResetOtp, verifyPasswordOtp } from "../services/api";
 
 /* ── Animated illustration (UNCHANGED — original animation kept as-is) ── */
 function LoginIllustration() {
@@ -583,6 +583,7 @@ function ResetPasswordForm({ token, onDone }) {
 
 /* ── Register Form ── */
 function RegisterForm({ onBack }) {
+  const [role, setRole]         = useState("teacher"); // teacher | mentor | fellow
   const [form, setForm]         = useState({ name: "", email: "", phone: "", address: "", subject: "", photo: "", password: "", confirmPassword: "" });
   const [showPass, setShowPass] = useState(false);
   const [toast, setToast]       = useState({ msg: "", type: "" });
@@ -605,7 +606,6 @@ function RegisterForm({ onBack }) {
       return;
     }
 
-    // Validate email format strictly
     const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email.trim())) {
       setToast({ msg: "Please enter a valid email address (e.g. teacher@school.com)", type: "error" });
@@ -621,33 +621,76 @@ function RegisterForm({ onBack }) {
       return;
     }
 
-    registerTeacher({
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      phone,
-      password,
-      qualification: "B.Ed",
-      subject,
-      experience: "2 years",
-      address,
-    })
-      .then(() => {
-        setToast({ msg: "Registration submitted! Awaiting admin approval.", type: "success" });
-        setTimeout(onBack, 2000);
+    if (role === "teacher") {
+      registerTeacher({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone,
+        password,
+        qualification: "B.Ed",
+        subject,
+        experience: "2 years",
+        address,
       })
-      .catch((err) => {
-        setToast({ msg: err.message || "Failed to submit registration.", type: "error" });
-      });
+        .then(() => {
+          setToast({ msg: "Registration submitted! Awaiting admin approval.", type: "success" });
+          setTimeout(onBack, 2000);
+        })
+        .catch((err) => {
+          setToast({ msg: err.message || "Failed to submit registration.", type: "error" });
+        });
+    } else {
+      // Mentor and Fellow both register through the mentor endpoint,
+      // distinguished by the `role` field so the backend/admin dashboard can tell them apart.
+      registerMentor({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone,
+        password,
+        qualification: "Graduate",
+        specialization: subject,
+        experience: "2 years",
+        address,
+        fellowshipSemester: role === "fellow" ? 1 : undefined,
+        role, // "mentor" or "fellow"
+      })
+        .then(() => {
+          const msg = role === "fellow"
+            ? "Registration successful! You can sign in now."
+            : "Registration submitted! Awaiting admin approval.";
+          setToast({ msg, type: "success" });
+          setTimeout(onBack, 2000);
+        })
+        .catch((err) => {
+          setToast({ msg: err.message || "Failed to submit registration.", type: "error" });
+        });
+    }
   };
+
+  const roleLabel = role === "teacher" ? "Teacher" : role === "mentor" ? "Mentor" : "Fellow";
 
   return (
     <>
       <Toast msg={toast.msg} type={toast.type} onClose={() => setToast({ msg: "", type: "" })} />
       <Logo size={100} />
       <div style={{ textAlign: "center", marginBottom: 14 }}>
-        <span style={ls.badge}>Teacher Registration</span>
+        <span style={ls.badge}>{roleLabel} Registration</span>
         <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4, fontStyle: "italic" }}>Admin will approve your account</p>
       </div>
+
+      <div style={ci.mb}>
+        <label style={ci.label}>Register As</label>
+        <select
+          value={role}
+          onChange={e => setRole(e.target.value)}
+          style={{ ...S.input, fontSize: 12, padding: "7px 10px", marginBottom: 0, cursor: "pointer" }}
+        >
+          <option value="teacher">Teacher</option>
+          <option value="mentor">Mentor</option>
+          <option value="fellow">Fellow</option>
+        </select>
+      </div>
+
       <form onSubmit={handleRegister}>
         <div style={{ display: "flex", gap: 10 }}>
           <div style={{ flex: 1, ...ci.mb }}>
@@ -658,10 +701,10 @@ function RegisterForm({ onBack }) {
             </div>
           </div>
           <div style={{ flex: 1, ...ci.mb }}>
-            <label style={ci.label}>Subject</label>
+            <label style={ci.label}>{role === "teacher" ? "Subject" : "Specialization"}</label>
             <div style={{ position: "relative" }}>
               <span style={ci.fieldIcon}>📘</span>
-              <input style={{ ...S.input, ...ci.input }} value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} placeholder="Mathematics" />
+              <input style={{ ...S.input, ...ci.input }} value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} placeholder={role === "teacher" ? "Mathematics" : "Early Childhood"} />
             </div>
           </div>
         </div>

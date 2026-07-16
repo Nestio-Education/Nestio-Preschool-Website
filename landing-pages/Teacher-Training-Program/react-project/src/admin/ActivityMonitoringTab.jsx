@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Modal, S, SearchBar, StatCard, StatusBadge, Toast } from "../components/Shared";
-import { getActivities, reviewActivity, getCenters, sendAdminNotification, getClasses, getAdminTeachers } from "../services/api";
+import { getActivities, reviewActivity, getCenters } from "../services/api";
 import { t } from "../services/i18n";
 
 // BUG FIX: was hardcoded to http://localhost:5000, which breaks in any
@@ -19,27 +19,67 @@ const REJECT_REASONS = [
 
 const getFileUrl = (file) => {
   if (!file) return null;
-  const path = file.publicUrl || file.path || (typeof file === "string" ? file : "");
+  let path = file.publicUrl || file.path || (typeof file === "string" ? file : "");
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  return `${API_BASE_URL}${path}`;
+  
+  // Normalize slashes (replace backslashes with forward slashes)
+  path = path.replace(/\\/g, "/");
+  
+  // Ensure path starts with a single slash
+  if (!path.startsWith("/")) {
+    path = "/" + path;
+  }
+  
+  const base = API_BASE_URL.endsWith("/") ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+  return `${base}${path}`;
 };
 
-const mapActivityFromApi = (a) => ({
-  id: a._id || a.id,
-  date: a.activityDate ? new Date(a.activityDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—",
-  centerName: a.center?.name || "Unassigned Center",
-  centerId: a.center?._id || a.center || "",
-  teacherName: a.teacher?.name || "Unknown Teacher",
-  teacherAvatar: a.teacher?.name ? `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(a.teacher.name)}` : null,
-  className: a.class?.name || "Unassigned Class",
-  description: a.description || "",
-  image: a.files?.length > 0 ? getFileUrl(a.files[0]) : null,
-  imageName: a.files?.length > 0 ? a.files[0].originalName || "Classroom Photo" : "Classroom Photo",
-  status: a.status || "pending",
-  adminComments: a.adminComments || "",
-  createdAt: a.createdAt ? new Date(a.createdAt) : new Date(),
-});
+const mapActivityFromApi = (a) => {
+  const file = a.files?.length > 0 ? a.files[0] : null;
+  const fileName = file?.originalName || "Attached File";
+  const isImage = file?.mimeType?.startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(fileName);
+  return {
+    id: a._id || a.id,
+    date: a.activityDate ? new Date(a.activityDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—",
+    centerName: a.center?.name || "Unassigned Center",
+    centerId: a.center?._id || a.center || "",
+    teacherName: a.teacher?.name || "Unknown Teacher",
+    teacherAvatar: a.teacher?.name ? `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(a.teacher.name)}` : null,
+    className: a.class?.name || "Unassigned Class",
+    description: a.description || "",
+    duration: a.duration || "",
+    level: a.level || "",
+    type: a.type || "",
+    ageGroup: a.ageGroup || "",
+    milestone: a.milestone || "",
+    developmentalDomain: a.developmentalDomain || "",
+    purposeOfActivity: a.purposeOfActivity || "",
+    howToConduct: a.howToConduct || "",
+    facilitatorRole: a.facilitatorRole || "",
+    materialsRequired: a.materialsRequired || "",
+    expectedLearningOutcomes: a.expectedLearningOutcomes || "",
+    dayNumber: a.dayNumber || null,
+    learningObjectives: a.learningObjectives || "",
+    activities: a.activities || "",
+    resources: a.resources || "",
+    instructions: a.instructions || "",
+    expectedOutput: a.expectedOutput || "",
+    notes: a.notes || "",
+
+    image: file ? getFileUrl(file) : null,
+    imageName: fileName,
+    isDocument: !isImage,
+    allFiles: (a.files || []).map(f => ({
+      url: getFileUrl(f),
+      name: f.originalName || "Attachment",
+      isImage: (f.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f.originalName || "")
+    })),
+    status: a.status || "pending",
+    adminComments: a.adminComments || "",
+    createdAt: a.createdAt ? new Date(a.createdAt) : new Date(),
+  };
+};
 
 /* ── Activity Review Modal ── */
 function ActivityReviewModal({ activity, onAction, onClose }) {
@@ -48,6 +88,24 @@ function ActivityReviewModal({ activity, onAction, onClose }) {
   const [otherReason, setOtherReason]   = useState("");
   const [acting, setActing]           = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  const handleDownload = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename || "download";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("Failed to download file:", err);
+      window.open(url, "_blank");
+    }
+  };
 
   // FEATURE: "Other" reason had no way to specify what it actually was —
   // it would just submit the literal word "Other" with no detail.
@@ -120,20 +178,123 @@ function ActivityReviewModal({ activity, onAction, onClose }) {
         </div>
       </div>
 
-      {/* Image */}
+      {/* Added Rich Fields */}
+      {activity.learningObjectives && (
+        <div style={{ marginBottom: 14 }}>
+          <label style={S.label}>🧠 Learning Objectives</label>
+          <div style={{ background: "#f0fdf4", padding: "10px 12px", borderRadius: 10, border: "1px solid #bbf7d0", fontSize: 12, lineHeight: "1.6", color: "#166534" }}>
+            {activity.learningObjectives}
+          </div>
+        </div>
+      )}
+
+      {activity.activities && (
+        <div style={{ marginBottom: 14 }}>
+          <label style={S.label}>🎪 Activities</label>
+          <div style={{ background: "#fdf2f8", padding: "10px 12px", borderRadius: 10, border: "1px solid #fbcfe8", fontSize: 12, lineHeight: "1.6", color: "#9d174d" }}>
+            {activity.activities}
+          </div>
+        </div>
+      )}
+
+      {activity.resources && (
+        <div style={{ marginBottom: 14 }}>
+          <label style={S.label}>📦 Resources</label>
+          <div style={{ background: "#eff6ff", padding: "10px 12px", borderRadius: 10, border: "1px solid #bfdbfe", fontSize: 12, lineHeight: "1.6", color: "#1e40af" }}>
+            {activity.resources}
+          </div>
+        </div>
+      )}
+
+      {activity.instructions && (
+        <div style={{ marginBottom: 14 }}>
+          <label style={S.label}>📝 Instructions</label>
+          <div style={{ background: "#f5f5f4", padding: "10px 12px", borderRadius: 10, border: "1px solid #e7e5e4", fontSize: 12, lineHeight: "1.6", color: "#44403c", maxHeight: 150, overflowY: "auto" }}>
+            {activity.instructions}
+          </div>
+        </div>
+      )}
+
+      {activity.expectedOutput && (
+        <div style={{ marginBottom: 14 }}>
+          <label style={S.label}>🏆 Expected Output</label>
+          <div style={{ background: "#f0fdfa", padding: "10px 12px", borderRadius: 10, border: "1px solid #ccfbf1", fontSize: 12, lineHeight: "1.6", color: "#115e59" }}>
+            {activity.expectedOutput}
+          </div>
+        </div>
+      )}
+
+      {activity.facilitatorRole && (
+        <div style={{ marginBottom: 14 }}>
+          <label style={S.label}>👩‍🏫 Facilitator's Role</label>
+          <div style={{ background: "#fff7ed", padding: "10px 12px", borderRadius: 10, border: "1px solid #fed7aa", fontSize: 12, lineHeight: "1.6", color: "#9a3412" }}>
+            {activity.facilitatorRole}
+          </div>
+        </div>
+      )}
+
+      {activity.notes && (
+        <div style={{ marginBottom: 14 }}>
+          <label style={S.label}>💡 Notes</label>
+          <div style={{ background: "#fff7ed", padding: "10px 12px", borderRadius: 10, border: "1px solid #fed7aa", fontSize: 12, lineHeight: "1.6", color: "#9a3412" }}>
+            {activity.notes}
+          </div>
+        </div>
+      )}
+
+      {/* Image / Document */}
       <div style={{ marginBottom: 16 }}>
         <label style={S.label}>Submitted Photo / Documentation</label>
-        {activity.image ? (
-          <div
-            onClick={() => setLightboxOpen(true)}
-            title="Click to view full size"
-            style={{ borderRadius: 12, border: "1px solid #cbd5e1", overflow: "hidden", background: "#f1f5f9", cursor: "zoom-in", position: "relative" }}>
-            <img src={activity.image} alt={activity.imageName}
-              style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }}
-              onError={e => { e.target.style.display = "none"; }} />
-            <span style={{ position: "absolute", bottom: 8, right: 8, background: "rgba(0,0,0,0.55)",
-              color: "white", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 6 }}>🔍 Click to enlarge</span>
+        {activity.allFiles && activity.allFiles.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {activity.allFiles.map((f, idx) => (
+              f.isImage ? (
+                <div key={idx}
+                  onClick={() => setLightboxOpen(true)}
+                  title="Click to view full size"
+                  style={{ borderRadius: 12, border: "1px solid #cbd5e1", overflow: "hidden", background: "#f1f5f9", cursor: "zoom-in", position: "relative" }}>
+                  <img src={f.url} alt={f.name}
+                    style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }}
+                    onError={e => { e.target.style.display = "none"; }} />
+                  <span style={{ position: "absolute", bottom: 8, right: 8, background: "rgba(0,0,0,0.55)",
+                    color: "white", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 6 }}>🔍 Click to enlarge</span>
+                </div>
+              ) : (
+                <div key={idx} style={{ background: "#f8fafc", padding: "16px", borderRadius: 12, border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <span style={{ fontSize: 24 }}>📄</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>{f.name}</span>
+                  </div>
+                  <button onClick={() => handleDownload(f.url, f.name)} style={{ ...S.exportBtn, cursor: "pointer", border: "1px solid #cbd5e1", background: "white" }}>
+                    ⬇️ Download
+                  </button>
+                </div>
+              )
+            ))}
           </div>
+        ) : activity.image ? (
+          activity.isDocument ? (
+            <div style={{ background: "#f8fafc", padding: "16px", borderRadius: 12, border: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ fontSize: 24 }}>📄</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>{activity.imageName}</span>
+              </div>
+              <button onClick={() => handleDownload(activity.image, activity.imageName)} style={{ ...S.exportBtn, cursor: "pointer", border: "1px solid #cbd5e1", background: "white" }}>
+                ⬇️ Download
+              </button>
+            </div>
+          ) : (
+            <div
+              onClick={() => setLightboxOpen(true)}
+              title="Click to view full size"
+              style={{ borderRadius: 12, border: "1px solid #cbd5e1", overflow: "hidden", background: "#f1f5f9", cursor: "zoom-in", position: "relative" }}>
+              <img src={activity.image} alt={activity.imageName}
+                style={{ width: "100%", maxHeight: 200, objectFit: "cover", display: "block" }}
+                onError={e => { e.target.style.display = "none"; }} />
+              <span style={{ position: "absolute", bottom: 8, right: 8, background: "rgba(0,0,0,0.55)",
+                color: "white", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 6 }}>🔍 Click to enlarge</span>
+            </div>
+          )
         ) : (
           <div style={{ background: "#fef3c7", border: "1.5px dashed #f59e0b", borderRadius: 12,
             height: 80, display: "flex", alignItems: "center", justifyContent: "center",
@@ -306,46 +467,6 @@ export default function ActivityMonitoringTab({ setToast }) {
     }
   };
 
-  const handleExportCsv = () => {
-    const rows = [["Date", "Teacher", "Center", "Class", "Description", "Status", "Admin Comments"]];
-    filtered.forEach(a => {
-      rows.push([a.date, a.teacherName, a.centerName, a.className, a.description.substring(0, 100), a.status, a.adminComments || ""]);
-    });
-    const csv = rows.map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `activity-monitoring-${new Date().toISOString().split("T")[0]}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-    showToast({ msg: `Exported ${filtered.length} activities to CSV.`, type: "success" });
-  };
-
-  const handleSendReminders = async () => {
-    const overdue = filtered.filter(a => a.status === "pending");
-    if (overdue.length === 0) {
-      showToast({ msg: "No pending activities to send reminders for.", type: "error" });
-      return;
-    }
-    if (!window.confirm(`Send reminder notifications to ${overdue.length} teacher(s) with pending activities?`)) return;
-    let sent = 0;
-    for (const act of overdue) {
-      try {
-        await sendAdminNotification({
-          recipient: act.id,
-          title: "⏰ Activity Reminder",
-          body: `You have a pending activity submission for "${act.className}" at ${act.centerName}. Please complete and submit it.`,
-          channel: "in_app",
-        });
-        sent++;
-      } catch (err) {
-        console.error("Reminder failed for", act.id, err);
-      }
-    }
-    showToast({ msg: `Sent ${sent} reminder notification(s).`, type: "success" });
-  };
-
   if (loading) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "40vh", gap: 12 }}>
@@ -456,10 +577,6 @@ export default function ActivityMonitoringTab({ setToast }) {
           <button onClick={clearFilters}
             style={{ ...S.tblBtn, color: "#ef4444", borderColor: "#fca5a5" }}>✕ Clear</button>
         )}
-        <button onClick={handleExportCsv}
-          style={{ ...S.tblBtn, color: "#2563eb", borderColor: "#93c5fd" }}>📥 Export CSV</button>
-        <button onClick={handleSendReminders}
-          style={{ ...S.tblBtn, color: "#f59e0b", borderColor: "#fcd34d" }}>🔔 Send Reminders ({filtered.filter(a => a.status === "pending").length})</button>
       </div>
 
       {/* FEATURE: bulk approve bar — only relevant when there are pending items in view */}
