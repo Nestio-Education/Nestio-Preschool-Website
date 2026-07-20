@@ -74,6 +74,22 @@ export function verifyPasswordOtp(email, otp) {
   });
 }
 
+// Start: Dnyaneshwari Thorat
+export function sendSignupOtp(email) {
+  return request("/api/auth/send-signup-otp", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function verifySignupOtp(email, emailOtp) {
+  return request("/api/auth/verify-signup-otp", {
+    method: "POST",
+    body: JSON.stringify({ email, emailOtp }),
+  });
+}
+// End: Dnyaneshwari Thorat
+
 export function getStoredSession() {
   const token = localStorage.getItem("spaceece_auth_token");
   const rawUser = localStorage.getItem("spaceece_user");
@@ -196,6 +212,23 @@ export function createTeacherChild(childData) {
     body: JSON.stringify(childData)
   });
 }
+
+// Start: Dnyaneshwari Thorat
+export function createTeacherChildrenBulk(childrenList) {
+  return request("/api/teacher/children/bulk", {
+    method: "POST",
+    body: JSON.stringify({ children: childrenList })
+  });
+}
+// End: Dnyaneshwari Thorat
+
+// Start: Dnyaneshwari Thorat
+export function deleteTeacherChild(id) {
+  return request(`/api/teacher/children/${id}`, {
+    method: "DELETE"
+  });
+}
+// End: Dnyaneshwari Thorat
 
 export function updateChild(id, childData) {
   return request(`/api/admin/children/${id}`, {
@@ -471,6 +504,14 @@ export function updateCourseAssignmentProgress(assignmentId, payload) {
   });
 }
 
+// Start: Dnyaneshwari Thorat
+export function resetCourseAssignmentProgress(assignmentId) {
+  return request(`/api/teacher/courses/assignments/${assignmentId}/reset`, {
+    method: "POST"
+  });
+}
+// End: Dnyaneshwari Thorat
+
 export function getCourseNotes(courseId) {
   return request(`/api/courses/${courseId}/notes`);
 }
@@ -600,6 +641,33 @@ export function reviewActivity(id, reviewData) {
   });
 }
 
+
+// AI Activity APIs (Lesson Planner)
+export function getAIActivities(params = {}) {
+  const searchParams = new URLSearchParams(params);
+  return request(`/api/ai-activities?${searchParams.toString()}`);
+}
+
+export function saveAIActivity(activityData) {
+  return request("/api/ai-activities", {
+    method: "POST",
+    body: JSON.stringify(activityData)
+  });
+}
+
+export function updateAIActivityStatus(id, status) {
+  return request(`/api/ai-activities/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status })
+  });
+}
+
+export function deleteAIActivity(id) {
+  return request(`/api/ai-activities/${id}`, {
+    method: "DELETE"
+  });
+}
+
 // Attendance APIs
 export function getChildAttendance(params = {}) {
   const searchParams = new URLSearchParams(params);
@@ -612,6 +680,15 @@ export function saveChildAttendance(payload) {
     body: JSON.stringify(payload)
   });
 }
+
+// Start: Dnyaneshwari Thorat
+export function deleteChildAttendance(params = {}) {
+  const searchParams = new URLSearchParams(params);
+  return request(`/api/attendance/children?${searchParams.toString()}`, {
+    method: "DELETE"
+  });
+}
+// End: Dnyaneshwari Thorat
 
 export function getTeacherAttendance(params = {}) {
   const searchParams = new URLSearchParams(params);
@@ -937,23 +1014,24 @@ export function detectRiskFlags(text, description) {
   return request("/api/ai/risk-flags", { method: "POST", body: JSON.stringify({ text, description }) });
 }
 
-export function autoGradeAssessment(assessmentId, answers) {
-  return request("/api/ai/auto-grade", { method: "POST", body: JSON.stringify({ assessmentId, answers }) });
+export function autoGradeAssessment(answers) {
+  return request("/api/assessments/ai-grade", { method: "POST", body: JSON.stringify({ answers }) });
 }
 
 export function askEnhancedChatbot(message) {
   return request("/api/teacher/chatbot/enhanced", { method: "POST", body: JSON.stringify({ message }) });
 }
 // Daily Task Automation
+// Daily Task Automation
 export const generateDummyTeachers = async () => {
-  const res = await fetch(`${API_BASE}/daily-task-automation/teachers/generate-dummy`, { method: "POST" });
+  const res = await fetch(`${API_BASE_URL}/api/daily-task-automation/teachers/generate-dummy`, { method: "POST" });
   return res.json();
 };
 
 export const uploadActivityBank = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
-  const res = await fetch(`${API_BASE}/daily-task-automation/activities/upload`, {
+  const res = await fetch(`${API_BASE_URL}/api/daily-task-automation/activities/upload`, {
     method: "POST",
     body: formData
   });
@@ -961,7 +1039,7 @@ export const uploadActivityBank = async (file) => {
 };
 
 export const generateDailyTasks = async ({ activityCount = 4, replaceExisting = false } = {}) => {
-  const res = await fetch(`${API_BASE}/daily-task-automation/generate-daily`, {
+  const res = await fetch(`${API_BASE_URL}/api/daily-task-automation/generate-daily`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ activityCount, replaceExisting })
@@ -970,22 +1048,22 @@ export const generateDailyTasks = async ({ activityCount = 4, replaceExisting = 
 };
 
 export const getTodayAssignments = async () => {
-  const res = await fetch(`${API_BASE}/daily-task-automation/today`);
+  const res = await fetch(`${API_BASE_URL}/api/daily-task-automation/today`);
   return res.json();
 };
 
 export const getTeacherTodayTasks = async (teacherId) => {
-  const res = await fetch(`${API_BASE}/daily-task-automation/teacher/${teacherId}/today`);
+  const res = await fetch(`${API_BASE_URL}/api/daily-task-automation/teacher/${teacherId}/today`);
   return res.json();
 };
 
 export const getTeacherNotifications = async (teacherId) => {
-  const res = await fetch(`${API_BASE}/daily-task-automation/teacher/${teacherId}/notifications`);
+  const res = await fetch(`${API_BASE_URL}/api/daily-task-automation/teacher/${teacherId}/notifications`);
   return res.json();
 };
 
 export const updateTaskStatus = async (assignmentId, taskId, status) => {
-  const res = await fetch(`${API_BASE}/daily-task-automation/assignments/${assignmentId}/tasks/${taskId}/status`, {
+  const res = await fetch(`${API_BASE_URL}/api/daily-task-automation/assignments/${assignmentId}/tasks/${taskId}/status`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status })
@@ -1053,6 +1131,22 @@ export async function downloadCertificatePdf(certificateId, filenameHint) {
   a.remove();
   window.URL.revokeObjectURL(url);
 }
+
+// Start: Dnyaneshwari Thorat
+export async function viewCertificatePdf(certificateId) {
+  const token = localStorage.getItem("spaceece_auth_token");
+  const res = await fetch(`${API_BASE_URL}/api/certificates/${certificateId}/pdf?view=true`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.message || "Failed to view certificate");
+  }
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  window.open(url, "_blank");
+}
+// End: Dnyaneshwari Thorat
 // ── Activity Bank API ──
 export function createActivityBank(data) {
   return request("/api/daily-task-automation/activities", {
@@ -1169,4 +1263,15 @@ export function submitPDCACycle(data) {
     method: "POST",
     body: JSON.stringify(data)
   });
+}
+
+export function generateAILessonPlan(data) {
+     return request("/api/ai/generate-lesson-plan", {
+       method: "POST",
+       body: JSON.stringify(data),
+     });
+   }
+
+   export function getCourseAssessment(courseId) {
+  return request(`/api/courses/${courseId}/assessment`);
 }

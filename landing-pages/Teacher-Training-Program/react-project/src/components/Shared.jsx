@@ -297,6 +297,11 @@ export const globalCSS = `
     box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15) !important;
   }
   
+  .dark-input:focus {
+    background-color: #1e293b !important;
+    color: white !important;
+  }
+  
   /* Stat Card hover transitions */
   .stat-card-hover {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
