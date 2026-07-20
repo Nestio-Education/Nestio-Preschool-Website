@@ -1023,7 +1023,38 @@ export default function CourseManagementTab({ courses, setCourses, categories, s
   const [catModal,    setCatModal]    = useState(false);
   const [watchCourse, setWatchCourse] = useState(null);
   const [previewProgress, setPreviewProgress] = useState({});
-
+  const [uploading, setUploading] = useState(false);
+  
+  const handleUploadMaterial = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    setToast({ msg: "Uploading and processing curriculum material... This may take a minute.", type: "info" });
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const token = localStorage.getItem("spaceece_auth_token");
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/api/admin/upload-material`, {
+        method: "POST",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Upload failed: ${text}`);
+      }
+      const data = await res.json();
+      setToast({ msg: "Course & Assessment generated successfully!", type: "success" });
+      setCourses(prev => [...prev, data.course]);
+    } catch (err) {
+      setToast({ msg: err.message, type: "error" });
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
   /* Filter */
   const filtered = courses.filter(c => {
     const q = search.toLowerCase();
@@ -1154,8 +1185,22 @@ export default function CourseManagementTab({ courses, setCourses, categories, s
           <h1 style={S.pageTitle}>Course Management</h1>
           <p style={S.pageSub}>{published} published · {drafts} drafts · {comingSoon} coming soon · {archived} archived</p>
         </div>
-        <div style={{ display:"flex", gap:10 }}>
+        <div style={{ display:"flex", gap:10, alignItems:"center" }}>
           <button onClick={() => setCatModal(true)} style={S.exportBtn}>🗂️ Categories</button>
+
+          <div style={{ position: "relative" }}>
+            <input
+              type="file"
+              accept=".pdf,.docx,.xlsx"
+              onChange={handleUploadMaterial}
+              style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }}
+              disabled={uploading}
+            />
+            <button style={{ ...S.exportBtn, background: "#8b5cf6", color: "white", borderColor: "#7c3aed" }} disabled={uploading}>
+              {uploading ? "⏳ Processing AI..." : "🤖 Auto-Generate from File"}
+            </button>
+          </div>
+
           <button onClick={openAdd} style={S.primaryBtn}>+ Add Course</button>
         </div>
       </div>

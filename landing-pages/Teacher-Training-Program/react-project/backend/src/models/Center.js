@@ -10,6 +10,7 @@ const centerSchema = new mongoose.Schema(
     phone: String,
     email: String,
     status: { type: String, enum: ["active", "inactive"], default: "active", index: true },
+    mentor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
 );
