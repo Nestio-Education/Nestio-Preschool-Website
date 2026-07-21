@@ -135,3 +135,45 @@ window.addEventListener('load', () => {
   infiniteCarousel('row1', 0.7, 'left');   // row 1 → slides LEFT
   infiniteCarousel('row2', 0.7, 'right');  // row 2 → slides RIGHT
 });
+// ── FIRST DAY MEMORIES GALLERY: LIGHTBOX + VIDEO TILE ──
+(function () {
+  const tiles = Array.from(document.querySelectorAll('.fd-tile[data-full]'));
+  const lb = document.getElementById('fdLightbox');
+  const lbImg = document.getElementById('fdLbImg');
+  if (!lb || !lbImg || !tiles.length) return;
+
+  let idx = 0;
+  function show(i) {
+    idx = (i + tiles.length) % tiles.length;
+    lbImg.src = tiles[idx].dataset.full;
+    lbImg.alt = tiles[idx].querySelector('img')?.alt || 'Nestio first day memory';
+  }
+  function openAt(i) { show(i); lb.classList.add('open'); }
+  function close() { lb.classList.remove('open'); }
+
+  tiles.forEach((t, i) => {
+    t.addEventListener('click', () => openAt(i));
+  });
+
+  document.getElementById('fdLbClose')?.addEventListener('click', close);
+  document.getElementById('fdLbPrev')?.addEventListener('click', () => show(idx - 1));
+  document.getElementById('fdLbNext')?.addEventListener('click', () => show(idx + 1));
+  lb.addEventListener('click', e => { if (e.target === lb) close(); });
+  document.addEventListener('keydown', e => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowRight') show(idx + 1);
+    if (e.key === 'ArrowLeft') show(idx - 1);
+  });
+
+  // Video tile: click to play/pause instead of opening lightbox
+  document.querySelectorAll('.fd-video').forEach(tileEl => {
+    const vid = tileEl.querySelector('video');
+    if (!vid) return;
+    tileEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (vid.paused) { vid.play(); tileEl.classList.add('playing'); }
+      else { vid.pause(); tileEl.classList.remove('playing'); }
+    });
+  });
+})();
