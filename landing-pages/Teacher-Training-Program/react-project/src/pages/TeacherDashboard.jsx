@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Logo, Toast, Badge, StatusBadge, StatCard, SectionCard, S, globalCSS } from "../components/Shared";
 import { t, setLanguage, getLanguageList, getCurrentLanguage, LANG_CHANGE_EVENT } from "../services/i18n";
+import ParentCapacityBuildingTab from "./ParentCapacityBuildingTab";
 import { updateTeacherNotificationPreference } from "../services/api";
 import AttendanceManager from "./AttendanceManager";
 import TrainingAndClassroomManager from "./TrainingAndClassroomManager";
@@ -24,7 +25,7 @@ import {
   updateTeacherLanguage,
   getTeacherCertificates,
   getTeacherChildren,
-  createTeacherChild,
+  deleteCourseAssignment,
   getTeacherClasses
 } from "../services/api";
 // Start: Dnyaneshwari Thorat
@@ -116,7 +117,7 @@ function OverviewTab({ user, setActiveTab, courses = [], assignments = [], lesso
   const featuredCourseProgress = visibleAssignments.slice(0, 3);
   // End: Dnyaneshwari Thorat
 
-  const certificatesCount = courses.filter(c => c.status === "completed" || c.progressPercent === 100).length;
+  const certificatesCount = courses.filter(c => (c.status === "completed" || c.progressPercent === 100) && c.score !== null && c.score !== undefined).length;
   const pendingTasksCount = activeAssignments.filter(a => a.status === "assigned" || a.status === "revision").length;
   const gradedAssignments = visibleAssignments.filter(a => a.score !== null && a.score !== undefined);
   const averageScore = gradedAssignments.length ? Math.round(gradedAssignments.reduce((sum, a) => sum + Number(a.score || 0), 0) / gradedAssignments.length) : 0;
@@ -677,8 +678,12 @@ function AssignmentsTab({ assignments = [], onSubmitAssignment }) {
 }
 
 function CertificatesTab({ assignments = [], certificates: certs = [] }) {
-  const displayCerts = certs.length > 0 ? certs : 
-    assignments.filter((item) => item.status === "completed" || item.progressPercent === 100 || item.status === "approved");
+  const displayCerts = certs.length > 0 
+    ? certs.filter((c) => c.score !== null && c.score !== undefined)
+    : assignments.filter((item) => 
+        (item.status === "completed" || item.progressPercent === 100 || item.status === "approved") && 
+        item.score !== null && item.score !== undefined
+      );
 
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
@@ -1655,7 +1660,6 @@ export default function TeacherDashboard({ user, onLogout }) {
     refreshCoreData();
   };
 
-  // Start: Dnyaneshwari Thorat
   const handleRestartCourse = async (assignment) => {
     if (!assignment?._id) return;
     const title = assignment?.course?.title || assignment?.title || "this course";
@@ -1667,6 +1671,20 @@ export default function TeacherDashboard({ user, onLogout }) {
     } catch (err) {
       console.error("Failed to reset course:", err);
       setToast({ msg: err.message || "Failed to restart course.", type: "error" });
+    }
+  };
+
+  const handleRemoveCourse = async (assignment) => {
+    if (!assignment?._id) return;
+    const title = assignment?.course?.title || assignment?.title || "this course";
+    if (!window.confirm(`Are you sure you want to remove "${title}" from your courses?`)) return;
+    try {
+      await deleteCourseAssignment(assignment._id);
+      setToast({ msg: `Course removed: ${title}`, type: "success" });
+      await refreshCoreData();
+    } catch (err) {
+      console.error("Failed to remove course:", err);
+      setToast({ msg: err.message || "Failed to remove course.", type: "error" });
     }
   };
   // End: Dnyaneshwari Thorat
@@ -1722,6 +1740,7 @@ export default function TeacherDashboard({ user, onLogout }) {
     { key: "planner",       label: "AI Lesson Planner", icon: "✏️" },
     { key: "courses",       label: "My Courses",          icon: "📚" },
     { key: "assessment",    label: "Assessments",         icon: "📝" },
+    { key: "parent_capacity", label: "Parent Capacity Building", icon: "👪" },
     //{ key: "schedule",      label: "Schedule",            icon: "📅" },
     //{ key: "grades",        label: "Grades",              icon: "📊" },
     //{ key: "assignments",   label: "Assignments",         icon: "✏️", badge: pendingAssignmentsCount },
@@ -1737,7 +1756,7 @@ export default function TeacherDashboard({ user, onLogout }) {
   // Every other page shows an "Under Construction" placeholder instead.
   // "courses" and "assessment" are now notes/assessment based (no video) —
   // both are fully wired, so they're included here.
-  const WORKING_TABS = new Set(["overview", "children_att", "geotag", "profile", "planner",  "training", "courses", "assessment", "certificates", "notifications", "feedback",""]);
+  const WORKING_TABS = new Set(["overview", "children_att", "geotag", "profile", "planner",  "training", "courses", "assessment", "certificates", "notifications", "feedback","parent_capacity"]);
 
   const renderContent = () => {
     if (loading) {
@@ -1762,10 +1781,11 @@ export default function TeacherDashboard({ user, onLogout }) {
 
     switch(activeTab) {
       case "overview":      return <OverviewTab user={enrichedUser} setActiveTab={handleTabSwitch} courses={courses} assignments={courses} lessons={lessons} activities={activities} summary={summary}/>;
-      case "children_att":  return <AttendanceManager user={enrichedUser}/>;
+      case "children_att":  return <AttendanceManager user={enrichedUser} onRosterChange={refreshCoreData}/>;
       case "geotag":        return <GeotagAttendance user={enrichedUser}/>;
       case "training":      return <TrainingAndClassroomManager user={enrichedUser}/>;
       case "planner":       return <LessonPlannerTab setToast={setToast} user={enrichedUser}/>;
+       case "parent_capacity": return <ParentCapacityBuildingTab user={enrichedUser} setToast={setToast} />;
       case "courses":
         return (
           <TeacherCourseNotes
@@ -1773,6 +1793,7 @@ export default function TeacherDashboard({ user, onLogout }) {
             onMarkDone={handleMarkDone}
             onGoToAssessment={() => handleTabSwitch("assessment")}
             onRestartCourse={handleRestartCourse}
+            onRemoveCourse={handleRemoveCourse}
           />
         );
       case "assessment":
@@ -1926,3 +1947,4 @@ export default function TeacherDashboard({ user, onLogout }) {
     </div>
   );
 }
+

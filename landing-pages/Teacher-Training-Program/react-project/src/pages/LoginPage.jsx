@@ -609,101 +609,89 @@ function RegisterForm({ onBack }) {
   };
 
   const handleRegisterClick = (e) => {
-    e.preventDefault();
-    const { name, email, phone, address, subject, password, confirmPassword } = form;
-    if (!name || !email || !phone || !address || !subject || !password || !confirmPassword) {
-      setToast({ msg: "Please fill all required fields.", type: "error" });
-      return;
-    }
+  e.preventDefault();
+  const { name, email, phone, address, subject, password, confirmPassword } = form;
+  if (!name || !email || !phone || !address || !subject || !password || !confirmPassword) {
+    setToast({ msg: "Please fill all required fields.", type: "error" });
+    return;
+  }
 
-    const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email.trim())) {
-      setToast({ msg: "Please enter a valid email address.", type: "error" });
-      return;
-    }
+  const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(email.trim())) {
+    setToast({ msg: "Please enter a valid email address.", type: "error" });
+    return;
+  }
 
-    // Start: Dnyaneshwari Thorat
-    if (!isValidPhoneNumber(phone.trim(), 'IN')) {
-      setToast({ msg: "Please enter a valid Indian mobile number.", type: "error" });
-      return;
-    }
-    // End: Dnyaneshwari Thorat
+  // Start: Dnyaneshwari Thorat
+  if (!isValidPhoneNumber(phone.trim(), 'IN')) {
+    setToast({ msg: "Please enter a valid Indian mobile number.", type: "error" });
+    return;
+  }
+  // End: Dnyaneshwari Thorat
 
-    if (password !== confirmPassword) {
-      setToast({ msg: "Passwords do not match.", type: "error" });
-      return;
-    }
-    if (password.length < 8) {
-      setToast({ msg: "Password must be at least 8 characters.", type: "error" });
-      return;
-    }
+  if (password !== confirmPassword) {
+    setToast({ msg: "Passwords do not match.", type: "error" });
+    return;
+  }
+  if (password.length < 8) {
+    setToast({ msg: "Password must be at least 8 characters.", type: "error" });
+    return;
+  }
 
-    setVerifying(true);
-    sendSignupOtp(email.trim().toLowerCase())
-      .then((data) => {
-        setToast({ msg: "Verification OTP generated!", type: "success" });
-        if (data.emailOtp) {
-          setEmailOtpDev(data.emailOtp);
-        }
-        setStep("otp");
+  /* ── OTP verification step — commented out for now, registration goes straight to admin approval ──
+  setVerifying(true);
+  sendSignupOtp(email.trim().toLowerCase())
+    .then((data) => {
+      setToast({ msg: "Verification OTP generated!", type: "success" });
+      if (data.emailOtp) {
+        setEmailOtpDev(data.emailOtp);
+      }
+      setStep("otp");
+    })
+    .catch((err) => {
+      setToast({ msg: err.message || "Failed to send verification code.", type: "error" });
+    })
+    .finally(() => setVerifying(false));
+  */
+
+  setVerifying(true);
+  const submitFn = role === "teacher"
+    ? registerTeacher({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        password,
+        qualification: "B.Ed",
+        subject,
+        experience: "2 years",
+        address,
       })
-      .catch((err) => {
-        setToast({ msg: err.message || "Failed to send verification code.", type: "error" });
-      })
-      .finally(() => setVerifying(false));
-  };
+    : registerMentor({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        password,
+        qualification: "Graduate",
+        specialization: subject,
+        experience: "2 years",
+        address,
+        fellowshipSemester: role === "fellow" ? 1 : undefined,
+        role,
+      });
 
-  const handleVerifyAndSubmit = (e) => {
-    e.preventDefault();
-    if (emailOtp.length !== 6) {
-      setToast({ msg: "Please enter the complete 6-digit email OTP.", type: "error" });
-      return;
-    }
-
-    const { name, email, phone, address, subject, password } = form;
-    setVerifying(true);
-
-    verifySignupOtp(email.trim().toLowerCase(), emailOtp)
-      .then(() => {
-        if (role === "teacher") {
-          return registerTeacher({
-            name: name.trim(),
-            email: email.trim().toLowerCase(),
-            phone: phone.trim(),
-            password,
-            qualification: "B.Ed",
-            subject,
-            experience: "2 years",
-            address,
-          });
-        } else {
-          return registerMentor({
-            name: name.trim(),
-            email: email.trim().toLowerCase(),
-            phone: phone.trim(),
-            password,
-            qualification: "Graduate",
-            specialization: subject,
-            experience: "2 years",
-            address,
-            fellowshipSemester: role === "fellow" ? 1 : undefined,
-            role,
-          });
-        }
-      })
-      .then(() => {
-        const successMsg = role === "fellow"
-          ? "Registration successful! You can sign in now."
-          : "Registration submitted! Awaiting admin approval.";
-        setToast({ msg: successMsg, type: "success" });
-        setTimeout(onBack, 2000);
-      })
-      .catch((err) => {
-        setToast({ msg: err.message || "Failed to submit registration.", type: "error" });
-      })
-      .finally(() => setVerifying(false));
-  };
-
+  submitFn
+    .then(() => {
+      const successMsg = role === "fellow"
+        ? "Registration successful! You can sign in now."
+        : "Registration submitted! Awaiting admin approval.";
+      setToast({ msg: successMsg, type: "success" });
+      setTimeout(onBack, 2000);
+    })
+    .catch((err) => {
+      setToast({ msg: err.message || "Failed to submit registration.", type: "error" });
+    })
+    .finally(() => setVerifying(false));
+};
   const roleLabel = role === "teacher" ? "Teacher" : role === "mentor" ? "Mentor" : "Fellow";
 
   if (step === "otp") {
