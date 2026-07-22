@@ -21,15 +21,6 @@ export async function autoIssueCertificateForAssignment(assignmentId) {
 
   if (!assignment || !assignment.course || !assignment.teacher) return null;
 
-  const existing = await Certificate.findOne({
-    teacher: assignment.teacher._id,
-    course: assignment.course._id,
-  });
-  if (existing) return existing;
-
-  const count = await Certificate.countDocuments();
-  const certNumber = `SPC-${String(count + 1).padStart(5, "0")}-${String(Date.now()).slice(-4)}`;
-
   let grade = "Pass";
   const score = assignment.score;
   if (score !== null && score !== undefined) {
@@ -39,6 +30,22 @@ export async function autoIssueCertificateForAssignment(assignmentId) {
     else if (score >= 60) grade = "B";
     else grade = "Pass";
   }
+
+  const existing = await Certificate.findOne({
+    teacher: assignment.teacher._id,
+    course: assignment.course._id,
+  });
+  if (existing) {
+    if (score !== null && score !== undefined && (existing.score === null || existing.score === undefined)) {
+      existing.score = score;
+      existing.grade = grade;
+      await existing.save();
+    }
+    return existing;
+  }
+
+  const count = await Certificate.countDocuments();
+  const certNumber = `SPC-${String(count + 1).padStart(5, "0")}-${String(Date.now()).slice(-4)}`;
 
   try {
     const certificate = await Certificate.create({

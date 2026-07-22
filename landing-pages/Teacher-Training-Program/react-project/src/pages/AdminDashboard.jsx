@@ -9,13 +9,13 @@ import CurriculumTrainingTab from "../admin/CurriculumTrainingTab";
 import ActivityMonitoringTab from "../admin/ActivityMonitoringTab";
 import ChildrenManagementTab from "../admin/ChildrenManagement";
 import TrainerManagementTab from "../admin/TrainerManagementTab";
+//import AssignmentReviewTab from "../admin/AssignmentReviewTab";
 import AttendanceTab from "../admin/AttendanceTab";
 import ReportsTab from "../admin/ReportsTab";
 import NotificationsTab from "../admin/NotificationsTab";
 import SettingsTab from "../admin/SettingsTab";
 import FeedbackManagementTab from "../admin/FeedbackManagementTab";
 import LessonPlannerTab from "./LessonPlannerTab";
-//import AssignmentReviewTab from "../admin/AssignmentReviewTab";
 //import ScheduleManagementTab from "../admin/ScheduleManagementTab";
 //import CertificateManagementTab from "../admin/CertificateManagementTab";
 //import AutomationTab from "../admin/AutomationTab";
@@ -99,7 +99,7 @@ export default function AdminDashboard({ user, onLogout }) {
 
     { key: "children", label: "Children & Classes", icon: "\uD83D\uDC76" },
     { key:"trainers",     label:"Trainer Management",icon:"\uD83C\uDF93" },
-    //{ key:"assignments",  label:"Assignment Review", icon:"📝", badge:assignments.filter(a=>a.status==="pending").length },
+    // { key:"assignments",  label:"Assignment Review", icon:"📝", badge:assignments.filter(a=>a.status==="pending").length },
     { key:"attendance",   label:"Attendance",        icon:"\uD83D\uDCC5" },
    
     { key:"reports",      label:"Reports & Analytics",icon:"\uD83D\uDCC8" },
@@ -138,7 +138,7 @@ export default function AdminDashboard({ user, onLogout }) {
       case "children": return <ChildrenManagementTab setToast={setToast}/>;
       case "trainers": return <TrainerManagementTab batches={[]} setToast={setToast}/>;
       case "planner": return <LessonPlannerTab setToast={setToast} user={user} />;
-       //case "assignments":  return <AssignmentReviewTab assignments={assignments} setAssignments={setAssignments} setToast={setToast} teachers={teachers} user={user}/>;
+       // { key:"assignments",  label:"Assignment Review", icon:"📝", badge:assignments.filter(a=>a.status==="pending").length },
       case "attendance":   return <AttendanceTab teachers={teachers} sessions={[]}/>;
       case "reports":      return <ReportsTab teachers={teachers} courses={courses} batches={[]}/>;
       case "notifications":return <NotificationsTab teachers={teachers} setToast={setToast}/>;
