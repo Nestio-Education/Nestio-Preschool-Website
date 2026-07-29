@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { S, StatusBadge } from "../components/Shared";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://teacher-training-portal.onrender.com";
 
 function CurriculumTab({ user }) {
   const [assignments, setAssignments] = useState([]);
