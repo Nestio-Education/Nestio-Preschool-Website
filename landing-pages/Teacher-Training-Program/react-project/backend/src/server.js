@@ -83,6 +83,7 @@ import { generateAILessonPlan } from "./services/aiLessonPlanner.js";
 import dailyTaskAutomationRoutes from "./routes/dailyTaskAutomationRoutes.js";
 import teacherTasksRouter from "./routes/teacherTasks.js";
 import { startDailyTaskAutomationCron } from "./cron/dailyTaskCron.js";
+import { startReminderAutomationCron } from "./cron/reminderCron.js";
 import { User } from "./models/User.js";
 import { TeacherTask } from "./models/TeacherTask.js";
 import { Center } from "./models/Center.js";
@@ -1081,9 +1082,15 @@ app.post("/api/auth/forgot-password-otp", async (req, res, next) => {
     }
 
     const user = await User.findOne({ email }).select("_id email name");
+    // Always return success to prevent email enumeration
+    const successResponse = {
+      success: true,
+      message: "If the account exists, a 6-digit OTP has been sent to your email.",
+      otpExpiryMinutes: OTP_TTL_MINUTES,
+    };
 
     if (!user) {
-      return res.status(404).json({ message: "No registered account found with this email address. Please check your email or register." });
+      return res.json(successResponse);
     }
 
     // Generate 6-digit OTP
@@ -1092,51 +1099,35 @@ app.post("/api/auth/forgot-password-otp", async (req, res, next) => {
     storeOtp(email, otp);
 
     // Send OTP via email
-    let emailSent = false;
-    try {
-      const emailResult = await sendEmail({
-        to: user.email,
-        subject: "SpacECE Portal - Password Reset OTP",
-        html: `
-          <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
-            <div style="text-align:center;margin-bottom:24px;">
-              <h2 style="color:#f59e0b;margin:0;">🔒 Password Reset</h2>
-              <p style="color:#6b7280;font-size:14px;margin-top:8px;">SpacECE Teacher Training Portal</p>
-            </div>
-            <div style="background:white;border-radius:12px;padding:24px;text-align:center;border:2px dashed #fbbf24;">
-              <p style="color:#374151;font-size:14px;margin:0 0 12px;">Hello <strong>${user.name || "User"}</strong>,</p>
-              <p style="color:#6b7280;font-size:13px;margin:0 0 20px;">Your 6-digit One-Time Password (OTP) is:</p>
-              <div style="font-size:36px;font-weight:900;color:#f59e0b;letter-spacing:12px;margin:16px 0;background:#fef3c7;padding:16px;border-radius:10px;">${otp}</div>
-              <p style="color:#9ca3af;font-size:12px;margin:16px 0 0;">This OTP expires in <strong>${OTP_TTL_MINUTES} minutes</strong>.</p>
-              <p style="color:#9ca3af;font-size:12px;margin:4px 0 0;">Do not share this code with anyone.</p>
-            </div>
-            <p style="color:#9ca3af;font-size:11px;text-align:center;margin-top:24px;">If you didn't request a password reset, you can safely ignore this email.</p>
+    // Start: Dnyaneshwari Thorat
+    sendEmail({
+      to: user.email,
+      subject: "SpacECE Portal - Password Reset OTP",
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
+          <div style="text-align:center;margin-bottom:24px;">
+            <h2 style="color:#f59e0b;margin:0;">🔒 Password Reset</h2>
+            <p style="color:#6b7280;font-size:14px;margin-top:8px;">SpacECE Teacher Training Portal</p>
           </div>
-        `
-      });
-      emailSent = !!emailResult?.success;
-    } catch (err) {
-      console.error("[password-reset-otp] Email send exception:", err);
-    }
+          <div style="background:white;border-radius:12px;padding:24px;text-align:center;border:2px dashed #fbbf24;">
+            <p style="color:#374151;font-size:14px;margin:0 0 12px;">Hello <strong>${user.name || "User"}</strong>,</p>
+            <p style="color:#6b7280;font-size:13px;margin:0 0 20px;">Your 6-digit One-Time Password (OTP) is:</p>
+            <div style="font-size:36px;font-weight:900;color:#f59e0b;letter-spacing:12px;margin:16px 0;background:#fef3c7;padding:16px;border-radius:10px;">${otp}</div>
+            <p style="color:#9ca3af;font-size:12px;margin:16px 0 0;">This OTP expires in <strong>${OTP_TTL_MINUTES} minutes</strong>.</p>
+            <p style="color:#9ca3af;font-size:12px;margin:4px 0 0;">Do not share this code with anyone.</p>
+          </div>
+          <p style="color:#9ca3af;font-size:11px;text-align:center;margin-top:24px;">If you didn't request a password reset, you can safely ignore this email.</p>
+        </div>
+      `
+    }).catch(err => console.error("Non-blocking password reset OTP email failed:", err));
 
-    console.log(`[password-reset-otp] Generated OTP for email ${email}: ${otp} (emailSent: ${emailSent})`);
+    console.log("[otp] generated_and_sent", JSON.stringify({
+      email,
+      otpLength: otp.length,
+    }));
 
-    const mailConf = await PortalSetting.find({ key: { $in: ["smtpHost", "smtpUser"] } });
-    const isMailConfigured = mailConf && mailConf.length >= 2 && mailConf.every(c => c.value);
-    const devOtp = (!emailSent || !isMailConfigured || process.env.NODE_ENV !== "production") ? otp : undefined;
-
-    const resetToken = createPasswordResetToken(user.email);
-
-    res.json({
-      success: true,
-      emailSent,
-      otpExpiryMinutes: OTP_TTL_MINUTES,
-      message: emailSent
-        ? "OTP sent to your registered email address."
-        : "OTP generated successfully.",
-      devOtp,
-      resetToken,
-    });
+    res.json({ success: true, message: "OTP sent to your registered email address.", devOtp: undefined });
+    // End: Dnyaneshwari Thorat
   } catch (error) {
     res.status(500).json({ message: error.message, stack: error.stack });
   }
@@ -5867,6 +5858,7 @@ app.post("/api/automation/attendance-reminders", requireAuth, requireRole("admin
       totalPending: pendingTeachers.length,
       sent: results.success,
       failed: results.failed,
+      teacherNames: pendingTeachers.map(t => t.name),
     });
   } catch (error) {
     res.status(500).json({ message: error.message, stack: error.stack });
@@ -5920,6 +5912,7 @@ app.post("/api/automation/auto-assign-courses", requireAuth, requireRole("admin"
     }
 
     let assignedCount = 0;
+    const assignedTeacherNames = [];
     for (const teacher of teachers) {
       const existing = await CourseAssignment.findOne({ course: courseId, teacher: teacher._id });
       if (!existing) {
@@ -5941,6 +5934,7 @@ app.post("/api/automation/auto-assign-courses", requireAuth, requireRole("admin"
         });
 
         assignedCount++;
+        assignedTeacherNames.push(teacher.name);
       }
     }
 
@@ -5950,6 +5944,7 @@ app.post("/api/automation/auto-assign-courses", requireAuth, requireRole("admin"
       message: `Course auto-assigned to ${assignedCount} teachers`,
       assigned: assignedCount,
       total: teachers.length,
+      assignedTeacherNames,
     });
   } catch (error) {
     res.status(500).json({ message: error.message, stack: error.stack });
@@ -6722,6 +6717,10 @@ import mentorCurriculumRouter from "./routes/mentorCurriculum.js";
 app.use("/api/mentor/tracking", requireAuth, requireRole("mentor"), mentorTrackingRouter);
 app.use("/api/mentor/curriculum", requireAuth, mentorCurriculumRouter);
 
+// Automated Reminder System (AI risk prediction + 24h-before deadline reminders)
+import reminderAutomationRouter from "./routes/reminderAutomationRoutes.js";
+app.use("/api/reminder-automation", reminderAutomationRouter);
+
 app.post("/api/teacher/reports/draft-ai", requireAuth, requireRole("teacher"), async (req, res, next) => {
   try {
     const { roughNotes } = req.body;
@@ -6860,6 +6859,8 @@ const server = http.createServer(app);
 const io = initSocket(server);
 
 startDailyTaskAutomationCron();
+startDailyTaskAutomationCron();
+startReminderAutomationCron();
 
 server.listen(port, () => {
   console.log(`API running on http://localhost:${port}`);
