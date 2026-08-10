@@ -177,25 +177,13 @@ export default function CertificateManagementTab({ setToast }) {
                     {cert.status === "issued" && (
                       <>
                         <button
-                          onClick={async () => {
-                            try {
-                              await viewCertificatePdf(cert._id);
-                            } catch (err) {
-                              showToast({ msg: err.message || "Failed to view certificate", type: "error" });
-                            }
-                          }}
+                          onClick={() => viewCertificatePdf(cert._id)}
                           style={{ ...S.tblBtn, color: "#d97706", borderColor: "#fde68a" }}
                         >
                           👁️ View
                         </button>
                         <button
-                          onClick={async () => {
-                            try {
-                              await downloadCertificatePdf(cert._id, `Certificate-${cert.certificateNumber}.pdf`);
-                            } catch (err) {
-                              showToast({ msg: err.message || "Failed to download certificate", type: "error" });
-                            }
-                          }}
+                          onClick={() => downloadCertificatePdf(cert._id, `Certificate-${cert.certificateNumber}.pdf`)}
                           style={{ ...S.tblBtn, color: "#2563eb", borderColor: "#bfdbfe" }}
                         >
                           📥 Download
