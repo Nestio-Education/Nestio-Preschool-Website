@@ -3187,40 +3187,28 @@ app.get("/api/teacher/progress", requireAuth, requireRole("teacher", "fellow"), 
 app.post("/api/teacher/chatbot", requireAuth, requireRole("teacher", "fellow"), async (req, res, next) => {
   try {
     const message = String(req.body.message || "").trim();
-    const text = message.toLowerCase();
-
-    const [teacher, courseCount, pendingLessons, pendingActivities, notifications] = await Promise.all([
-      User.findById(req.user.id)
-        .select("-passwordHash")
-        .populate("teacherProfile.center", "name city")
-        .populate("teacherProfile.classes", "name schedule"),
-      CourseAssignment.countDocuments({ teacher: req.user.id }),
-      LessonPlanAssignment.countDocuments({ teacher: req.user.id, status: "pending" }),
-      ActivitySubmission.countDocuments({ teacher: req.user.id, status: "pending" }),
-      Notification.countDocuments({ recipient: req.user.id, read: false }),
-    ]);
-
-    let reply = "I can help with attendance, lesson plans, activities, courses, profile, and notifications. Tell me what you want to do.";
-
-    if (text.includes("attendance")) {
-      reply = "Open Daily Attendance to mark children present, absent, or late. Use Geotag Attendance for your own teacher attendance.";
-    } else if (text.includes("lesson") || text.includes("plan")) {
-      reply = `You have ${pendingLessons} pending lesson plan${pendingLessons === 1 ? "" : "s"}. Open Training & Lessons to view, complete, add notes, and upload evidence.`;
-    } else if (text.includes("course") || text.includes("training")) {
-      reply = `You currently have ${courseCount} assigned course${courseCount === 1 ? "" : "s"}. Open My Courses to view material and progress.`;
-    } else if (text.includes("activity") || text.includes("upload")) {
-      reply = `You have ${pendingActivities} activity submission${pendingActivities === 1 ? "" : "s"} waiting for admin review. Open Training & Lessons, then Classroom Activities to upload more evidence.`;
-    } else if (text.includes("center") || text.includes("class")) {
-      const classNames = (teacher?.teacherProfile?.classes || []).map(c => c?.name).filter(Boolean);
-      const className = teacher?.teacherProfile?.class?.name || (classNames.length > 0 ? classNames.join(", ") : "not assigned yet");
-      reply = `Your assigned center is ${teacher?.teacherProfile?.center?.name || "not assigned yet"} and your class(es) are ${className}.`;
-    } else if (text.includes("notification") || text.includes("alert")) {
-      reply = `You have ${notifications} unread notification${notifications === 1 ? "" : "s"}. Open Notifications to review them.`;
-    } else if (text.includes("profile") || text.includes("phone") || text.includes("qualification")) {
-      reply = "Open My Profile to update your phone, address, qualification, subject, and experience.";
+    if (!message) {
+      return res.status(400).json({ message: "message required" });
     }
 
-    res.json({ reply });
+    try {
+      const response = await fetch("http://127.0.0.1:8001/api/v1/teacher-support-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Chatbot service returned ${response.status}`);
+      }
+
+      const data = await response.json();
+      res.json({ reply: data.reply });
+    } catch (chatbotErr) {
+      console.error("Error calling Python chatbot service:", chatbotErr);
+      // Fallback to a static response in case the python service is down
+      res.json({ reply: "I'm sorry, I'm having trouble connecting to the AI brain right now." });
+    }
   } catch (error) {
     res.status(500).json({ message: error.message, stack: error.stack });
   }
@@ -3858,6 +3846,9 @@ app.delete("/api/courses/:id", requireAuth, requireRole("admin"), async (req, re
 // AI Course Generation (mounted router with auth + admin middleware)
 import courseAiRouter from "./routes/courseAi.js";
 app.use("/api/courses/ai", requireAuth, requireRole("admin"), courseAiRouter);
+
+import { attachCourseLibraryRoutes } from "./routes/courseLibrary.routes.js";
+attachCourseLibraryRoutes(app, { Course, requireAuth });
 // Grades routes
 import gradesRouter from "./routes/grades.js";
 app.use("/api/grades", gradesRouter);
@@ -6527,7 +6518,7 @@ app.use((error, _req, res, _next) => {
 // Course Generator Service Integration
 // ==========================================
 
-const COURSE_GENERATOR_SERVICE_URL = process.env.COURSE_GENERATOR_SERVICE_URL || "http://localhost:8002";
+const COURSE_GENERATOR_SERVICE_URL = process.env.COURSE_GENERATOR_SERVICE_URL || "https://course-generator-service.onrender.com";
 
 app.post("/api/assessments/ai-grade", requireAuth, async (req, res, next) => {
   try {
