@@ -77,6 +77,20 @@ const TEMPLATES = {
   },
 };
 
+// ── Helper: Map a template key to a category the Notification schema actually allows ──
+// (Notification.metadata.category enum: assignment, attendance, course, feedback, system, reminder, alert)
+const TEMPLATE_CATEGORY_MAP = {
+  course_assigned: "course",
+  assignment_submitted: "assignment",
+  attendance_reminder: "attendance",
+  assignment_reviewed: "assignment",
+  password_reset_otp: "system",
+  new_notification: "system",
+};
+function categoryForTemplate(templateKey) {
+  return TEMPLATE_CATEGORY_MAP[templateKey] || "system";
+}
+
 // ── Helper: Get template in user's preferred language ──
 function getTemplate(templateKey, lang = "en", replacements = {}) {
   const langCode = { English: "en", Hindi: "hi", Marathi: "mr", Telugu: "te", Kannada: "kn", Tamil: "ta" }[lang] || "en";
@@ -253,7 +267,7 @@ async function sendNotification({ recipientId, templateKey, channel = "in_app", 
         body,
         status: "delivered",
         sentAt: new Date(),
-        metadata: { ...metadata, priority, category: templateKey },
+        metadata: { ...metadata, priority, category: categoryForTemplate(templateKey) },
       });
       results.inApp = { success: true, notificationId: notif._id };
     } catch (err) {
@@ -298,7 +312,7 @@ async function sendNotification({ recipientId, templateKey, channel = "in_app", 
         status: emailResult.success ? "delivered" : "failed",
         error: emailResult.error,
         sentAt: emailResult.success ? new Date() : undefined,
-        metadata: { ...metadata, priority, category: templateKey },
+        metadata: { ...metadata, priority, category: categoryForTemplate(templateKey) },
       });
 
       results.email = emailResult;
@@ -320,7 +334,7 @@ async function sendNotification({ recipientId, templateKey, channel = "in_app", 
         status: smsResult.success ? "delivered" : "failed",
         error: smsResult.error,
         sentAt: smsResult.success ? new Date() : undefined,
-        metadata: { ...metadata, priority, category: templateKey },
+        metadata: { ...metadata, priority, category: categoryForTemplate(templateKey) },
       });
 
       results.sms = smsResult;
@@ -342,7 +356,7 @@ async function sendNotification({ recipientId, templateKey, channel = "in_app", 
         status: waResult.success ? "delivered" : "failed",
         error: waResult.error,
         sentAt: waResult.success ? new Date() : undefined,
-        metadata: { ...metadata, priority, category: templateKey },
+        metadata: { ...metadata, priority, category: categoryForTemplate(templateKey) },
       });
 
       results.whatsapp = waResult;
