@@ -71,11 +71,11 @@ router.post("/activities/upload", requireAuth, upload.single("file"), async (req
 
     const result = await importActivitiesFromExcel(req.file.path, req.user.id);
     console.log("==> IMPORT SUCCESS:", result);
-    fs.unlink(req.file.path, () => { });
+    fs.unlink(req.file.path, () => {});
     res.json({ success: true, ...result });
   } catch (error) {
     console.error("==> IMPORT ERROR:", error);
-    if (req.file?.path) fs.unlink(req.file.path, () => { });
+    if (req.file?.path) fs.unlink(req.file.path, () => {});
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -104,28 +104,6 @@ router.get("/activities/submissions", requireAuth, async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
-// --- PRAJWAL EDIT: START — new route to submit an Activity Bank completion report ---
-router.post("/activities/:activityId/complete", requireAuth, async (req, res) => {
-  try {
-    const activity = await ActivityBank.findById(req.params.activityId);
-    if (!activity) {
-      return res.status(404).json({ success: false, message: "Activity not found" });
-    }
-
-    const submission = await ActivitySubmission.create({
-      ...req.body,
-      teacher: req.user.id,
-      activityBank: req.params.activityId
-    });
-
-    res.status(201).json({ success: true, submission });
-  } catch (error) {
-    console.error("Activity completion submit error:", error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-// --- PRAJWAL EDIT: END ---
 
 router.delete("/activities/:id", requireAuth, async (req, res) => {
   try {
@@ -177,7 +155,7 @@ router.get("/activities", async (req, res) => {
 router.post("/activities", requireAuth, async (req, res) => {
   try {
     const { activityName, ageGroup, developmentalDomain, materialsRequired, expectedLearningOutcomes, duration, level, className, type, milestone, purposeOfActivity, howToConduct, facilitatorRole, dayNumber, learningObjectives, activities, resources, instructions, expectedOutput, notes } = req.body;
-
+    
     if (!activityName) {
       return res.status(400).json({ success: false, message: "Activity Name is required" });
     }

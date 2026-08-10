@@ -261,7 +261,6 @@ function ForgotPasswordForm({ onBack }) {
   const [loading, setLoading]       = useState(false);
   const [toast, setToast]           = useState({ msg: "", type: "" });
   const [resendTimer, setResendTimer] = useState(0);
-  const [devOtp, setDevOtp]         = useState("");
 
   useEffect(() => {
     if (resendTimer <= 0) return;
@@ -269,22 +268,21 @@ function ForgotPasswordForm({ onBack }) {
     return () => clearTimeout(t);
   }, [resendTimer]);
 
-  /* OTP-based handlers commented out for now in favor of direct email token reset */
-  /*
   const handleRequestOtp = async (e) => {
     e.preventDefault();
     if (!email) { setToast({ msg: "Please enter your email address.", type: "error" }); return; }
     setLoading(true);
     try {
-      const data = await requestPasswordResetOtp(email.trim().toLowerCase());
-      if (data.devOtp) setDevOtp(data.devOtp);
+      const data = await requestPasswordResetOtp(email);
+      if (data.emailSent === false) {
+        setToast({ msg: "Failed to send OTP email. Please check your email configuration or contact admin.", type: "error" });
+        setLoading(false);
+        return;
+      }
       setOtpExpiry(data.otpExpiryMinutes || 10);
       setStep("otp");
       setResendTimer(60);
-      setToast({
-        msg: data.emailSent ? "OTP sent to your email! Check your inbox." : "OTP generated successfully! Check inbox or server hint.",
-        type: "success"
-      });
+      setToast({ msg: "OTP sent to your email! Check your inbox.", type: "success" });
     } catch (err) {
       setToast({ msg: err.message || "Failed to send OTP.", type: "error" });
     } finally {
@@ -297,40 +295,12 @@ function ForgotPasswordForm({ onBack }) {
     if (otp.length !== 6) { setToast({ msg: "Please enter the complete 6-digit OTP.", type: "error" }); return; }
     setLoading(true);
     try {
-      const data = await verifyPasswordOtp(email.trim().toLowerCase(), otp);
+      const data = await verifyPasswordOtp(email, otp);
       setResetToken(data.resetToken);
       setStep("reset");
       setToast({ msg: "OTP verified! Set your new password.", type: "success" });
     } catch (err) {
       setToast({ msg: err.message || "Invalid OTP.", type: "error" });
-    } finally {
-      setLoading(false);
-    }
-  };
-  */
-
-  // Direct Password Reset Handler (Bypasses OTP verification for now)
-  const handleDirectPasswordReset = async (e) => {
-    e.preventDefault();
-    if (!email) { setToast({ msg: "Please enter your email address.", type: "error" }); return; }
-    setLoading(true);
-    try {
-      const data = await requestPasswordReset(email.trim().toLowerCase());
-      if (data.resetToken) {
-        setResetToken(data.resetToken);
-        setStep("reset");
-        setToast({
-          msg: "Account verified! Set your new password below.",
-          type: "success"
-        });
-      } else {
-        setToast({
-          msg: "No registered account found with this email address. Please check your email or register.",
-          type: "error"
-        });
-      }
-    } catch (err) {
-      setToast({ msg: err.message || "Failed to initiate password reset.", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -356,23 +326,25 @@ function ForgotPasswordForm({ onBack }) {
     }
   };
 
-  /*
   const handleResendOtp = async () => {
     if (resendTimer > 0) return;
     setLoading(true);
     try {
-      const data = await requestPasswordResetOtp(email.trim().toLowerCase());
-      if (data.devOtp) setDevOtp(data.devOtp);
+      const data = await requestPasswordResetOtp(email);
+      if (data.emailSent === false) {
+        setToast({ msg: "Failed to send OTP email. Please contact admin.", type: "error" });
+        setLoading(false);
+        return;
+      }
       setResendTimer(60);
       setOtp("");
-      setToast({ msg: "New OTP generated!", type: "success" });
+      setToast({ msg: "New OTP sent to your email!", type: "success" });
     } catch (err) {
       setToast({ msg: err.message || "Failed to resend OTP.", type: "error" });
     } finally {
       setLoading(false);
     }
   };
-  */
 
   // Step 1: Enter email
   if (step === "email") {
@@ -382,12 +354,12 @@ function ForgotPasswordForm({ onBack }) {
         <Logo size={100} />
         <div style={{ textAlign: "center", marginBottom: 16 }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>🔐</div>
-          <span style={ls.badge}>Reset Password</span>
+          <span style={ls.badge}>Forgot Password</span>
           <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4, fontStyle: "italic" }}>
-            Enter your registered email address to set a new password
+            Enter your email to receive a 6-digit OTP
           </p>
         </div>
-        <form onSubmit={handleDirectPasswordReset}>
+        <form onSubmit={handleRequestOtp}>
           <div style={ci.mb}>
             <label style={ci.label}>Registered Email Address</label>
             <div style={{ position: "relative" }}>
@@ -404,7 +376,7 @@ function ForgotPasswordForm({ onBack }) {
             </div>
           </div>
           <button type="submit" style={{ ...S.primaryBtn, width: "100%", padding: "9px", fontSize: 13 }} disabled={loading}>
-            {loading ? "Verifying Email..." : "Continue to Reset Password →"}
+            {loading ? "Sending OTP..." : "Send OTP →"}
           </button>
         </form>
         <p style={{ textAlign: "center", fontSize: 11, color: "#9ca3af", marginTop: 12, marginBottom: 0 }}>
@@ -415,8 +387,7 @@ function ForgotPasswordForm({ onBack }) {
     );
   }
 
-  // Step 2: Enter OTP (Bypassed / Commented out for now)
-  /*
+  // Step 2: Enter OTP
   if (step === "otp") {
     return (
       <>
@@ -436,11 +407,6 @@ function ForgotPasswordForm({ onBack }) {
         <form onSubmit={handleVerifyOtp}>
           <div style={{ marginBottom: 16 }}>
             <OtpInput length={6} value={otp} onChange={setOtp} disabled={loading} />
-            {devOtp && (
-              <p style={{ fontSize: 10, color: "#10b981", textAlign: "center", marginTop: 10, fontWeight: 700 }}>
-                💡 Server Fallback / Dev Mode: Email OTP is <b>{devOtp}</b>
-              </p>
-            )}
           </div>
           <button type="submit" style={{ ...S.primaryBtn, width: "100%", padding: "9px", fontSize: 13 }} disabled={loading || otp.length !== 6}>
             {loading ? "Verifying..." : "Verify OTP →"}
@@ -468,7 +434,6 @@ function ForgotPasswordForm({ onBack }) {
       </>
     );
   }
-  */
 
   // Step 3: Set new password
   return (
@@ -479,7 +444,7 @@ function ForgotPasswordForm({ onBack }) {
         <div style={{ fontSize: 32, marginBottom: 8 }}>🛡️</div>
         <span style={ls.badge}>Set New Password</span>
         <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4, fontStyle: "italic" }}>
-          Resetting password for <strong style={{ color: "#92400e" }}>{email}</strong>
+          OTP verified for <strong style={{ color: "#92400e" }}>{email}</strong>
         </p>
       </div>
       <form onSubmit={handleResetPassword}>
