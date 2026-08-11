@@ -3183,6 +3183,7 @@ app.post("/api/teacher/chatbot", requireAuth, requireRole("teacher", "fellow"), 
     }
 
     try {
+      // Forward the request to the Python microservice running on port 8001
       const response = await fetch("http://127.0.0.1:8001/api/v1/teacher-support-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
