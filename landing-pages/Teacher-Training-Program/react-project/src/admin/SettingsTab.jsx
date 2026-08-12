@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+﻿import { useEffect, useState, useCallback } from "react";
 import { Modal, S, SectionCard, StatCard, StatusBadge } from "../components/Shared";
 import { getAdminDashboard, getAdminTeachers, getTrainers, getCourses, getAdminUsers, getPortalSettings, updatePortalSettings, testSmtpEmail, updateAdminLanguage, testWhatsAppNotification } from "../services/api";
 import { t, setLanguage, getCurrentLanguage, getLanguageList } from "../services/i18n";
@@ -303,36 +303,29 @@ export default function SettingsTab({ setToast, teachers }) {
     }
   }, [testWhatsAppTo, twilioConfig, setToast]);
 
-  const roleCards = [
-    {
-      role: "Super Admin",
-      access: "Full access to all modules including financial and role management",
-      count: stats?.totalAdmins || 0,
-      color: "#ef4444",
-      bg: "#fee2e2",
-    },
-    {
-      role: "Trainer",
-      access: "Content upload, assignment review, live sessions, forum",
-      count: stats?.activeTrainers || 0,
-      color: "#8b5cf6",
-      bg: "#ede9fe",
-    },
-    {
-      role: "Teacher",
-      access: "Course access, lesson plan submission, attendance, feedback",
-      count: stats?.approvedTeachers || 0,
-      color: "#10b981",
-      bg: "#d1fae5",
-    },
-    {
-      role: "Pending Teachers",
-      access: "Awaiting approval in Teacher Management tab",
-      count: stats?.pendingTeachers || 0,
-      color: "#f59e0b",
-      bg: "#fef3c7",
-    },
-  ];
+  const roleMeta = {
+      admin: { access: "Full access to all modules including financial and role management", color: "#ef4444", bg: "#fee2e2" },
+      trainer: { access: "Content upload, assignment review, live sessions, forum", color: "#8b5cf6", bg: "#ede9fe" },
+      teacher: { access: "Course access, lesson plan submission, attendance, feedback", color: "#10b981", bg: "#d1fae5" },
+    };
+    const roleCards = [
+      ...roleUsers
+        .filter((r) => r.count > 0)
+        .map((r) => ({
+          role: r.label,
+          access: roleMeta[r.role]?.access || "",
+          count: r.count,
+          color: roleMeta[r.role]?.color || "#6b7280",
+          bg: roleMeta[r.role]?.bg || "#f3f4f6",
+        })),
+      {
+        role: "Pending Teachers",
+        access: "Awaiting approval in Teacher Management tab",
+        count: stats?.pendingTeachers || 0,
+        color: "#f59e0b",
+        bg: "#fef3c7",
+      },
+    ];
 
   const sections = [
     { key: "portal", label: "⚙️ " + t("Portal") },
