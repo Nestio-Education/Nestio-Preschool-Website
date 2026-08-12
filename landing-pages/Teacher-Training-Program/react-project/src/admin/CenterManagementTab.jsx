@@ -1,4 +1,4 @@
-// CenterManagementTab.jsx
+﻿// CenterManagementTab.jsx
 import { t } from "../services/i18n";
 import { useState, useEffect } from "react";
 import { Modal, S, SearchBar, SectionCard, StatCard, StatusBadge, Toast } from "../components/Shared";
@@ -1279,9 +1279,9 @@ export default function CenterManagementTab({ setToast }) {
   const filtered = centers.filter(c => {
     const q = search.toLowerCase();
     return (
-      c.name.toLowerCase().includes(q) ||
-      c.city.toLowerCase().includes(q) ||
-      c.contactPerson.toLowerCase().includes(q)
+      (c.name || "").toLowerCase().includes(q) ||
+      (c.city || "").toLowerCase().includes(q) ||
+      (c.contactPerson || "").toLowerCase().includes(q)
     ) && (statusFilter === "all" || c.status === statusFilter);
   });
 

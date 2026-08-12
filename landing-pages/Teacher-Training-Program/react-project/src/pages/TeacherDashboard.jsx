@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { Logo, Toast, Badge, StatusBadge, StatCard, SectionCard, Modal, S, globalCSS } from "../components/Shared";
 import { t, setLanguage, getLanguageList, getCurrentLanguage, LANG_CHANGE_EVENT } from "../services/i18n";
 // Start: Snehal change
@@ -3143,7 +3143,10 @@ export default function TeacherDashboard({ user, onLogout }) {
       </div>
 
       <div style={{ flex: 1, width: "0px", minWidth: "0px", padding: "28px 32px", overflowY: "auto", maxHeight: "100vh" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 20, position: "relative" }}>
+        <a href="/landing-pages/Teacher-Training-Program/" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#d97706", textDecoration: "none", marginBottom: 12 }}>
+            <span>&larr;</span> Back to website
+          </a>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 20, position: "relative" }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: "#1c1917", margin: 0, letterSpacing: "-0.3px" }}>
               Hi, {currentUser.name?.split(" ")[0] || (currentUser.role === "fellow" ? "Fellow" : "Teacher")}! 👋

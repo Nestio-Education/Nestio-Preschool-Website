@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+﻿import { useState, useEffect, useMemo } from "react";
 import { Logo, Toast, Badge, StatusBadge, StatCard, SectionCard, S, globalCSS, DonutChart, ActivityItem, ProgressCard, BarChart } from "../components/Shared";
 import { t } from "../services/i18n";
 import { 
@@ -683,8 +683,11 @@ export default function MentorDashboard({ user, onLogout }) {
               </button>
             </div>
           )}
-        </div>
-        {renderContent()}
+          </div>
+          <a href="/landing-pages/Teacher-Training-Program/" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#d97706", textDecoration: "none", marginBottom: 12 }}>
+            <span>&larr;</span> Back to website
+          </a>
+          {renderContent()}
       </div>
     </div>
   );
