@@ -3900,6 +3900,19 @@ export const translations = {
 const LANG_CHANGE_EVENT = "spaceece_language_changed";
 
 export function getCurrentLanguage() {
+  const rawUser = localStorage.getItem("spaceece_user");
+  let isAdmin = false;
+  if (rawUser) {
+    try {
+      const user = JSON.parse(rawUser);
+      isAdmin = user.role === "admin";
+    } catch (e) {}
+  }
+
+  if (!isAdmin) {
+    return "English";
+  }
+
   const stored = localStorage.getItem("spaceece_default_language");
   if (["English", "Hindi", "Marathi", "Telugu", "Kannada", "Tamil"].includes(stored)) return stored;
   localStorage.setItem("spaceece_default_language", "English");
