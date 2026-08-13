@@ -1044,7 +1044,8 @@ export default function LoginPage({ onLogin }) {
     if (token) {
       setView({ type: "reset", token });
     } else if (params.get("view") === "register") {
-      setView("register");
+        window.scrollTo(0, 0);
+        setView("register");
     }
   }, []);
 
@@ -1103,7 +1104,7 @@ export default function LoginPage({ onLogin }) {
 const ls = {
   bg:    { minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
            background: "linear-gradient(135deg,#fef3c7 0%,#fde68a 30%,#fbbf24 65%,#f59e0b 100%)",
-           position: "relative", overflow: "hidden", padding: "16px",
+           position: "relative", overflowX: "hidden", overflowY: "auto", padding: "16px",
            paddingTop: "76px",
            fontFamily: "'Segoe UI','Inter',-apple-system,sans-serif" },
   header: { position: "fixed", top: 0, left: 0, right: 0, zIndex: 10,
