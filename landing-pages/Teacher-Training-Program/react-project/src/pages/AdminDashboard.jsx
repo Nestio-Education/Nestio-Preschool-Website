@@ -12,7 +12,7 @@ import ReportsTab from "../admin/ReportsTab";
 import NotificationsTab from "../admin/NotificationsTab";
 import SettingsTab from "../admin/SettingsTab";
 import FeedbackManagementTab from "../admin/FeedbackManagementTab";
-import LessonPlannerTab from "./LessonPlannerTab";
+import DeliveryMonitoringTab from "../admin/DeliveryMonitoringTab";
 import ChildFeedbackTab from "../admin/ChildFeedbackTab";
 // Start: Snehal change
 import ParentModulesManagementTab from "../admin/ParentModulesManagementTab";
@@ -90,12 +90,13 @@ export default function AdminDashboard({ user, onLogout }) {
     { key:"overview",     label:t("Admin Dashboard"),          icon:"\uD83D\uDCCA" },
     { key:"centers",      label:t("Center Management"), icon:"\uD83C\uDFEB" },
     { key:"mentorMgmt",   label:t("Mentor Management"),  icon:"👨‍🏫" },
-    { key: "curriculum", label:t("Course Management"), icon: "\uD83D\uDCDA" },
+    { key: "curriculum", label:t("Course Management"), icon: "📚" },
+    { key: "delivery", label:t("Delivery Monitoring"), icon: "📋" },
     // Start: Snehal change
-    { key: "parentModules", label:t("Parent Capacity Building"), icon: "\uD83D\uDC6A" },
+    { key: "parentModules", label:t("Parent Capacity Building"), icon: "👪" },
     // End: Snehal change
-    { key: "activities", label:t("Activity Monitoring"), icon: "\uD83D\uDCF8" },
-    { key: "children", label:t("Children & Classes"), icon: "\uD83D\uDC76" },
+    { key: "activities", label:t("Activity Monitoring"), icon: "📸" },
+    { key: "children", label:t("Children & Classes"), icon: "👶" },
     { key:"attendance",   label:t("Attendance"),        icon:"\uD83D\uDCC5" },
     { key:"reports",      label:t("Reports & Analytics"),icon:"\uD83D\uDCC8" },
     { key:"feedback",     label:t("Feedback"),              icon:"\uD83D\uDCAC" },
@@ -123,6 +124,7 @@ export default function AdminDashboard({ user, onLogout }) {
       case "overview":     return <OverviewTab teachers={teachers} courses={courses} batches={[]} sessions={[]}/>;
       case "centers": return <CenterManagementTab allTeachers={teachers} setToast={setToast}/>;
       case "curriculum": return <CurriculumTrainingTab setToast={setToast}/>;
+      case "delivery": return <DeliveryMonitoringTab setToast={setToast}/>;
       // case "assessments": return <AssessmentResultsTab setToast={setToast}/>;
       case "activities": return <ActivityMonitoringTab setToast={setToast}/>;
       case "children": return <ChildrenManagementTab setToast={setToast}/>;
