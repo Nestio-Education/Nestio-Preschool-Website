@@ -864,10 +864,10 @@ export function TeacherManagementList({ setToast, role = "admin", user = null, o
                 <td style={{ padding: "12px 14px" }}><StatusBadge status={tr.status} /></td>
                 <td style={{ padding: "12px 14px" }}>
                   <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-                    <button onClick={() => setAssigningTaskTeacher(t)}
+                    <button onClick={() => setAssigningTaskTeacher(tr)}
                       style={{ ...S.tblBtn, color: "#059669", borderColor: "#a7f3d0", background: "#ecfdf5" }}
                       title="Assign task to teacher">📌 Task</button>
-                    <button onClick={() => setSelected(t)}
+                    <button onClick={() => setSelected(tr)}
                       style={{ ...S.tblBtn, color: "#3b82f6", borderColor: "#93c5fd" }}>👁 View</button>
                     {role === "mentor" ? (
                       <>
