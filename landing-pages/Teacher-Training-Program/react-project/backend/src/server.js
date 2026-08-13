@@ -4638,6 +4638,20 @@ app.post("/api/activities", requireAuth, requireRole("teacher", "fellow"), async
       files: files || [],
       status: "pending"
     });
+
+    if (userObj.assignedMentor) {
+  await createAndEmitNotification({
+    recipientId: userObj.assignedMentor,
+    title: "Pending Activity Review",
+    body: `${userObj.name} has submitted a new activity that is pending mentor review.`,
+    type: "in_app",
+    metadata: {
+      activityId: activity._id,
+      teacherId: req.user.id,
+      notificationType: "activity_pending"
+    }
+  });
+}
     res.status(201).json({ activity });
   } catch (error) {
     res.status(500).json({ message: error.message, stack: error.stack });

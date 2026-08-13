@@ -58,7 +58,11 @@ export default function AutomationTab({ user }) {
     try {
       const result = await sendDueReminders();
       setToast({
-        msg: `Sent ${result.sentCount} reminder(s)${result.adminNotified ? `, notified ${result.adminNotified} admin(s)` : ""}.`,
+        msg: `Sent ${result.sentCount} reminder(s)` +
+          (result.adminNotified ? `, ${result.adminNotified} admin(s) notified` : "") +
+          (result.centerMentorsNotified ? `, ${result.centerMentorsNotified} center mentor(s) notified` : "") +
+          (result.mentorsNotified ? `, ${result.mentorsNotified} mentor(s) notified about at-risk fellows` : "") +
+          ".",
         type: "success",
       });
       setLastSentDetails(result.sentDetails || []);
