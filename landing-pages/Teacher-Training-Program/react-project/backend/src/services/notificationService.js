@@ -75,7 +75,76 @@ const TEMPLATES = {
     kn: { title: "ಹೊಸ ಅಧಿಸೂಚನೆ", body: "{{message}}" },
     ta: { title: "புதிய அறிவிப்பு", body: "{{message}}" },
   },
+    daily_task_assigned: {
+    en: {
+      title: "Daily Tasks Assigned",
+      body: "{{message}}",
+    },
+    hi: {
+      title: "दैनिक कार्य सौंपे गए",
+      body: "{{message}}",
+    },
+  },
+  curriculum_assigned: {
+    en: {
+      title: "New Curriculum Assigned",
+      body: "{{mentorName}} has assigned you the curriculum plan \"{{planTitle}}\"{{phaseText}}. Open your dashboard to view it.",
+    },
+    hi: {
+      title: "नया पाठ्यक्रम सौंपा गया",
+      body: "{{mentorName}} ने आपको \"{{planTitle}}\" पाठ्यक्रम योजना सौंपी है{{phaseText}}। इसे देखने के लिए अपना डैशबोर्ड खोलें।",
+    },
+  },
+  task_assigned: {
+    en: {
+      title: "New Task Assigned",
+      body: "{{assignerName}} has assigned you a new task: \"{{taskTitle}}\", due on {{taskDate}}.",
+    },
+    hi: {
+      title: "नया कार्य सौंपा गया",
+      body: "{{assignerName}} ने आपको एक नया कार्य सौंपा है: \"{{taskTitle}}\", नियत तारीख {{taskDate}}।",
+    },
+  },
+  fellows_needing_attention: {
+    en: {
+      title: "Fellows needing your attention",
+      body: "{{message}}",
+    },
+    hi: {
+      title: "आपके फेलो जिन्हें ध्यान देने की आवश्यकता है",
+      body: "{{message}}",
+    },
+  },
+  center_pending_approvals: {
+    en: {
+      title: "Pending approvals at your center",
+      body: "{{message}}",
+    },
+    hi: {
+      title: "आपके सेंटर पर लंबित स्वीकृतियां",
+      body: "{{message}}",
+    },
+  },
 };
+
+// ── Helper: Map a template key to a category the Notification schema actually allows ──
+// (Notification.metadata.category enum: assignment, attendance, course, feedback, system, reminder, alert)
+const TEMPLATE_CATEGORY_MAP = {
+  course_assigned: "course",
+  assignment_submitted: "assignment",
+  attendance_reminder: "attendance",
+  assignment_reviewed: "assignment",
+  password_reset_otp: "system",
+  new_notification: "system",
+  daily_task_assigned: "reminder",
+  curriculum_assigned: "assignment",
+  task_assigned: "assignment",
+  fellows_needing_attention: "alert",
+  center_pending_approvals: "alert",
+};
+function categoryForTemplate(templateKey) {
+  return TEMPLATE_CATEGORY_MAP[templateKey] || "system";
+}
 
 // ── Helper: Get template in user's preferred language ──
 function getTemplate(templateKey, lang = "en", replacements = {}) {
