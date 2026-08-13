@@ -145,7 +145,7 @@ export function SectionCard({ title, children, action }) {
 }
 
 /* ── Modal ── */
-export function Modal({ title, onClose, children }) {
+export function Modal({ title, onClose, children, width = 520 }) {
   return (
     <div style={{
       position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)",
@@ -153,7 +153,7 @@ export function Modal({ title, onClose, children }) {
     }}>
       <div style={{
         background: "white", borderRadius: 20, padding: "28px", width: "100%",
-        maxWidth: 520, boxShadow: "0 20px 60px rgba(0,0,0,0.2)", maxHeight: "90vh", overflowY: "auto"
+        maxWidth: width, boxShadow: "0 20px 60px rgba(0,0,0,0.2)", maxHeight: "90vh", overflowY: "auto"
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
           <h3 style={{ fontSize: 17, fontWeight: 800, color: "#1c1917", margin: 0 }}>{title}</h3>
