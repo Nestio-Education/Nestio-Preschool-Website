@@ -1043,6 +1043,9 @@ export default function LoginPage({ onLogin }) {
     const token  = params.get("reset_token");
     if (token) {
       setView({ type: "reset", token });
+    } else if (params.get("view") === "register") {
+        window.scrollTo(0, 0);
+        setView("register");
     }
   }, []);
 
@@ -1060,11 +1063,11 @@ export default function LoginPage({ onLogin }) {
 
       {/* Site header - shown on Login, Register, Forgot & Reset views */}
       <header style={ls.header}>
-        <a href="/landing-pages/Teacher-Training-Program/index.html" style={ls.headerBrand}>
+        <a href="/landing-pages/Teacher-Training-Program/" style={ls.headerBrand}>
           <Logo size={40} />
           <span style={ls.headerBrandText}>SpacECE India Foundation</span>
         </a>
-        <a href="/landing-pages/Teacher-Training-Program/index.html" style={ls.headerBack}>
+        <a href="/landing-pages/Teacher-Training-Program/" style={ls.headerBack}>
           Back to website
         </a>
       </header>
@@ -1101,7 +1104,7 @@ export default function LoginPage({ onLogin }) {
 const ls = {
   bg:    { minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
            background: "linear-gradient(135deg,#fef3c7 0%,#fde68a 30%,#fbbf24 65%,#f59e0b 100%)",
-           position: "relative", overflow: "hidden", padding: "16px",
+           position: "relative", overflowX: "hidden", overflowY: "auto", padding: "16px",
            paddingTop: "76px",
            fontFamily: "'Segoe UI','Inter',-apple-system,sans-serif" },
   header: { position: "fixed", top: 0, left: 0, right: 0, zIndex: 10,
