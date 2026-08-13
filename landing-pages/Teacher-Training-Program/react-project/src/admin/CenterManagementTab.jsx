@@ -18,6 +18,8 @@ const mapCenterFromApi = (c) => ({
   children: c.children || 0,
   classes: c.classes || 0,
   mentor: c.mentor?._id || c.mentor || null,
+  type: c.type || "preschool",
+  gradeBands: c.gradeBands || [],
 });
 
 const mapCenterToApi = (c) => ({
@@ -32,6 +34,8 @@ const mapCenterToApi = (c) => ({
   teachers: c.teachers,
   classes: c.classes || [],
   mentor: c.mentor || null,
+  type: c.type,
+  gradeBands: c.gradeBands,
 });
 
 const EMPTY_FORM = {
@@ -39,6 +43,7 @@ const EMPTY_FORM = {
   phone: "", email: "", contactPerson: "",
   status: "active", teachers: [], children: 0, classes: 0,
   mentor: null,
+  type: "preschool", gradeBands: [],
 };
 
 /* ── Add / Edit Modal ── */
@@ -308,6 +313,38 @@ function CenterFormModal({ center, allTeachers = [], onSave, onClose, setToast }
         <input style={{ ...S.input, marginBottom: 12 }} value={form.contactPerson}
           onChange={e => setForm({ ...form, contactPerson: e.target.value })}
           placeholder="e.g. Mrs. Rekha Iyer" />
+
+        <label style={S.label}>Institution Type</label>
+        <select style={{ ...S.input, marginBottom: 12 }} value={form.type}
+          onChange={e => setForm({ ...form, type: e.target.value, gradeBands: e.target.value === "preschool" ? [] : form.gradeBands })}>
+          <option value="preschool">Preschool</option>
+          <option value="school">School</option>
+        </select>
+
+        {form.type === "school" && (
+          <div style={{ marginBottom: 12 }}>
+            <label style={S.label}>Grade Bands Offered</label>
+            <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
+              {["1-3", "4-7", "1-9"].map(band => (
+                <label key={band} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13 }}>
+                  <input
+                    type="checkbox"
+                    checked={form.gradeBands.includes(band)}
+                    onChange={e => {
+                      setForm(prev => ({
+                        ...prev,
+                        gradeBands: e.target.checked
+                          ? [...prev.gradeBands, band]
+                          : prev.gradeBands.filter(b => b !== band),
+                      }));
+                    }}
+                  />
+                  {band === "1-9" ? "1-9 (combined)" : band}
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
 
         <label style={S.label}>Center Mentor / Admin</label>
         <select style={{ ...S.input, marginBottom: 12 }} value={form.mentor || ""}

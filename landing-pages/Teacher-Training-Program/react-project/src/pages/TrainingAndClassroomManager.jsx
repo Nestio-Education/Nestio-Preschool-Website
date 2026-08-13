@@ -666,7 +666,7 @@ function LessonDetailModal({ assignment, onClose, onSubmitComplete }) {
           <div style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", marginBottom: 4 }}>
             {s.icon} {s.label}
           </div>
-          <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.6 }}>{s.val || "—"}</div>
+          <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{s.val || "—"}</div>
         </div>
       ))}
       {assignment.adminFeedback && (
