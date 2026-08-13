@@ -19,6 +19,7 @@ dist-ssr
 !.env.example
 !**/.env.example
 backend/.env
+__pycache__/
 
 # Editor directories and files
 .vscode/*
@@ -44,6 +45,3 @@ teacher-training-backend/
 
 # Empty directories
 uploads/
-
-__pycache__/
-*.pyc
