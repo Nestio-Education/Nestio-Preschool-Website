@@ -100,13 +100,10 @@ export default function LessonPlannerTab({ setToast, user }) {
         activities: result.activities || [],
         materials: result.materials || [],
         provider: result.provider,
-        isLocalFallback: result.isLocalFallback,
         generatedAt: new Date().toISOString(),
       });
       setToast?.({
-        msg: result.isLocalFallback
-          ? "Draft ready (offline template). Review cards below."
-          : "Lesson plan generated! Review the cards below.",
+        msg: "Lesson plan generated! Review the cards below.",
         type: "success",
       });
     } catch (err) {
@@ -164,7 +161,7 @@ export default function LessonPlannerTab({ setToast, user }) {
         objective: pendingActivity.objective,
         activities: [pendingActivity.text],
         materials: pendingActivity.materials || [],
-        provider: plan?.provider || "local",
+        provider: plan?.provider || "groq",
         generatedAt: plan?.generatedAt || new Date().toISOString(),
       });
       const newActivity = mapActivityItem({
@@ -261,6 +258,27 @@ export default function LessonPlannerTab({ setToast, user }) {
     boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
   };
 
+  // Parse "Phase Name (X min): content" from AI output
+  const PHASE_STYLES = {
+    "warm-up":         { border: "#f59e0b", label: "#d97706", bg: "#fef3c7", icon: "🎵" },
+    "main activity":   { border: "#3b82f6", label: "#1d4ed8", bg: "#dbeafe", icon: "🎯" },
+    "guided practice": { border: "#8b5cf6", label: "#6d28d9", bg: "#ede9fe", icon: "👐" },
+    "closure":         { border: "#10b981", label: "#065f46", bg: "#d1fae5", icon: "💬" },
+  };
+
+  function parseActivity(text) {
+    // Match "Phase Name (X min): rest of content"
+    const match = String(text).match(/^([^(]+?)\s*\((\d+\s*min)\):\s*(.*)/is);
+    if (!match) return { phase: null, duration: null, content: text, style: PHASE_STYLES["main activity"] };
+    const phase = match[1].trim();
+    const duration = match[2].trim();
+    const content = match[3].trim();
+    const styleKey = Object.keys(PHASE_STYLES).find((k) =>
+      phase.toLowerCase().includes(k)
+    );
+    return { phase, duration, content, style: PHASE_STYLES[styleKey] || PHASE_STYLES["main activity"] };
+  }
+
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
       <h1 style={S.pageTitle}>✏️ Lesson Planner</h1>
@@ -338,11 +356,7 @@ export default function LessonPlannerTab({ setToast, user }) {
             </>
           )}
         </div>
-        {plan?.isLocalFallback && (
-          <div style={{ marginTop: 12, padding: 10, borderRadius: 8, background: "#fef3c7", border: "1px solid #fbbf24", fontSize: 11, color: "#92400e" }}>
-            Using offline template — set MISTRAL_API_KEY for AI drafts.
-          </div>
-        )}
+      
       </form>
 
       {/* Generated plan — card layout */}
@@ -376,29 +390,50 @@ export default function LessonPlannerTab({ setToast, user }) {
             </div>
 
             {/* Activity cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
-              {(plan.activities || []).map((act, i) => (
-                <div key={i} style={{ ...cardStyle, borderTop: "3px solid #f59e0b", display: "flex", flexDirection: "column" }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#d97706", marginBottom: 8 }}>
-                    ACTIVITY {i + 1}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
+              {(plan.activities || []).map((act, i) => {
+                const { phase, duration, content, style } = parseActivity(act);
+                return (
+                  <div key={i} style={{ ...cardStyle, borderTop: `3px solid ${style.border}`, display: "flex", flexDirection: "column" }}>
+                    {/* Phase header */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+                      <span style={{
+                        display: "inline-flex", alignItems: "center", gap: 5,
+                        background: style.bg, color: style.label,
+                        fontSize: 11, fontWeight: 700, padding: "3px 10px",
+                        borderRadius: 20, letterSpacing: "0.2px",
+                      }}>
+                        {style.icon} {phase || `Activity ${i + 1}`}
+                      </span>
+                      {duration && (
+                        <span style={{
+                          fontSize: 10, fontWeight: 600, color: "#64748b",
+                          background: "#f1f5f9", padding: "2px 8px", borderRadius: 20,
+                        }}>
+                          ⏱ {duration}
+                        </span>
+                      )}
+                    </div>
+                    {/* Content */}
+                    <div style={{ fontSize: 13, color: "#1c1917", lineHeight: 1.6, flex: 1, marginBottom: 14 }}>
+                      {content}
+                    </div>
+                    {/* Actions */}
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      <button type="button" style={S.tblBtn} onClick={() => handleCopy(act, phase || "Activity")}>
+                        📋 Copy
+                      </button>
+                      <button
+                        type="button"
+                        style={{ ...S.btnGreen, padding: "5px 10px", fontSize: 11 }}
+                        onClick={() => openAddConfirm(act, i + 1)}
+                      >
+                        ＋ Add Activity
+                      </button>
+                    </div>
                   </div>
-                  <div style={{ fontSize: 13, color: "#1c1917", lineHeight: 1.55, flex: 1, marginBottom: 14 }}>
-                    {act}
-                  </div>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <button type="button" style={S.tblBtn} onClick={() => handleCopy(act, "Activity")}>
-                      📋 Copy
-                    </button>
-                    <button
-                      type="button"
-                      style={{ ...S.btnGreen, padding: "5px 10px", fontSize: 11 }}
-                      onClick={() => openAddConfirm(act, i + 1)}
-                    >
-                      ＋ Add Activity
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Materials */}

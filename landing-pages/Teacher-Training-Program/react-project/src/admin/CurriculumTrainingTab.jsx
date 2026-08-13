@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { Modal, S, SearchBar, StatCard } from "../components/Shared";
 import {
   getCourses, createCourse, deleteCourse, getCourseAssignments, getAdminTeachers,
-  assignCourse, getCourseNotes, createCourseNote, getAdminAssessmentResults, getCourseAssessment
+  assignCourse, getCourseNotes, createCourseNote, getAdminAssessmentResults, getCourseAssessment,
+  parseCourseDocx
 } from "../services/api";
 
 /* ══════════════════════════════════════════════════════════════
@@ -410,12 +411,22 @@ function AssessmentPreviewModal({ course, onClose, setToast }) {
   );
 }
 
-/* ── Course Form Modal: pick a course from the embedded library ── */
+/* ── Course Form Modal: pick a course from the embedded library, OR
+   upload a .docx to parse directly (no AI call) ── */
 function CourseLibraryPickerModal({ onClose, onCreated, setToast }) {
+  const [mode, setMode] = useState("library"); // "library" | "upload"
+
+  /* ── Library mode state (unchanged from the original) ── */
   const [selectedId, setSelectedId] = useState("");
   const [creating, setCreating] = useState(false);
-
   const detail = LOCAL_LIBRARY.find((c) => c.id === selectedId) || null;
+
+  /* ── Upload mode state ── */
+  const [file, setFile] = useState(null);
+  const [parsing, setParsing] = useState(false);
+  const [parsedCourse, setParsedCourse] = useState(null); // result of parseCourseDocx
+  const [parseError, setParseError] = useState("");
+  const [uploadCreating, setUploadCreating] = useState(false);
 
   const handleCreate = async () => {
     if (!selectedId) { setToast({ msg: "Please select a course from the library.", type: "error" }); return; }
@@ -468,39 +479,236 @@ function CourseLibraryPickerModal({ onClose, onCreated, setToast }) {
     }
   };
 
+  /* ── Upload mode handlers ── */
+  const handleFileChange = (e) => {
+    const f = e.target.files?.[0] || null;
+    setFile(f);
+    setParsedCourse(null);
+    setParseError("");
+  };
+
+  const handleParse = async () => {
+    if (!file) { setToast({ msg: "Please choose a .docx file first.", type: "error" }); return; }
+    if (!file.name.toLowerCase().endsWith(".docx")) {
+      setToast({ msg: "Only .docx files are supported for direct parsing.", type: "error" });
+      return;
+    }
+    setParsing(true);
+    setParseError("");
+    try {
+      const res = await parseCourseDocx(file);
+      const course = res.course || res;
+      if (!course.modules || course.modules.length === 0) {
+        setParseError("No Heading 1 sections found. Use Word's 'Heading 1' style for each chapter/module.");
+        setParsedCourse(null);
+      } else {
+        setParsedCourse(course);
+      }
+    } catch (err) {
+      setParseError(err.message || "Failed to parse this document.");
+      setParsedCourse(null);
+    } finally {
+      setParsing(false);
+    }
+  };
+
+  const handleCreateFromUpload = async () => {
+    if (!parsedCourse) return;
+    setUploadCreating(true);
+    try {
+      // Same schema buildCoursePayloadFromLibrary produces for the library
+      // path, so this goes through the exact same createCourse ->
+      // normalizeCoursePayload -> mapFormModulesToCourse pipeline.
+      const payload = {
+        title: parsedCourse.title,
+        category: parsedCourse.category,
+        level: parsedCourse.level,
+        duration: parsedCourse.duration || "",
+        description: parsedCourse.description || "",
+        objectives: parsedCourse.objectives || "",
+        contentType: "Document",
+        modules: parsedCourse.modules.map((mod) => ({
+          title: mod.title,
+          description: mod.description || "",
+          order: mod.order,
+          contents: mod.contents.map((c) => ({
+            title: c.title,
+            type: c.type, // "reading" -> coerced to "document" by mapFormModulesToCourse
+            notes: c.notes,
+            suggestedDuration: c.suggestedDuration,
+            order: c.order,
+          })),
+        })),
+      };
+
+      const res = await createCourse(payload);
+      const created = res.course || res;
+      const createdId = created._id || created.id;
+
+      // Same write-through as the library path: notes must also land in the
+      // separate CourseNote collection, or the teacher-facing page shows
+      // "No notes found for this course yet." Unlike the library path,
+      // uploaded courses can have MULTIPLE lessons per module, so
+      // contentIndex is each lesson's own position within its module's
+      // contents array — not always 0.
+      let noteTasks = [];
+      let totalLessons = 0;
+      if (createdId) {
+        parsedCourse.modules.forEach((mod, moduleIndex) => {
+          mod.contents.forEach((lesson, contentIndex) => {
+            totalLessons += 1;
+            noteTasks.push(
+              createCourseNote(createdId, {
+                title: lesson.title,
+                content: lesson.notes,
+                moduleIndex,
+                contentIndex,
+              })
+            );
+          });
+        });
+      }
+      const noteResults = await Promise.allSettled(noteTasks);
+      const noteFailures = noteResults.filter((r) => r.status === "rejected").length;
+
+      if (noteFailures > 0) {
+        setToast({
+          msg: `"${created.title || parsedCourse.title}" created, but ${noteFailures} of ${totalLessons} lesson notes failed to save. Check Track → Additional Admin Notes and add any missing ones manually.`,
+          type: "error",
+        });
+      } else {
+        setToast({ msg: `"${created.title || parsedCourse.title}" created from your document with all ${totalLessons} lesson notes.`, type: "success" });
+      }
+      onCreated();
+      onClose();
+    } catch (err) {
+      setToast({ msg: err.message || "Failed to create course from this document.", type: "error" });
+    } finally {
+      setUploadCreating(false);
+    }
+  };
+
+  const modeToggleBtn = (key, label) => (
+    <button
+      onClick={() => setMode(key)}
+      style={{
+        flex: 1,
+        padding: "8px 12px",
+        borderRadius: 8,
+        border: mode === key ? "2px solid #f59e0b" : "1px solid #e5e7eb",
+        background: mode === key ? "#fffbeb" : "white",
+        color: mode === key ? "#92400e" : "#6b7280",
+        fontWeight: 700,
+        fontSize: 12,
+        cursor: "pointer",
+      }}
+    >
+      {label}
+    </button>
+  );
+
   return (
     <Modal title="📚 Create Course from Library" onClose={onClose}>
-      <div style={{ background: "#f0f9ff", padding: "10px 14px", borderRadius: 10, marginBottom: 14, fontSize: 12, color: "#0c4a6e", border: "1px solid #bae6fd" }}>
-        📢 Courses are sourced from the SpacECE Pre-Primary Course Library — 10 ready-made courses with comprehensive, topic-wise notes for teachers to read and complete.
+      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+        {modeToggleBtn("library", "📚 From Library")}
+        {modeToggleBtn("upload", "📄 Upload Document")}
       </div>
 
-      <label style={S.label}>Select a Course *</label>
-      <select style={{ ...S.input, marginBottom: 14 }} value={selectedId} onChange={(e) => setSelectedId(e.target.value)}>
-        <option value="">Choose a course from the library...</option>
-        {LOCAL_LIBRARY.map((c) => (
-          <option key={c.id} value={c.id}>{c.title} — {c.category} ({c.level})</option>
-        ))}
-      </select>
-
-      {detail && (
-        <div style={{ background: "#f9fafb", borderRadius: 12, padding: 14, border: "1px solid #f1f5f9", marginBottom: 14 }}>
-          <div style={{ fontSize: 13, fontWeight: 800, color: "#1c1917", marginBottom: 4 }}>{detail.title}</div>
-          <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 8 }}>{detail.description}</div>
-          <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 8 }}>🎯 {detail.objectives}</div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#92400e", marginBottom: 6 }}>{detail.topics.length} Topics (comprehensive reading notes):</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 160, overflowY: "auto" }}>
-            {detail.topics.map((t, i) => (
-              <div key={i} style={{ fontSize: 12, color: "#374151", padding: "4px 8px", background: "white", borderRadius: 6, border: "1px solid #f1f5f9" }}>
-                {i + 1}. {t.title}
-              </div>
-            ))}
+      {mode === "library" && (
+        <>
+          <div style={{ background: "#f0f9ff", padding: "10px 14px", borderRadius: 10, marginBottom: 14, fontSize: 12, color: "#0c4a6e", border: "1px solid #bae6fd" }}>
+            📢 Courses are sourced from the SpacECE Pre-Primary Course Library — 10 ready-made courses with comprehensive, topic-wise notes for teachers to read and complete.
           </div>
-        </div>
+
+          <label style={S.label}>Select a Course *</label>
+          <select style={{ ...S.input, marginBottom: 14 }} value={selectedId} onChange={(e) => setSelectedId(e.target.value)}>
+            <option value="">Choose a course from the library...</option>
+            {LOCAL_LIBRARY.map((c) => (
+              <option key={c.id} value={c.id}>{c.title} — {c.category} ({c.level})</option>
+            ))}
+          </select>
+
+          {detail && (
+            <div style={{ background: "#f9fafb", borderRadius: 12, padding: 14, border: "1px solid #f1f5f9", marginBottom: 14 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#1c1917", marginBottom: 4 }}>{detail.title}</div>
+              <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 8 }}>{detail.description}</div>
+              <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 8 }}>🎯 {detail.objectives}</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#92400e", marginBottom: 6 }}>{detail.topics.length} Topics (comprehensive reading notes):</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 160, overflowY: "auto" }}>
+                {detail.topics.map((t, i) => (
+                  <div key={i} style={{ fontSize: 12, color: "#374151", padding: "4px 8px", background: "white", borderRadius: 6, border: "1px solid #f1f5f9" }}>
+                    {i + 1}. {t.title}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button onClick={handleCreate} disabled={creating || !selectedId} style={{ ...S.primaryBtn, width: "100%", opacity: creating ? 0.7 : 1 }}>
+            {creating ? "Creating..." : "✅ Create Course →"}
+          </button>
+        </>
       )}
 
-      <button onClick={handleCreate} disabled={creating || !selectedId} style={{ ...S.primaryBtn, width: "100%", opacity: creating ? 0.7 : 1 }}>
-        {creating ? "Creating..." : "✅ Create Course →"}
-      </button>
+      {mode === "upload" && (
+        <>
+          <div style={{ background: "#f0f9ff", padding: "10px 14px", borderRadius: 10, marginBottom: 14, fontSize: 12, color: "#0c4a6e", border: "1px solid #bae6fd" }}>
+            📢 Upload a .docx file: each <strong>Heading&nbsp;1</strong> becomes a module (chapter), each <strong>Heading&nbsp;2</strong> becomes a lesson within it. No AI call — parsed directly from the document.
+          </div>
+
+          <label style={S.label}>Course Document (.docx) *</label>
+          <input
+            type="file"
+            accept=".docx"
+            onChange={handleFileChange}
+            style={{ ...S.input, marginBottom: 10, padding: 8 }}
+          />
+
+          <button
+            onClick={handleParse}
+            disabled={!file || parsing}
+            style={{
+              width: "100%", marginBottom: 14, padding: "10px 20px",
+              background: "white", color: "#92400e", border: "1.5px solid #f59e0b",
+              borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer",
+              fontFamily: "inherit", opacity: !file || parsing ? 0.6 : 1,
+            }}
+          >
+            {parsing ? "Parsing..." : "🔍 Parse & Preview"}
+          </button>
+
+          {parseError && (
+            <div style={{ background: "#fef2f2", padding: "10px 14px", borderRadius: 10, marginBottom: 14, fontSize: 12, color: "#991b1b", border: "1px solid #fecaca" }}>
+              ⚠️ {parseError}
+            </div>
+          )}
+
+          {parsedCourse && (
+            <div style={{ background: "#f9fafb", borderRadius: 12, padding: 14, border: "1px solid #f1f5f9", marginBottom: 14 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#1c1917", marginBottom: 4 }}>{parsedCourse.title}</div>
+              <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 8 }}>{parsedCourse.category} · {parsedCourse.level}</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#92400e", marginBottom: 6 }}>
+                {parsedCourse.modules.length} Modules, {parsedCourse.modules.reduce((sum, m) => sum + m.contents.length, 0)} Lessons:
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 200, overflowY: "auto" }}>
+                {parsedCourse.modules.map((m, i) => (
+                  <div key={i} style={{ fontSize: 12, color: "#374151", padding: "4px 8px", background: "white", borderRadius: 6, border: "1px solid #f1f5f9" }}>
+                    {i + 1}. {m.title} <span style={{ color: "#9ca3af" }}>({m.contents.length} lesson{m.contents.length === 1 ? "" : "s"})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={handleCreateFromUpload}
+            disabled={!parsedCourse || uploadCreating}
+            style={{ ...S.primaryBtn, width: "100%", opacity: !parsedCourse || uploadCreating ? 0.7 : 1 }}
+          >
+            {uploadCreating ? "Creating..." : "✅ Create Course →"}
+          </button>
+        </>
+      )}
     </Modal>
   );
 }

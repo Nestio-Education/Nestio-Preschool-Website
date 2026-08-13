@@ -1,6 +1,7 @@
 import express from "express";
 import { TeacherTask } from "../models/TeacherTask.js";
 import { requireAuth } from "../auth.js";
+import { sendNotification } from "../services/notificationService.js";
 
 const router = express.Router();
 
@@ -37,6 +38,28 @@ router.post("/admin-assign", requireAuth, async (req, res, next) => {
       time: time || `${startTime || "11:30"} - ${endTime || "12:30"}`,
       completed: false
     });
+
+    // Alert only the teacher/fellow this task was assigned to.
+    try {
+      await sendNotification({
+        recipientId: teacherId,
+        templateKey: "task_assigned",
+        channel: "in_app",
+        priority: "normal",
+        replacements: {
+          assignerName: req.user.name || "Admin",
+          taskTitle: doc.title,
+          taskDate: doc.date
+        },
+        metadata: {
+          taskId: doc._id,
+          assignedBy: req.user.id,
+          notificationType: "task_assigned"
+        }
+      });
+    } catch (notifyErr) {
+      console.warn("Failed to send task_assigned notification:", notifyErr.message);
+    }
 
     res.status(201).json(doc);
   } catch (err) {

@@ -645,18 +645,18 @@ function TeacherProfileView({ teacher, centers = [], classes = [], onBack, onUpd
    MAIN TEACHER MANAGEMENT TAB
    ══════════════════════════════════════════ */
 export function TeacherManagementList({ setToast, role = "admin", user = null, onUserUpdate }) {
-  const [teachers, setTeachers]   = useState([]);
-  const [centers, setCenters]     = useState([]);
-  const [classes, setClasses]     = useState([]);
-  const [search, setSearch]       = useState("");
+  const [teachers, setTeachers] = useState([]);
+  const [centers, setCenters] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [centerFilter, setCenterFilter] = useState("all");
   const [assignmentFilter, setAssignmentFilter] = useState("all");
-  const [selected, setSelected]   = useState(null);
-  const [addModal, setAddModal]   = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [addModal, setAddModal] = useState(false);
   const [assigningTaskTeacher, setAssigningTaskTeacher] = useState(null);
-  const [loading, setLoading]     = useState(true);
-  const [toast, setLocalToast]    = useState({ msg: "", type: "" });
+  const [loading, setLoading] = useState(true);
+  const [toast, setLocalToast] = useState({ msg: "", type: "" });
   const [newT, setNewT] = useState({
     name: "", email: "", phone: "", subject: "", address: "",
     qualification: "Graduate", experience: "Fresher", assignedCenter: "", assignedClasses: [], password: ""
@@ -719,14 +719,19 @@ export function TeacherManagementList({ setToast, role = "admin", user = null, o
         classIds: newT.assignedClasses.length > 0 ? newT.assignedClasses : undefined,
       });
       const newId = res.teacher?.id || res.teacher?._id;
-      await updateTeacherStatus(newId, "approved");
-      if ((newT.assignedCenter || newT.assignedClasses.length > 0) && newId) {
-        await updateTeacherProfile(newId, {
-          teacherProfile: {
-            center: newT.assignedCenter || undefined,
-            classes: newT.assignedClasses,
-          }
-        });
+
+      if (role === "mentor") {
+        if (newId) await claimFellow(newId);
+      } else {
+        await updateTeacherStatus(newId, "approved");
+        if ((newT.assignedCenter || newT.assignedClasses.length > 0) && newId) {
+          await updateTeacherProfile(newId, {
+            teacherProfile: {
+              center: newT.assignedCenter || undefined,
+              classes: newT.assignedClasses,
+            }
+          });
+        }
       }
       showToast({ msg: "Teacher registered, approved & assigned!", type: "success" });
       setAddModal(false);
@@ -771,7 +776,7 @@ export function TeacherManagementList({ setToast, role = "admin", user = null, o
             <div style={{ fontSize: 11, fontWeight: 700, color: "#fffbeb", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 6 }}>{role === "mentor" ? t("Teacher Management") : t("User Management")}</div>
             <h1 style={{ fontSize: 22, fontWeight: 900, margin: "0 0 6px" }}>{role === "mentor" ? t("All Teachers") : t("All Users")}</h1>
             <p style={{ fontSize: 12, margin: 0, color: "rgba(255,255,255,0.85)" }}>
-              {`${teachers.filter(t=>t.status==="approved").length} approved · ${pending} pending · ${teachers.length} total`}
+              {`${teachers.filter(t => t.status === "approved").length} approved · ${pending} pending · ${teachers.length} total`}
             </p>
           </div>
           <button onClick={() => setAddModal(true)} style={S.primaryBtn}>+ {t("Add Teacher")}</button>
@@ -859,10 +864,10 @@ export function TeacherManagementList({ setToast, role = "admin", user = null, o
                 <td style={{ padding: "12px 14px" }}><StatusBadge status={tr.status} /></td>
                 <td style={{ padding: "12px 14px" }}>
                   <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-                    <button onClick={() => setAssigningTaskTeacher(t)}
+                    <button onClick={() => setAssigningTaskTeacher(tr)}
                       style={{ ...S.tblBtn, color: "#059669", borderColor: "#a7f3d0", background: "#ecfdf5" }}
                       title="Assign task to teacher">📌 Task</button>
-                    <button onClick={() => setSelected(t)}
+                    <button onClick={() => setSelected(tr)}
                       style={{ ...S.tblBtn, color: "#3b82f6", borderColor: "#93c5fd" }}>👁 View</button>
                     {role === "mentor" ? (
                       <>
