@@ -31,9 +31,13 @@ export default function App() {
 
   // Start: Dnyaneshwari Thorat
   useEffect(() => {
-    startDOMTranslation();
+    if (screen === "admin") {
+      startDOMTranslation();
+    } else {
+      stopDOMTranslation();
+    }
     return () => stopDOMTranslation();
-  }, [langKey]);
+  }, [langKey, screen]);
   // End: Dnyaneshwari Thorat
 
   const handleLogin = (session) => {

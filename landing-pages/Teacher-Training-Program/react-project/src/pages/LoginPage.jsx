@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 // Start: Dnyaneshwari Thorat
 import { isValidPhoneNumber } from "libphonenumber-js";
 // End: Dnyaneshwari Thorat
 import { Logo, Toast, Particles, S, globalCSS } from "../components/Shared";
 // Start: Dnyaneshwari Thorat
-import { loginUser, registerTeacher, registerMentor, requestPasswordReset, resetPassword, verifyPasswordResetToken, requestPasswordResetOtp, verifyPasswordOtp, sendSignupOtp, verifySignupOtp } from "../services/api";
+import { loginUser, registerTeacher, registerMentor, requestPasswordReset, resetPassword, verifyPasswordResetToken, requestPasswordResetOtp, verifyPasswordOtp, sendSignupOtp, verifySignupOtp, getPublicCenters } from "../services/api";
 // End: Dnyaneshwari Thorat
 
 /* ── Animated illustration (UNCHANGED — original animation kept as-is) ── */
@@ -668,6 +668,18 @@ function RegisterForm({ onBack }) {
   const [emailOtp, setEmailOtp] = useState("");
   const [emailOtpDev, setEmailOtpDev] = useState("");
   const [verifying, setVerifying] = useState(false);
+   // Start: Prajwal edit — fetch centers from DB for the dropdown
+  const [centers, setCenters] = useState([]);
+  const [centersLoading, setCentersLoading] = useState(true);
+  const [centersError, setCentersError] = useState("");
+
+  useEffect(() => {
+    getPublicCenters()
+      .then((data) => setCenters(data.centers || []))
+      .catch((err) => setCentersError(err.message || "Failed to load centers."))
+      .finally(() => setCentersLoading(false));
+  }, []);
+  // End: Prajwal edit
 
   // Start: Prajwal edit
   // NOTE: Photo upload feature removed (handlePhotoUpload function and its JSX deleted).
@@ -758,7 +770,8 @@ function RegisterForm({ onBack }) {
         password,
         qualification: "B.Ed",
         experience: "2 years",
-        address,
+        address: form.address,   
+        center: centerId,
       })
         .then(() => {
           setToast({ msg: "Registration submitted! Awaiting admin approval.", type: "success" });
@@ -776,7 +789,8 @@ function RegisterForm({ onBack }) {
         password,
         qualification: "Graduate",
         experience: "2 years",
-        address,
+        address:form.address,
+        center: centerId, 
         fellowshipSemester: role === "fellow" ? 1 : undefined,
         role,
       })
@@ -980,21 +994,45 @@ function RegisterForm({ onBack }) {
         ))}
         {/* Start: Prajwal edit — Upload Profile Photo field removed here */}
         {/* End: Prajwal edit */}
-        {/* Start: Prajwal edit — School/Address changed from free-text to dropdown */}
-        <div style={ci.mb}>
-          <label style={ci.label}>School / Address</label>
-          <select
-            value={form.address}
-            onChange={e => setForm({ ...form, address: e.target.value })}
-            style={{ ...S.input, fontSize: 12, padding: "7px 10px", marginBottom: 0, cursor: "pointer" }}
-          >
-            <option value="">Select a center</option>
-            <option value="Udaan Centre, Dhayari, Pune">Udaan Centre, Dhayari, Pune</option>
-            <option value="Umang Centre, Gosavi Vasti, Karve Nagar, Pune">Umang Centre, Gosavi Vasti, Karve Nagar, Pune</option>
-            <option value="Umang Centre, Shivane, Pune">Umang Centre, Shivane, Pune</option>
-          </select>
-        </div>
-        {/* End: Prajwal edit */}
+      {/* Start: Prajwal edit — School/Address now loaded live from the database */}
+<div style={ci.mb}>
+  <label style={ci.label}>School / Address *</label>
+  <select
+    required
+    value={form.centerId}
+    onChange={e => {
+      const selected = centers.find(c => c._id === e.target.value);
+      setForm({
+        ...form,
+        centerId: e.target.value,
+        address: selected ? selected.name : "",
+      });
+    }}
+    disabled={centersLoading}
+    style={{
+      ...S.input,
+      fontSize: 12,
+      padding: "7px 10px",
+      marginBottom: 0,
+      cursor: centersLoading ? "not-allowed" : "pointer",
+    }}
+  >
+    <option value="">
+      {centersLoading ? "Loading centers..." : "Select a center"}
+    </option>
+    {centers.map((c) => (
+      <option key={c._id} value={c._id}>
+        {c.name}{c.city ? `, ${c.city}` : ""}
+      </option>
+    ))}
+  </select>
+  {centersError && (
+    <p style={{ fontSize: 10, color: "#ef4444", marginTop: 3, marginBottom: 0 }}>
+      ⚠️ {centersError}
+    </p>
+  )}
+</div>
+{/* End: Prajwal edit */}
         <div style={ci.mb}>
           <label style={ci.label}>Password</label>
           <div style={{ position: "relative" }}>
@@ -1043,6 +1081,9 @@ export default function LoginPage({ onLogin }) {
     const token  = params.get("reset_token");
     if (token) {
       setView({ type: "reset", token });
+    } else if (params.get("view") === "register") {
+        window.scrollTo(0, 0);
+        setView("register");
     }
   }, []);
 
@@ -1057,6 +1098,18 @@ export default function LoginPage({ onLogin }) {
     <div style={ls.bg}>
       <Particles />
       <style>{globalCSS}</style>
+
+      {/* Site header - shown on Login, Register, Forgot & Reset views */}
+      <header style={ls.header}>
+        <a href="/landing-pages/Teacher-Training-Program/" style={ls.headerBrand}>
+          <Logo size={40} />
+          <span style={ls.headerBrandText}>SpacECE India Foundation</span>
+        </a>
+        <a href="/landing-pages/Teacher-Training-Program/" style={ls.headerBack}>
+          Back to website
+        </a>
+      </header>
+
       <div style={ls.panel}>
         {/* Left — illustration (hidden on reset view for cleaner focus) */}
         {!isResetView && (
@@ -1089,8 +1142,16 @@ export default function LoginPage({ onLogin }) {
 const ls = {
   bg:    { minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
            background: "linear-gradient(135deg,#fef3c7 0%,#fde68a 30%,#fbbf24 65%,#f59e0b 100%)",
-           position: "relative", overflow: "hidden", padding: "16px",
+           position: "relative", overflowX: "hidden", overflowY: "auto", padding: "16px",
+           paddingTop: "76px",
            fontFamily: "'Segoe UI','Inter',-apple-system,sans-serif" },
+  header: { position: "fixed", top: 0, left: 0, right: 0, zIndex: 10,
+           display: "flex", alignItems: "center", justifyContent: "space-between",
+           padding: "10px 24px", background: "rgba(255,255,255,0.92)",
+           borderBottom: "1px solid rgba(217,119,6,0.15)", backdropFilter: "blur(6px)" },
+  headerBrand: { display: "flex", alignItems: "center", gap: 8, textDecoration: "none" },
+  headerBrandText: { fontSize: 14, fontWeight: 700, color: "#92400e" },
+  headerBack: { fontSize: 12, fontWeight: 600, color: "#d97706", textDecoration: "none" },
   panel: { display: "flex", alignItems: "stretch", background: "rgba(255,255,255,0.97)",
            borderRadius: 18, overflow: "hidden", boxShadow: "0 16px 48px rgba(180,120,0,0.18)",
            border: "1px solid rgba(245,158,11,0.2)", zIndex: 1, width: "100%", maxWidth: 680 },
