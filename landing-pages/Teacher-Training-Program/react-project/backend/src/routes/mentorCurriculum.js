@@ -2,6 +2,7 @@ import express from "express";
 import { CurriculumPlan, CurriculumPhase, CurriculumAssignment } from "../models/Curriculum.js";
 import { User } from "../models/User.js";
 import mongoose from "mongoose";
+import { sendNotification } from "../services/notificationService.js";
 
 const router = express.Router();
 
@@ -285,7 +286,35 @@ router.post("/assign", async (req, res) => {
     ).populate("activePhase").populate("fellow", "name email");
 
     // Also push fellow into plan's assignedFellows list
-    await CurriculumPlan.findByIdAndUpdate(planId, { $addToSet: { assignedFellows: fellowId } });
+    const plan = await CurriculumPlan.findByIdAndUpdate(
+      planId,
+      { $addToSet: { assignedFellows: fellowId } },
+      { new: true }
+    ).select("title");
+
+    // Alert only the fellow this plan was assigned to — not a broadcast.
+    try {
+      await sendNotification({
+        recipientId: fellowId,
+        templateKey: "curriculum_assigned",
+        channel: "in_app",
+        priority: "normal",
+        replacements: {
+          mentorName: req.user.name || "Your mentor",
+          planTitle: plan?.title || "a curriculum plan",
+          phaseText: assignment?.activePhase?.title ? ` (starting: ${assignment.activePhase.title})` : ""
+        },
+        metadata: {
+          planId,
+          phaseId: activePhaseId || null,
+          assignedBy: req.user.id,
+          notificationType: "curriculum_assigned"
+        }
+      });
+    } catch (notifyErr) {
+      // Assignment itself should not fail if the alert fails to send.
+      console.warn("Failed to send curriculum_assigned notification:", notifyErr.message);
+    }
 
     res.status(200).json(assignment);
   } catch (error) {

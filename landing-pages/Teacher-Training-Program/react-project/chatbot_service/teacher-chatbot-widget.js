@@ -3,15 +3,16 @@
  *
  * Usage:
  *   <div id="teacher-chat"></div>
- *   <script src="http://localhost:8001/static/teacher-chatbot-widget.js"></script>
+ *   <script src="http://localhost:8000/static/teacher-chatbot-widget.js"></script>
  *   <script>
  *     TeacherChatWidget.init({
  *       container: '#teacher-chat',
- *       apiUrl:    'http://localhost:8001/api/v1/teacher-support-chat',
+ *       apiUrl:    'http://localhost:8000/api/v1/teacher-support-chat',
  *       source:    'teacher-dashboard'
  *     });
  *   </script>
  */
+
 (function () {
   "use strict";
 
@@ -227,7 +228,7 @@
     if (this._ready) return;
     opts = opts || {};
 
-    this._apiUrl = opts.apiUrl || "http://localhost:8001/api/v1/teacher-support-chat";
+    this._apiUrl = opts.apiUrl || "http://localhost:8000/api/v1/teacher-support-chat";
     this._source = opts.source || "unknown";
 
     // Inject CSS
@@ -276,6 +277,13 @@
     this._els.sendBtn = win.querySelector(".tcw-send-btn");
     this._els.closeBtn = win.querySelector(".tcw-close-btn");
 
+    // Sentinel div — always kept as the last child so scrollIntoView works
+    var sentinel = document.createElement("div");
+    sentinel.style.height = "1px";
+    sentinel.style.flexShrink = "0";
+    this._els.messages.appendChild(sentinel);
+    this._els.sentinel = sentinel;
+
     // Events
     var self = this;
     toggle.addEventListener("click", function () {
@@ -318,8 +326,9 @@
       "tcw-bubble " + (role === "user" ? "tcw-bubble-user" : "tcw-bubble-bot");
     bubble.textContent = text;
     wrap.appendChild(bubble);
-    this._els.messages.appendChild(wrap);
-    this._els.messages.scrollTop = this._els.messages.scrollHeight;
+    // Insert before sentinel so sentinel stays last
+    this._els.messages.insertBefore(wrap, this._els.sentinel);
+    this._els.sentinel.scrollIntoView({ block: "end" });
   };
 
   TeacherChatWidgetClass.prototype._showTyping = function () {
@@ -330,9 +339,10 @@
       '<span class="tcw-dot"></span>' +
       '<span class="tcw-dot"></span>' +
       '<span class="tcw-dot"></span>';
-    this._els.messages.appendChild(el);
-    this._els.messages.scrollTop = this._els.messages.scrollHeight;
+    this._els.messages.insertBefore(el, this._els.sentinel);
+    this._els.sentinel.scrollIntoView({ block: "end" });
   };
+
 
   TeacherChatWidgetClass.prototype._hideTyping = function () {
     var el = document.getElementById("tcw-typing-indicator");

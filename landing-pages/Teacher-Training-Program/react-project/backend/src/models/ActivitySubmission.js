@@ -16,17 +16,7 @@ const activitySubmissionSchema = new mongoose.Schema(
     type: { type: String },
     ageGroup: { type: String },
     milestone: String,
-    developmentalDomain: [String],
-    groupMastery: { type: String, enum: ["Emerging", "Developing", "Mastered"], default: "Developing" },
-    flaggedChildren: [
-      {
-        child: { type: mongoose.Schema.Types.ObjectId, ref: "Child" },
-        childName: { type: String, required: true },
-        status: { type: String, enum: ["needs_support", "advanced"], default: "needs_support" },
-        note: String
-      }
-    ],
-    followUpAction: { type: String, enum: ["proceed_next", "repeat_activity", "remediate_subgroup"], default: "proceed_next" },
+    developmentalDomain: String,
     purposeOfActivity: String,
     howToConduct: String,
     facilitatorRole: String,
