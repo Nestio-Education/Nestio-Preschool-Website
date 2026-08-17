@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { Logo, Toast, Badge, StatusBadge, StatCard, SectionCard, Modal, S, globalCSS } from "../components/Shared";
 import { t, setLanguage, getLanguageList, getCurrentLanguage, LANG_CHANGE_EVENT } from "../services/i18n";
 // Start: Snehal change
@@ -6,7 +6,7 @@ import { updateTeacherNotificationPreference, getParentModules, getParentSession
 // End: Snehal change
 
 import AttendanceManager from "./AttendanceManager";
-import TrainingAndClassroomManager, { MarkCompleteModal } from "./TrainingAndClassroomManager";
+import TrainingAndClassroomManager from "./TrainingAndClassroomManager";
 import GeotagAttendance from "./GeotagAttendance";
 import ProctoredAssessment from "./Proctoredassessment";      // now reading/notes based, same filename
 import TeacherCourseNotes from "./TeacherCourseNotes";    // NEW — replaces the old video CoursesTab
@@ -372,8 +372,6 @@ function WeeklyScheduleTaskPlannerWidget({ user, lessons = [], assignments = [],
     setShowAddTaskModal(false);
   };
 
-  const [completeModalTask, setCompleteModalTask] = useState(null);
-
   const toggleTaskStatus = (id) => {
     setCustomTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
     toggleTeacherTask(id).catch(err => console.warn("[DB Sync] Toggle task failed:", err?.message));
@@ -731,13 +729,7 @@ function WeeklyScheduleTaskPlannerWidget({ user, lessons = [], assignments = [],
                             ✏️
                           </button>
                           <button
-                            onClick={() => {
-                              if (item.completed) {
-                                toggleTaskStatus(item.id);
-                              } else {
-                                setCompleteModalTask(item);
-                              }
-                            }}
+                            onClick={() => toggleTaskStatus(item.id)}
                             style={{
                               padding: "4px 8px", borderRadius: 6, border: "none",
                               background: item.completed ? "#d1fae5" : "#fef3c7",
@@ -859,25 +851,6 @@ function WeeklyScheduleTaskPlannerWidget({ user, lessons = [], assignments = [],
             </div>
           </form>
         </Modal>
-      )}
-
-      {/* Floating Mark Complete Modal for Overview Dashboard Tasks */}
-      {completeModalTask && (
-        <MarkCompleteModal
-          activity={{
-            _id: completeModalTask.id,
-            id: completeModalTask.id,
-            activityName: completeModalTask.title,
-            title: completeModalTask.title,
-            level: completeModalTask.category || "Class Activity"
-          }}
-          user={user}
-          onSubmit={() => {
-            toggleTaskStatus(completeModalTask.id);
-            setCompleteModalTask(null);
-          }}
-          onClose={() => setCompleteModalTask(null)}
-        />
       )}
     </div>
   );
@@ -3219,7 +3192,10 @@ export default function TeacherDashboard({ user, onLogout }) {
       </div>
 
       <div style={{ flex: 1, width: "0px", minWidth: "0px", padding: "28px 32px", overflowY: "auto", maxHeight: "100vh" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 20, position: "relative" }}>
+        <a href="/landing-pages/Teacher-Training-Program/" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#d97706", textDecoration: "none", marginBottom: 12 }}>
+            <span>&larr;</span> Back to website
+          </a>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 20, position: "relative" }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: "#1c1917", margin: 0, letterSpacing: "-0.3px" }}>
               Hi, {currentUser.name?.split(" ")[0] || (currentUser.role === "fellow" ? "Fellow" : "Teacher")}! 👋
