@@ -618,14 +618,42 @@ export function getLessonPlans(params = {}) {
   return request(`/api/lesson-plans${qs ? `?${qs}` : ""}`);
 }
 
-// Old admin mutation functions (createLessonPlan, updateLessonPlan, deleteLessonPlan,
-// assignLessonPlan, updateLessonPlanAssignment, autoGenerateLessonPlan, autoPublishLessonPlan)
-// have been removed — these routes no longer exist on the admin side.
-// Use the mentor equivalents below instead.
+export function createLessonPlan(lessonData) {
+  return request("/api/lesson-plans", {
+    method: "POST",
+    body: JSON.stringify(lessonData)
+  });
+}
 
-// Admin read-only (kept for ReportsTab analytics)
+export function updateLessonPlan(id, lessonData) {
+  return request(`/api/lesson-plans/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(lessonData)
+  });
+}
+
+export function deleteLessonPlan(id) {
+  return request(`/api/lesson-plans/${id}`, {
+    method: "DELETE"
+  });
+}
+
+export function assignLessonPlan(payload) {
+  return request("/api/lesson-plans/assign", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
 export function getAdminLessonAssignments() {
   return request("/api/admin/lesson-plans/assignments");
+}
+
+export function updateLessonPlanAssignment(id, payload) {
+  return request(`/api/admin/lesson-plans/assignments/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload)
+  });
 }
 
 export function getTeacherLessonPlans() {
@@ -640,59 +668,29 @@ export function submitLessonCompletion(assignmentId, payload) {
   });
 }
 
-// ── Mentor Lesson Plan APIs ──
-export function mentorImportLessonExcel(formData) {
-  return request("/api/mentor/lesson-plans/import-excel", {
-    method: "POST",
-    body: formData, // FormData — request() skips Content-Type for FormData
-  });
+export function getAdminLessonReports() {
+  return request("/api/admin/lesson-plans/reports");
 }
 
-export function deleteMentorLessonPlan(id) {
-  return request(`/api/mentor/lesson-plans/${id}`, {
-    method: "DELETE",
-  });
-}
-
-export function mentorAutoPublishLessonPlan(data) {
-  return request("/api/mentor/lesson-plans/auto-publish", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
-
-export function mentorAssignLessonPlan(payload) {
-  return request("/api/mentor/lesson-plans/assign", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-}
-
-export function getMentorLessonAssignments() {
-  return request("/api/mentor/lesson-plans/assignments");
-}
-
-export function updateMentorLessonAssignment(id, payload) {
-  return request(`/api/mentor/lesson-plans/assignments/${id}`, {
+export function reviewLessonReport(reportId, payload) {
+  return request(`/api/admin/lesson-plans/reports/${reportId}`, {
     method: "PATCH",
-    body: JSON.stringify(payload),
+    body: JSON.stringify(payload)
   });
 }
 
-export function getMentorLessonReports() {
-  return request("/api/mentor/lesson-plans/reports");
-}
-
-export function reviewMentorLessonReport(reportId, payload) {
-  return request(`/api/mentor/lesson-plans/reports/${reportId}`, {
-    method: "PATCH",
-    body: JSON.stringify(payload),
+export function autoGenerateLessonPlan(data) {
+  return request("/api/lesson-plans/auto-generate", {
+    method: "POST",
+    body: JSON.stringify(data)
   });
 }
 
-// Admin Delivery Monitoring (read-only)
-export function getAdminLessonMonitoring() {
-  return request("/api/admin/lesson-plans/monitoring");
+export function autoPublishLessonPlan(data) {
+  return request("/api/lesson-plans/auto-publish", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
 }
 
 // Activity APIs
@@ -1156,19 +1154,6 @@ export function getCourseLibraryDetail(libraryId) {
   return request(`/api/course-library/${libraryId}`);
 }
 
-// Admin: upload a .docx and get back a parsed course payload for preview
-// (does not save). H1 = module/chapter, H2 = lesson, per docxCourseParser.js.
-// request() already skips the JSON Content-Type header for FormData bodies
-// (see its implementation), so no header override is needed here.
-export function parseCourseDocx(file) {
-  const formData = new FormData();
-  formData.append("file", file);
-  return request("/api/courses/parse-docx", {
-    method: "POST",
-    body: formData,
-  });
-}
-
 // Admin: create an actual Course document from a library template (no video —
 // modules/topics + notes are copied straight from the docx-derived library entry)
 export function createCourseFromLibrary(libraryId) {
@@ -1453,13 +1438,6 @@ export function generateAILessonPlan(data) {
        body: JSON.stringify(data),
      });
    }
-
-export function generateAIActivitySchedule(data) {
-  return request("/api/ai/generate-activity-schedule", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
 
    export function getCourseAssessment(courseId) {
   return request(`/api/courses/${courseId}/assessment`);

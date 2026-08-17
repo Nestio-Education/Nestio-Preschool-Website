@@ -1,24 +1,33 @@
 /**
  * courseLibrary.routes.js
  * ----------------------------------------------------------------------
- * Wired into server.js via attachCourseLibraryRoutes(app, { Course, requireAuth }).
- * Deliberately does NOT wire assessment-result routes (POST /api/assessments,
- * GET /api/assessments/mine, GET /api/admin/assessments) -- live equivalents
- * of all three already exist directly in server.js.
+ * Wire this into your existing Express app:
+ *
+ *   const courseLibraryRouter = require("./routes/courseLibrary.routes");
+ *   app.use("/api", courseLibraryRouter);
+ *
+ * Assumes (adjust import paths to match your project):
+ *   - an auth middleware `requireAuth` that sets `req.user = { id, role, name }`
+ *   - a Mongoose `Course` model with fields: title, category, level, duration,
+ *     description, objectives, contentType, modules[], libraryId
+ *     (modules[].contents[] holds { title, type:"reading", notes, order })
+ *   - a Mongoose `CourseAssignment` model with fields: teacher, course,
+ *     status, progressPercent, completedContent[], dueDate
+ *   - a Mongoose `Teacher` model
+ *
+ * If your actual models differ, keep the routes/response shapes below
+ * (the frontend code depends on these) and adjust only the DB calls.
  * ---------------------------------------------------------------------- */
-import express from "express";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import multer from "multer";
-import { parseChapterCourseDocx } from "../services/docxCourseParser.js";
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
-const LIBRARY_PATH = path.join(__dirname, "../data/courseLibrary.json");
-const ASSESSMENT_PATH = path.join(__dirname, "../data/assessmentBank.json");
+// ---- Load the parsed course library (regenerate via parseCourseLibrary.js
+//      whenever PreSchool_Teacher_Courses.docx is edited) ----------------
+const LIBRARY_PATH = path.join(__dirname, "courseLibrary.json");
+const ASSESSMENT_PATH = path.join(__dirname, "assessmentBank.json");
 
 function loadLibrary() {
   const raw = fs.readFileSync(LIBRARY_PATH, "utf-8");
@@ -28,10 +37,15 @@ function loadAssessmentBank() {
   return JSON.parse(fs.readFileSync(ASSESSMENT_PATH, "utf-8"));
 }
 
+// ────────────────────────────────────────────────────────────
 // GET /api/course-library
+// Returns the 10 pre-primary courses parsed from the .docx source,
+// for the admin "Select from Course Library" dropdown.
+// ────────────────────────────────────────────────────────────
 router.get("/course-library", (req, res) => {
   try {
     const courses = loadLibrary();
+    // Send a lightweight summary list; full topic notes come with /course-library/:id
     res.json({
       courses: courses.map((c) => ({
         id: c.id,
@@ -61,7 +75,13 @@ router.get("/course-library/:libraryId", (req, res) => {
   }
 });
 
-// POST /api/courses/from-library  body: { libraryId }
+// ────────────────────────────────────────────────────────────
+// POST /api/courses/from-library
+// body: { libraryId }
+// Creates a real Course document, with modules/topics + notes copied
+// from the library entry (so any Course, CourseAssignment, CourseNote
+// logic you already have keeps working unchanged).
+// ────────────────────────────────────────────────────────────
 function makeFromLibraryHandler(Course) {
   return async (req, res) => {
     try {
@@ -77,9 +97,7 @@ function makeFromLibraryHandler(Course) {
         contents: [
           {
             title: topic.title,
-            type: "document", // valid enum value directly -- this path bypasses
-                               // the "reading"->"document" normalizer in server.js,
-                               // so it must already be a valid value here.
+            type: "reading",
             notes: topic.notes,
             suggestedDuration: `${Math.max(10, Math.round(topic.notes.split(" ").length / 130) * 5)} min read`,
             order: idx,
@@ -95,10 +113,9 @@ function makeFromLibraryHandler(Course) {
         durationText: lib.duration,
         description: lib.description,
         objectives: lib.objectives,
-        contentType: "Document", // valid enum value (was "Notes", not in ["Video","PDF","Document"])
+        contentType: "Notes",
         libraryId: lib.id,
         modules,
-        createdBy: req.user?.id,
       });
 
       res.json({ course });
@@ -108,33 +125,69 @@ function makeFromLibraryHandler(Course) {
   };
 }
 
-// POST /api/courses/parse-docx  multipart field "file"
-// Parses the doc and returns the payload for admin preview -- does NOT
-// save to the DB. The frontend confirms, then calls the existing, already-
-// working POST /api/courses (same path LOCAL_LIBRARY courses use), so
-// this feature can't introduce a second, divergent save path.
-function makeParseDocxHandler() {
+// ────────────────────────────────────────────────────────────
+// Assessment result persistence — so admin can see teacher scores.
+// Adjust to a real Mongoose model (`AssessmentResult`) in production;
+// shown here with the model injected so this file has no hard DB import.
+// ────────────────────────────────────────────────────────────
+function makeSubmitAssessmentHandler(AssessmentResult) {
   return async (req, res) => {
     try {
-      if (!req.file) return res.status(400).json({ message: "No file uploaded." });
-      const ext = path.extname(req.file.originalname).toLowerCase();
-      if (ext !== ".docx") {
-        return res.status(400).json({ message: "Only .docx files are supported for direct parsing." });
-      }
-      const course = await parseChapterCourseDocx(req.file.buffer, req.file.originalname);
-      if (!course.modules.length) {
-        return res.status(422).json({
-          message: "No Heading 1 sections found in this document. Use Word's 'Heading 1' style for each chapter/module.",
-        });
-      }
-      res.json({ course });
+      const teacherId = req.user?.id || req.body.teacherId;
+      const {
+        courseId, courseTitle, score, total, percentage, grade,
+        performance, strengths, improvements, recommendation,
+        correct, wrong, unanswered, warnings, forced, answers,
+      } = req.body;
+
+      const doc = await AssessmentResult.create({
+        teacher: teacherId,
+        course: courseId,
+        courseTitle,
+        score, total, percentage, grade,
+        performance, strengths, improvements, recommendation,
+        correct, wrong, unanswered, warnings: warnings || 0, forced: !!forced,
+        answers: answers || {},
+        submittedAt: new Date(),
+      });
+
+      res.json({ result: doc });
     } catch (err) {
-      res.status(500).json({ message: "Failed to parse document.", error: err.message });
+      res.status(500).json({ message: "Failed to save assessment result.", error: err.message });
     }
   };
 }
 
+function makeTeacherAssessmentsHandler(AssessmentResult) {
+  return async (req, res) => {
+    try {
+      const teacherId = req.user?.id || req.query.teacherId;
+      const results = await AssessmentResult.find({ teacher: teacherId }).sort({ submittedAt: -1 });
+      res.json({ results });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to load assessment results.", error: err.message });
+    }
+  };
+}
+
+function makeAdminAssessmentsHandler(AssessmentResult) {
+  return async (req, res) => {
+    try {
+      const results = await AssessmentResult.find({})
+        .populate("teacher", "name email")
+        .populate("course", "title category")
+        .sort({ submittedAt: -1 });
+      res.json({ results });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to load assessment results.", error: err.message });
+    }
+  };
+}
+
+// ────────────────────────────────────────────────────────────
 // GET /api/assessment-bank/:libraryId
+// Returns the MCQ bank for a course, matched by library id.
+// ────────────────────────────────────────────────────────────
 router.get("/assessment-bank/:libraryId", (req, res) => {
   try {
     const bank = loadAssessmentBank();
@@ -147,13 +200,18 @@ router.get("/assessment-bank/:libraryId", (req, res) => {
 });
 
 /**
- * attachCourseLibraryRoutes(app, { Course, requireAuth })
- * Deliberately omits AssessmentResult-based routes -- see file header.
+ * Call this from your main server file to attach the DB-backed routes,
+ * passing your real Mongoose models:
+ *
+ *   const { attachCourseLibraryRoutes } = require("./routes/courseLibrary.routes");
+ *   attachCourseLibraryRoutes(app, { Course, AssessmentResult, requireAuth });
  */
-export function attachCourseLibraryRoutes(app, { Course, requireAuth }) {
+function attachCourseLibraryRoutes(app, { Course, AssessmentResult, requireAuth }) {
   app.use("/api", router);
   app.post("/api/courses/from-library", requireAuth, makeFromLibraryHandler(Course));
-  app.post("/api/courses/parse-docx", requireAuth, upload.single("file"), makeParseDocxHandler());
+  app.post("/api/assessments", requireAuth, makeSubmitAssessmentHandler(AssessmentResult));
+  app.get("/api/assessments/mine", requireAuth, makeTeacherAssessmentsHandler(AssessmentResult));
+  app.get("/api/admin/assessments", requireAuth, makeAdminAssessmentsHandler(AssessmentResult));
 }
 
-export { router, loadLibrary, loadAssessmentBank };
+module.exports = { router, attachCourseLibraryRoutes, loadLibrary, loadAssessmentBank };

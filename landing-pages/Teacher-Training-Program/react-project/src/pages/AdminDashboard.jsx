@@ -1,9 +1,8 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Logo, Toast, globalCSS } from "../components/Shared";
 import { t, getCurrentLanguageCode, LANG_CHANGE_EVENT } from "../services/i18n";
 import OverviewTab from "../admin/OverviewTab";
 import CenterManagementTab from "../admin/CenterManagementTab";
-import TeacherManagementTab from "../admin/TeacherManagementTab";
 import CurriculumTrainingTab from "../admin/CurriculumTrainingTab";
 import ActivityMonitoringTab from "../admin/ActivityMonitoringTab";
 import ChildrenManagementTab from "../admin/ChildrenManagement";
@@ -13,7 +12,7 @@ import ReportsTab from "../admin/ReportsTab";
 import NotificationsTab from "../admin/NotificationsTab";
 import SettingsTab from "../admin/SettingsTab";
 import FeedbackManagementTab from "../admin/FeedbackManagementTab";
-import DeliveryMonitoringTab from "../admin/DeliveryMonitoringTab";
+import LessonPlannerTab from "./LessonPlannerTab";
 import ChildFeedbackTab from "../admin/ChildFeedbackTab";
 // Start: Snehal change
 import ParentModulesManagementTab from "../admin/ParentModulesManagementTab";
@@ -90,15 +89,13 @@ export default function AdminDashboard({ user, onLogout }) {
   const navItems = [
     { key:"overview",     label:t("Admin Dashboard"),          icon:"\uD83D\uDCCA" },
     { key:"centers",      label:t("Center Management"), icon:"\uD83C\uDFEB" },
-    { key:"teacherMgmt",  label:t("Teacher Management"), icon:"\uD83D\uDC69\u200D\uD83C\uDFEB" },
     { key:"mentorMgmt",   label:t("Mentor Management"),  icon:"👨‍🏫" },
-    { key: "curriculum", label:t("Course Management"), icon: "📚" },
-    { key: "delivery", label:t("Delivery Monitoring"), icon: "📋" },
+    { key: "curriculum", label:t("Course Management"), icon: "\uD83D\uDCDA" },
     // Start: Snehal change
-    { key: "parentModules", label:t("Parent Capacity Building"), icon: "👪" },
+    { key: "parentModules", label:t("Parent Capacity Building"), icon: "\uD83D\uDC6A" },
     // End: Snehal change
-    { key: "activities", label:t("Activity Monitoring"), icon: "📸" },
-    { key: "children", label:t("Children & Classes"), icon: "👶" },
+    { key: "activities", label:t("Activity Monitoring"), icon: "\uD83D\uDCF8" },
+    { key: "children", label:t("Children & Classes"), icon: "\uD83D\uDC76" },
     { key:"attendance",   label:t("Attendance"),        icon:"\uD83D\uDCC5" },
     { key:"reports",      label:t("Reports & Analytics"),icon:"\uD83D\uDCC8" },
     { key:"feedback",     label:t("Feedback"),              icon:"\uD83D\uDCAC" },
@@ -124,9 +121,7 @@ export default function AdminDashboard({ user, onLogout }) {
     switch(activeTab) {
       case "overview":     return <OverviewTab teachers={teachers} courses={courses} batches={[]} sessions={[]}/>;
       case "centers": return <CenterManagementTab allTeachers={teachers} setToast={setToast}/>;
-      case "teacherMgmt": return <TeacherManagementTab setToast={setToast} role="admin"/>;
       case "curriculum": return <CurriculumTrainingTab setToast={setToast}/>;
-      case "delivery": return <DeliveryMonitoringTab setToast={setToast}/>;
       // case "assessments": return <AssessmentResultsTab setToast={setToast}/>;
       case "activities": return <ActivityMonitoringTab setToast={setToast}/>;
       case "children": return <ChildrenManagementTab setToast={setToast}/>;
@@ -236,11 +231,7 @@ export default function AdminDashboard({ user, onLogout }) {
       {/* Main Content */}
       <div style={{ flex:1, padding:"28px 32px", overflowY:"auto", maxHeight:"100vh" }}>
         {/* Top bar: User Guide button + Admin 3-dot menu, top-right corner */}
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:10, marginBottom:16, position:"relative" }}>
-            <a href="/landing-pages/Teacher-Training-Program/" style={{ display:"flex", alignItems:"center", gap:6, fontSize:13, fontWeight:700, color:"#d97706", textDecoration:"none" }}>
-              <span>&larr;</span> Back to website
-            </a>
-            <div style={{ display:"flex", gap:10 }}>
+        <div style={{ display:"flex", justifyContent:"flex-end", gap:10, marginBottom:16, position:"relative" }}>
           <button
             onClick={() => setShowGuide(true)}
             title={t("User Guide")}
@@ -314,9 +305,9 @@ export default function AdminDashboard({ user, onLogout }) {
               </button>
             </div>
           )}
-          </div>
-          </div>
-          {renderContent()}
+        </div>
+
+        {renderContent()}
       </div>
 
       {showGuide && <AdminUserGuide onClose={() => setShowGuide(false)} />}
