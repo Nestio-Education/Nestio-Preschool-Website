@@ -7,12 +7,11 @@ Uses Groq API (LLaMA / Mixtral models) for inference.
 Quick start:
     pip install fastapi uvicorn groq pydantic
     export GROQ_API_KEY=your_key_here
-    uvicorn main:app --reload --port 8001
+    uvicorn main:app --reload --port 8000
 """
 
 import os
 import logging
-import asyncio
 from typing import List, Optional
 from dotenv import load_dotenv
 
@@ -33,26 +32,61 @@ GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 CHATBOT_MAX_TOKENS = int(os.environ.get("CHATBOT_MAX_TOKENS", "1024"))
 
-# ── System Prompt — loaded from external file at startup ─────────
-# Edit chatbot_instructions.txt to change chatbot behaviour.
-# No code changes needed.
-_INSTRUCTIONS_FILE = os.path.join(os.path.dirname(__file__), "chatbot_instructions.txt")
-try:
-    with open(_INSTRUCTIONS_FILE, "r", encoding="utf-8") as _f:
-        TEACHER_SUPPORT_SYSTEM_PROMPT = _f.read()
-    logger.info("Loaded system prompt from %s", _INSTRUCTIONS_FILE)
-except FileNotFoundError:
-    logger.warning(
-        "chatbot_instructions.txt not found — using fallback prompt. "
-        "Please create %s to configure the chatbot.",
-        _INSTRUCTIONS_FILE,
-    )
-    TEACHER_SUPPORT_SYSTEM_PROMPT = (
-        "You are a support assistant on SpacECE India Foundation's Teacher Dashboard. "
-        "Answer only questions about attendance, certificates, and course deadlines. "
-        "You have no access to individual records. "
-        "For anything else, refer the teacher to their coordinator."
-    )
+# ── System Prompt ────────────────────────────────────────────────
+TEACHER_SUPPORT_SYSTEM_PROMPT = """
+You are a helpful assistant on SpacECE India Foundation's Teacher Dashboard.
+Your job is to answer general policy questions that teachers commonly ask.
+
+## What you know (general policy — not teacher-specific)
+
+1. **Attendance rules**
+   - Teachers must maintain a minimum of 75 % attendance across all
+     enrolled courses to remain in good standing.
+   - Attendance is recorded per session. If a teacher falls below 75 %
+     mid-course, they receive an automated reminder.
+   - Requests for attendance corrections must be raised through the
+     teacher's assigned coordinator within 7 working days of the session.
+
+2. **Certificate turnaround**
+   - After a teacher completes all course requirements (including any
+     final assessment), the certificate is generated within 3–5 working
+     days.
+   - Certificates are available for download in the "My Certificates"
+     section of the dashboard once ready.
+   - If a certificate has not appeared after 5 working days, the teacher
+     should contact their coordinator.
+
+3. **Course deadlines**
+   - Each course has a published start and end date visible on the
+     "My Courses" page.
+   - All assignments and assessments must be submitted before the
+     course end date.  Late submissions are not accepted unless the
+     coordinator grants an extension.
+   - Upcoming deadlines are surfaced in the dashboard's notification
+     area.
+
+## How you must behave
+
+- **Stay in scope.** Only answer questions that fall within the three
+  policy areas above, or closely related procedural questions (e.g. "where
+  do I find X on the dashboard?").
+- **Never fabricate personal data.** You do NOT have access to any
+  individual teacher's records — no attendance percentage, no certificate
+  status, no enrolment list.  When a teacher asks about *their own*
+  data (e.g. "is my certificate ready?", "what is my attendance?"),
+  you must:
+    1. State the relevant general rule (e.g. "certificates are usually
+       ready within 3–5 working days after course completion").
+    2. Tell them exactly where to check on the dashboard (e.g. the
+       "My Certificates" section).
+    3. Suggest contacting their coordinator if the dashboard does not
+       have the answer.
+    4. **Never** invent, assume, or guess a personal status.
+- **Be concise.** Teachers are busy — keep replies short and direct.
+- **Politely decline out-of-scope questions.** If a question is
+  unrelated to SpacECE's Teacher Dashboard policies, say so and
+  suggest the teacher contact support.
+"""
 
 # ── Pydantic Models ──────────────────────────────────────────────
 
@@ -101,73 +135,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
-MAX_RETRIES = 3
-BASE_BACKOFF_SECONDS = 1.0
-
-
-async def call_groq_with_retry(messages: list, max_tokens: int, temperature: Optional[float] = None) -> str:
-    import httpx
-
-    payload = {
-        "model": GROQ_MODEL,
-        "max_tokens": max_tokens,
-        "messages": messages,
-    }
-    if temperature is not None:
-        payload["temperature"] = temperature
-
-    last_exc = None
-
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        for attempt in range(MAX_RETRIES):
-            try:
-                resp = await client.post(
-                    "https://api.groq.com/openai/v1/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {GROQ_API_KEY}",
-                        "Content-Type": "application/json",
-                    },
-                    json=payload,
-                )
-
-                if resp.status_code in RETRYABLE_STATUS_CODES and attempt < MAX_RETRIES - 1:
-                    wait = BASE_BACKOFF_SECONDS * (2 ** attempt)
-                    logger.warning(
-                        "Groq API returned %s (attempt %d/%d) — retrying in %.1fs",
-                        resp.status_code, attempt + 1, MAX_RETRIES, wait,
-                    )
-                    await asyncio.sleep(wait)
-                    continue
-
-                resp.raise_for_status()
-                data = resp.json()
-                reply = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
-
-                if not reply:
-                    raise ValueError("Empty reply from Groq API")
-
-                return reply
-
-            except (httpx.TimeoutException, httpx.ConnectError) as exc:
-                last_exc = exc
-                if attempt < MAX_RETRIES - 1:
-                    wait = BASE_BACKOFF_SECONDS * (2 ** attempt)
-                    logger.warning(
-                        "Groq API connection issue (attempt %d/%d): %s — retrying in %.1fs",
-                        attempt + 1, MAX_RETRIES, exc, wait,
-                    )
-                    await asyncio.sleep(wait)
-                    continue
-                raise
-
-            except httpx.HTTPStatusError as exc:
-                last_exc = exc
-                raise
-
-    # Should not be reached, but guard anyway
-    raise last_exc or RuntimeError("Groq API call failed after retries")
-
 
 # ── Routes ───────────────────────────────────────────────────────
 
@@ -202,8 +169,29 @@ async def teacher_support_chat(req: ChatRequest):
         )
 
     try:
-        reply = await call_groq_with_retry(messages, CHATBOT_MAX_TOKENS)
-        return ChatResponse(reply=reply)
+        import httpx
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {GROQ_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": GROQ_MODEL,
+                    "max_tokens": CHATBOT_MAX_TOKENS,
+                    "messages": messages,
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            reply = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+
+            if not reply:
+                raise ValueError("Empty reply from Groq API")
+
+            return ChatResponse(reply=reply)
 
     except Exception as exc:
         logger.error("Groq API error: %s", exc)
@@ -250,8 +238,29 @@ async def assignment_feedback(req: AssignmentFeedbackRequest):
     ]
 
     try:
-        reply = await call_groq_with_retry(messages, max_tokens=500, temperature=0.5)
-        return AssignmentFeedbackResponse(feedback=reply)
+        import httpx
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {GROQ_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": GROQ_MODEL,
+                    "max_tokens": 500,
+                    "messages": messages,
+                    "temperature": 0.5
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            reply = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+
+            if not reply:
+                raise ValueError("Empty reply from Groq API")
+
+            return AssignmentFeedbackResponse(feedback=reply)
 
     except Exception as exc:
         logger.error("Groq API error (Feedback): %s", exc)

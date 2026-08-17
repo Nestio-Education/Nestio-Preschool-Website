@@ -6,7 +6,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
+__pycache__/
+__pycache__
 node_modules
 # dist
 dist-ssr
@@ -44,6 +45,3 @@ teacher-training-backend/
 
 # Empty directories
 uploads/
-
-__pycache__/
-*.pyc

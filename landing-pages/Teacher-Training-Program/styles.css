@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    SpacECE India Foundation — Teacher Training Portal
    styles.css
    ============================================================ */
@@ -96,14 +96,14 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 }
 
 .nav-links {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  list-style: none;
-  flex-wrap: nowrap;
-  margin-left: auto;
-}
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    list-style: none;
+    flex-wrap: nowrap;
+    margin-left: auto;
+  }
 
 .nav-links li a,
 .nav-links li button {
@@ -1294,8 +1294,9 @@ footer {
 }
 
 @media (max-width: 768px) {
-  .nav-links   { display: none; }
-  .nav-hamburger { display: flex; }
+  .nav-links { display: none; }
+    .nav-hamburger { display: flex; }
+    #nav-auth-desktop { display: none !important; }
   .grid-3      { grid-template-columns: 1fr; }
   .grid-2      { grid-template-columns: 1fr; }
   .features-grid { grid-template-columns: repeat(2, 1fr); }

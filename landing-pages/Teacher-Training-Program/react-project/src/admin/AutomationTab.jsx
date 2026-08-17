@@ -32,40 +32,6 @@ export default function AutomationTab({ user }) {
     } finally {
       setLoading(false);
     }
-    loadRiskReport();
-  };
-
-  const loadRiskReport = async () => {
-    setLoadingRisk(true);
-    try {
-      const res = await getReminderRiskReport();
-      setRiskReport(res);
-    } catch (err) {
-      console.error("Failed to load reminder risk report:", err);
-    } finally {
-      setLoadingRisk(false);
-    }
-  };
-
-  const handleSendDueReminders = async () => {
-    setSendingDueReminders(true);
-    try {
-      const result = await sendDueReminders();
-      setToast({
-        msg: `Sent ${result.sentCount} reminder(s)` +
-          (result.adminNotified ? `, ${result.adminNotified} admin(s) notified` : "") +
-          (result.centerMentorsNotified ? `, ${result.centerMentorsNotified} center mentor(s) notified` : "") +
-          (result.mentorsNotified ? `, ${result.mentorsNotified} mentor(s) notified about at-risk fellows` : "") +
-          ".",
-        type: "success",
-      });
-      setLastSentDetails(result.sentDetails || []);
-      loadRiskReport();
-    } catch (err) {
-      setToast({ msg: err.message || "Failed to send reminders.", type: "error" });
-    } finally {
-      setSendingDueReminders(false);
-    }
   };
 
   const handleSendReminders = async () => {

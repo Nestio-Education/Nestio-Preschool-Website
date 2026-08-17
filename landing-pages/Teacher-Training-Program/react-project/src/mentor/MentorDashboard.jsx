@@ -17,7 +17,6 @@ import {
 import { MentorProfileTab, MentorNotificationsTab, MentorFeedbackTab, MenteeManagementTab, ImpactCapstoneTab, PDCATab } from "./MentorDashboardTabs";
 import MentorActivitiesTab from "./MentorActivitiesTab";
 import MentorCurriculumTab from "./MentorCurriculumTab";
-import MentorLessonPlanTab from "./MentorLessonPlanTab";
 import { PendingApprovalsReminder } from "./PendingApprovalsReminder";
 import TeacherManagementTab from "../admin/TeacherManagementTab";
 import AttendanceTab from "../admin/AttendanceTab";
@@ -536,7 +535,6 @@ export default function MentorDashboard({ user, onLogout }) {
     { key: "my_attendance", label: "My Attendance", icon: "📍" },
     { key: "activities", label: "Fellow Activities", icon: "📝" },
     { key: "curriculum", label: "Curriculum Management", icon: "📚" },
-    { key: "lesson_plans", label: "Lesson Plans", icon: "📋" },
     { key: "impact", label: "Impact & Capstone", icon: "🏆" },
     { key: "documentation", label: "Growth Cycle", icon: "📝" },
     { key: "feedback", label: "Feedback", icon: "💬" },
@@ -550,7 +548,6 @@ export default function MentorDashboard({ user, onLogout }) {
       case "my_attendance": return <GeotagAttendance user={currentUser} />;
       case "activities": return <MentorActivitiesTab user={currentUser} setToast={setToast} />;
       case "curriculum": return <MentorCurriculumTab user={currentUser} setToast={setToast} />;
-      case "lesson_plans": return <MentorLessonPlanTab user={currentUser} setToast={setToast} />;
       case "impact": return <ImpactCapstoneTab user={currentUser} setToast={setToast} onUserUpdate={setCurrentUser} />;
       case "documentation": return <PDCATab user={currentUser} setToast={setToast} onUserUpdate={setCurrentUser} />;
       case "notifications": return <MentorNotificationsTab notifications={notifications} onMarkRead={handleMarkNotifRead} onMarkAllRead={handleMarkAllNotifRead} />;
