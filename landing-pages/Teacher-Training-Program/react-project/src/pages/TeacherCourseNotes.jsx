@@ -282,7 +282,7 @@ export default function TeacherCourseNotes({ assignments = [], onMarkDone, onGoT
               {/* Start: Dnyaneshwari Thorat */}
               <div 
                 style={{ fontSize: 14, color: "#374151", lineHeight: 1.9, marginBottom: 24 }}
-                dangerouslySetInnerHTML={{ __html: activeTopic.notes ? activeTopic.notes.replace(/\n/g, '<br />') : '<span style="color: #9ca3af; font-style: italic;">No content was added for this note.</span>' }}
+                dangerouslySetInnerHTML={{ __html: activeTopic.notes || '<span style="color: #9ca3af; font-style: italic;">No content was added for this note.</span>' }}
               />
               {/* End: Dnyaneshwari Thorat */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>

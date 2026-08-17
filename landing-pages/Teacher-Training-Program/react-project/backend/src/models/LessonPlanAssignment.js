@@ -6,7 +6,6 @@ const lessonPlanAssignmentSchema = new mongoose.Schema(
     teacher: { type: mongoose.Schema.Types.ObjectId, ref: "User", index: true },
     center: { type: mongoose.Schema.Types.ObjectId, ref: "Center", index: true },
     class: { type: mongoose.Schema.Types.ObjectId, ref: "Class", index: true },
-    gradeBand: { type: String, enum: ["1-3", "4-7", "1-9"], default: null },
     assignedDate: { type: Date, required: true, index: true },
     status: {
       type: String,

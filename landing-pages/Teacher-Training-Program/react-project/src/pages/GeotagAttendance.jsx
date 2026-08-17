@@ -349,12 +349,13 @@ export default function GeotagAttendance({ user }) {
   const isPresent = (rec) => !!(rec?.checkedIn || rec?.status === "present");
 
   const getDayStatus = (day) => {
+    // Weekends always show as holiday (—), past or future
     if (isWeekend(day)) {
       const rec = attendanceMap[getDayKey(day)];
-      // Weekend worked = "extra" (purple), otherwise "holiday" (yellow)
-      return isPresent(rec) ? "extra" : "holiday";
+      return isPresent(rec) ? "present" : "holiday";
     }
     if (day > todayDate) return "upcoming";
+    // Weekday
     const rec = attendanceMap[getDayKey(day)];
     if (isPresent(rec)) return "present";
     if (day === todayDate) return "today";
@@ -365,7 +366,6 @@ export default function GeotagAttendance({ user }) {
     const status = getDayStatus(day);
     switch (status) {
       case "present": return "Present";
-      case "extra": return "Extra Day";
       case "absent": return "Absent";
       case "today": return "Today";
       case "holiday": return "Holiday";
@@ -377,8 +377,6 @@ export default function GeotagAttendance({ user }) {
     switch (status) {
       case "present":
         return { background: "#EBFDF5", border: "1.5px solid #10B981", color: "#065F46" };
-      case "extra":
-        return { background: "#fdf4ff", border: "1.5px solid #a855f7", color: "#6b21a8" };
       case "absent":
         return { background: "#FFF1F2", border: "1.5px solid #FDA4AF", color: "#9F1239" };
       case "today":
@@ -393,25 +391,9 @@ export default function GeotagAttendance({ user }) {
 
   // Count stats — only for the current month to avoid cross-month mismatch
   const currentMonthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-`;
-
-  // Weekend days (Sat/Sun) that were marked present => Extra Working Days
-  const extraWorkingDays = Object.entries(attendanceMap)
-    .filter(([key, r]) => {
-      if (!key.startsWith(currentMonthPrefix) || !isPresent(r)) return false;
-      const day = parseInt(key.split("-")[2], 10);
-      return isWeekend(day);
-    })
-    .length;
-
-  // Weekday presents only
   const presentDays = Object.entries(attendanceMap)
-    .filter(([key, r]) => {
-      if (!key.startsWith(currentMonthPrefix) || !isPresent(r)) return false;
-      const day = parseInt(key.split("-")[2], 10);
-      return !isWeekend(day);
-    })
+    .filter(([key, r]) => key.startsWith(currentMonthPrefix) && isPresent(r))
     .length;
-
   const totalWorkdays = Array.from({ length: todayDate }, (_, i) => i + 1).filter(d => !isWeekend(d)).length;
   const absentDays = Math.max(0, totalWorkdays - presentDays);
 
@@ -605,38 +587,27 @@ export default function GeotagAttendance({ user }) {
                   No logs yet. Check in to start recording.
                 </div>
               ) : (
-                historyLogs.map(log => {
-                  // Detect if the log date falls on a weekend
-                  const logDateObj = new Date(log.date.replace(/(\d+) (\w+) (\d+)/, "$2 $1, $3"));
-                  const logDayOfWeek = isNaN(logDateObj.getTime()) ? -1 : logDateObj.getDay();
-                  const logIsWeekend = logDayOfWeek === 0 || logDayOfWeek === 6;
-                  return (
-                    <div key={log.id} style={{ padding: "12px", background: logIsWeekend ? "#fdf4ff" : "white", border: `1px solid ${logIsWeekend ? "#e9d5ff" : "#f1f5f9"}`, borderRadius: "10px", display: "flex", gap: 12, alignItems: "center" }}>
-                      {log.snapshot && (
-                        <img src={log.snapshot} alt="Snapshot" style={{ width: 46, height: 46, borderRadius: 6, objectFit: "cover", border: "1px solid #e2e8f0" }} />
-                      )}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2, flexWrap: "wrap", gap: 4 }}>
-                          <span style={{ fontSize: "11px", fontWeight: "700", color: "#1c1917" }}>{log.date} — {log.time}</span>
-                          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                            {logIsWeekend && (
-                              <span style={{ fontSize: "9px", fontWeight: "800", padding: "1px 5px", borderRadius: "4px", background: "#ede9fe", color: "#7c3aed" }}>⭐ Extra Day</span>
-                            )}
-                            <span style={{ fontSize: "10px", fontWeight: "800", padding: "1px 6px", borderRadius: "4px", background: log.type === "checkin" ? "#d1fae5" : "#fef9c3", color: log.type === "checkin" ? "#059669" : "#b45309" }}>
-                              {log.type === "checkin" ? "Check-In" : "Check-Out"}
-                            </span>
-                          </div>
-                        </div>
-                        <div style={{ fontSize: "11px", color: "#64748b" }}>📍 {log.coords}</div>
-                        {log.distanceOffset !== undefined && (
-                          <div style={{ fontSize: "10px", color: "#94a3b8", marginTop: 2 }}>
-                            Distance from campus: <b>{log.distanceOffset}m</b>
-                          </div>
-                        )}
+                historyLogs.map(log => (
+                  <div key={log.id} style={{ padding: "12px", background: "white", border: "1px solid #f1f5f9", borderRadius: "10px", display: "flex", gap: 12, alignItems: "center" }}>
+                    {log.snapshot && (
+                      <img src={log.snapshot} alt="Snapshot" style={{ width: 46, height: 46, borderRadius: 6, objectFit: "cover", border: "1px solid #e2e8f0" }} />
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
+                        <span style={{ fontSize: "11px", fontWeight: "700", color: "#1c1917" }}>{log.date} — {log.time}</span>
+                        <span style={{ fontSize: "10px", fontWeight: "800", padding: "1px 6px", borderRadius: "4px", background: log.type === "checkin" ? "#d1fae5" : "#fef9c3", color: log.type === "checkin" ? "#059669" : "#b45309" }}>
+                          {log.type === "checkin" ? "Check-In" : "Check-Out"}
+                        </span>
                       </div>
+                      <div style={{ fontSize: "11px", color: "#64748b" }}>📍 {log.coords}</div>
+                      {log.distanceOffset !== undefined && (
+                        <div style={{ fontSize: "10px", color: "#94a3b8", marginTop: 2 }}>
+                          Distance from campus: <b>{log.distanceOffset}m</b>
+                        </div>
+                      )}
                     </div>
-                  );
-                })
+                  </div>
+                ))
               )}
             </div>
           </SectionCard>
@@ -665,7 +636,6 @@ export default function GeotagAttendance({ user }) {
                   { bg: "#FFF1F2", border: "#FDA4AF", label: "Absent" },
                   { bg: "#FEF3C7", border: "#F59E0B", label: "Today", bold: true },
                   { bg: "#FDF6EC", border: "#FBBF24", label: "Weekend / Holiday" },
-                  { bg: "#fdf4ff", border: "#a855f7", label: "Extra Day (Weekend)" },
                   { bg: "#FFFBF0", border: "#FDE68A", label: "Upcoming" },
                 ].map(({ bg, border, label, bold }) => (
                   <div key={label} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -719,12 +689,6 @@ export default function GeotagAttendance({ user }) {
                           <span style={{ alignSelf: "flex-end", fontSize: "8px", background: "#10B981", color: "white", padding: "1px 4px", borderRadius: "3px", fontWeight: "800", marginLeft: "auto" }}>✓</span>
                         </div>
                       )}
-                      {status === "extra" && (
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
-                          <span style={{ fontSize: "8px", background: "#a855f7", color: "white", padding: "1px 4px", borderRadius: "3px", fontWeight: "800" }}>✓</span>
-                          <span style={{ fontSize: "6px", background: "#7c3aed", color: "white", padding: "1px 3px", borderRadius: "3px", fontWeight: "800", whiteSpace: "nowrap" }}>EXTRA</span>
-                        </div>
-                      )}
                       {status === "absent" && (
                         <span style={{ alignSelf: "flex-end", fontSize: "8px", background: "#FB7185", color: "white", padding: "1px 4px", borderRadius: "3px", fontWeight: "800" }}>✗</span>
                       )}
@@ -753,12 +717,6 @@ export default function GeotagAttendance({ user }) {
                     <div style={{ fontSize: "10px", fontWeight: "700", color: "#64748b", marginTop: "2px" }}>{label}</div>
                   </div>
                 ))}
-                {extraWorkingDays > 0 && (
-                  <div style={{ background: "#fdf4ff", border: "1px solid #e9d5ff", borderRadius: "10px", padding: "12px", textAlign: "center", gridColumn: "1 / -1" }}>
-                    <div style={{ fontSize: "20px", fontWeight: "800", color: "#7c3aed" }}>{extraWorkingDays}</div>
-                    <div style={{ fontSize: "10px", fontWeight: "700", color: "#6d28d9", marginTop: "2px" }}>⭐ Extra Working Days (Weekends)</div>
-                  </div>
-                )}
               </div>
 
             </div>
