@@ -17,7 +17,8 @@ export const startReminderAutomationCron = () => {
       const result = await dispatchDueReminders();
       console.log(
         `Reminder automation completed: ${result.sentCount} teacher reminder(s) sent, ` +
-        `${result.failedCount} failed, ${result.adminNotified} admin(s) notified.`
+        `${result.failedCount} failed, ${result.adminNotified} admin(s) notified, ` +
+        `${result.mentorsNotified} mentor(s) notified about at-risk fellows.`
       );
     } catch (error) {
       console.error("Reminder automation failed:", error.message);

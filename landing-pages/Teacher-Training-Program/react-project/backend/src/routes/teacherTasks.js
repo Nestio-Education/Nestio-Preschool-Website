@@ -1,6 +1,7 @@
 import express from "express";
 import { TeacherTask } from "../models/TeacherTask.js";
 import { requireAuth } from "../auth.js";
+import { sendNotification } from "../services/notificationService.js";
 
 const router = express.Router();
 
@@ -8,6 +9,20 @@ const router = express.Router();
 router.get("/", requireAuth, async (req, res, next) => {
   try {
     const tasks = await TeacherTask.find({ teacher: req.user.id }).sort({ date: 1, createdAt: -1 });
+    res.json({ tasks });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/teacher-tasks/for-teacher/:teacherId - Admin/Mentor view of a
+// specific teacher's assigned tasks (e.g. the "View" profile page).
+router.get("/for-teacher/:teacherId", requireAuth, async (req, res, next) => {
+  try {
+    if (!["admin", "mentor", "super_admin"].includes(req.user.role)) {
+      return res.status(403).json({ message: "Not authorized to view another teacher's tasks" });
+    }
+    const tasks = await TeacherTask.find({ teacher: req.params.teacherId }).sort({ date: -1, createdAt: -1 });
     res.json({ tasks });
   } catch (err) {
     next(err);
@@ -37,6 +52,31 @@ router.post("/admin-assign", requireAuth, async (req, res, next) => {
       time: time || `${startTime || "11:30"} - ${endTime || "12:30"}`,
       completed: false
     });
+
+    // Alert only the teacher/fellow this task was assigned to.
+    try {
+      const notifyResult = await sendNotification({
+        recipientId: teacherId,
+        templateKey: "task_assigned",
+        channel: "in_app",
+        priority: "normal",
+        replacements: {
+          assignerName: req.user.name || "Admin",
+          taskTitle: doc.title,
+          taskDate: doc.date
+        },
+        metadata: {
+          taskId: doc._id,
+          assignedBy: req.user.id,
+          notificationType: "task_assigned"
+        }
+      });
+      if (!notifyResult?.inApp?.success) {
+        console.warn("task_assigned notification did not deliver:", JSON.stringify(notifyResult));
+      }
+    } catch (notifyErr) {
+      console.warn("Failed to send task_assigned notification:", notifyErr.message);
+    }
 
     res.status(201).json(doc);
   } catch (err) {

@@ -1169,6 +1169,19 @@ export function getCourseLibraryDetail(libraryId) {
   return request(`/api/course-library/${libraryId}`);
 }
 
+// Admin: upload a .docx and get back a parsed course payload for preview
+// (does not save). H1 = module/chapter, H2 = lesson, per docxCourseParser.js.
+// request() already skips the JSON Content-Type header for FormData bodies
+// (see its implementation), so no header override is needed here.
+export function parseCourseDocx(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  return request("/api/courses/parse-docx", {
+    method: "POST",
+    body: formData,
+  });
+}
+
 // Admin: create an actual Course document from a library template (no video —
 // modules/topics + notes are copied straight from the docx-derived library entry)
 export function createCourseFromLibrary(libraryId) {
@@ -1278,12 +1291,14 @@ export function getActivitySubmissions(params = {}) {
   return request(`/api/daily-task-automation/activities/submissions?${searchParams.toString()}`);
 }
 
-export function submitActivityCompletion(assignmentId, taskId, payload) {
-  return request(`/api/daily-task-automation/assignments/${assignmentId}/tasks/${taskId}/complete`, {
+// --- PRAJWAL EDIT: START — removed assignmentId/taskId params, Activity Bank items have no assignment wrapper ---
+export function submitActivityCompletion(activityId, payload) {
+  return request(`/api/daily-task-automation/activities/${activityId}/complete`, {
     method: "POST",
     body: JSON.stringify(payload)
   });
 }
+// --- PRAJWAL EDIT: END ---
 
 export function deleteActivity(id) {
   return request(`/api/daily-task-automation/activities/${id}`, {
@@ -1527,6 +1542,10 @@ export function assignTeacherTaskByAdmin(teacherId, payload) {
     method: "POST",
     body: JSON.stringify({ teacherId, ...payload })
   });
+}
+
+export function getTasksForTeacher(teacherId) {
+  return request(`/api/teacher-tasks/for-teacher/${teacherId}`);
 }
 
 export function getMentorAttendance(params = {}) {
