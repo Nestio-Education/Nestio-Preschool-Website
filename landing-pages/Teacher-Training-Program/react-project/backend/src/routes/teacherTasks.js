@@ -94,6 +94,20 @@ router.get("/", requireAuth, async (req, res, next) => {
   }
 });
 
+
+// GET /api/teacher-tasks/for-teacher/:teacherId - Admin/Mentor view of a
+// specific teacher's assigned tasks (e.g. the "View" profile page).
+router.get("/for-teacher/:teacherId", requireAuth, async (req, res, next) => {
+  try {
+    if (!["admin", "mentor", "super_admin"].includes(req.user.role)) {
+      return res.status(403).json({ message: "Not authorized to view another teacher's tasks" });
+    }
+    const tasks = await TeacherTask.find({ teacher: req.params.teacherId }).sort({ date: -1, createdAt: -1 });
+    res.json({ tasks });
+  } catch (err) {
+    next(err);
+  }
+});
 // POST /api/teacher-tasks/admin-assign - Admin or mentor assigns task to a target teacher
 router.post("/admin-assign", requireAuth, async (req, res, next) => {
   try {
@@ -155,11 +169,9 @@ router.post("/admin-assign", requireAuth, async (req, res, next) => {
           holidayDates: holidayDates || []
         })
       : [normalizedDate];
-
     if (!assignmentDates.length) {
       return res.status(400).json({ message: "No valid task dates were generated. Please choose a different date range or remove holiday dates." });
     }
-
     const createdTasks = [];
     for (const assignmentDate of assignmentDates) {
       const doc = await TeacherTask.create({
@@ -176,8 +188,32 @@ router.post("/admin-assign", requireAuth, async (req, res, next) => {
         completed: false
       });
       createdTasks.push(doc);
-    }
 
+      // Alert only the teacher/fellow this task was assigned to.
+      try {
+        const notifyResult = await sendNotification({
+          recipientId: teacherId,
+          templateKey: "task_assigned",
+          channel: "in_app",
+          priority: "normal",
+          replacements: {
+            assignerName: req.user.name || "Admin",
+            taskTitle: doc.title,
+            taskDate: doc.date
+          },
+          metadata: {
+            taskId: doc._id,
+            assignedBy: req.user.id,
+            notificationType: "task_assigned"
+          }
+        });
+        if (!notifyResult?.inApp?.success) {
+          console.warn("task_assigned notification did not deliver:", JSON.stringify(notifyResult));
+        }
+      } catch (notifyErr) {
+        console.warn("Failed to send task_assigned notification:", notifyErr.message);
+      }
+    }
     res.status(201).json(isDailyTask ? { createdCount: createdTasks.length, tasks: createdTasks } : createdTasks[0]);
   } catch (err) {
     next(err);

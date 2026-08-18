@@ -1648,6 +1648,10 @@ export function assignTeacherTaskByAdmin(teacherId, payload) {
   });
 }
 
+export function getTasksForTeacher(teacherId) {
+  return request(`/api/teacher-tasks/for-teacher/${teacherId}`);
+}
+
 export function getMentorAttendance(params = {}) {
   const searchParams = new URLSearchParams();
   if (params.date) searchParams.append("date", params.date);
