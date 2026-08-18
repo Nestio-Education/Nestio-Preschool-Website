@@ -3,6 +3,7 @@
  * Generates a structured lesson plan from age group, topic, and duration.
  */
 
+import { callGroq, stripCodeFences } from "./groqClient.js";
 const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
 
@@ -48,14 +49,7 @@ function aiLog(event, details = {}) {
 
 
 
-function stripCodeFences(raw) {
-  let text = String(raw || "").trim();
-  if (text.startsWith("```")) {
-    text = text.replace(/^```(?:json)?\s*/i, "");
-    text = text.replace(/\s*```$/, "");
-  }
-  return text.trim();
-}
+
 
 function parseLessonJson(raw) {
   const cleaned = stripCodeFences(raw);
@@ -89,34 +83,10 @@ function formatDraftText({ ageGroup, topic, duration, draft }) {
   return lines.join("\n");
 }
 
-async function callGroq({ ageGroup, topic, duration, apiKey }) {
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: GROQ_MODEL,
-      temperature: 0.3,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: `Age group: ${ageGroup}\nTopic: ${topic}\nDuration: ${duration}`,
-        },
-      ],
-    }),
-  });
-
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(`Groq API failed (${response.status}): ${detail.slice(0, 200)}`);
-  }
-
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content || "";
-  return parseLessonJson(content);
+async function callGroqLesson({ ageGroup, topic, duration }) {
+  const userPrompt = `Age group: ${ageGroup}\nTopic: ${topic}\nDuration: ${duration}`;
+  const raw = await callGroq({ systemPrompt: SYSTEM_PROMPT, userPrompt, temperature: 0.3 });
+  return parseLessonJson(raw);
 }
 
 async function callGemini({ ageGroup, topic, duration, apiKey }) {
@@ -184,7 +154,7 @@ export async function generateAILessonPlan(input = {}) {
   if (isUsableKey(groqKey)) {
     try {
       aiLog("groq_start", { model: GROQ_MODEL, ageGroup, topic, duration });
-      draft = await callGroq({ ageGroup, topic, duration, apiKey: groqKey });
+      draft = await callGroqLesson({ ageGroup, topic, duration });
       provider = "groq";
     } catch (err) {
       aiLog("groq_failed", { message: err.message });
@@ -229,4 +199,98 @@ export async function generateAILessonPlan(input = {}) {
     draftText,
     provider,
   };
+}
+
+const SCHEDULE_SYSTEM_PROMPT = `You are an early-childhood-education activity planner.
+Given an activity type, developmental level, a starting topic, a number of weeks, and how many
+activities to schedule per day, return ONLY a JSON object, no markdown, no extra text, with
+exactly this shape:
+{
+  "activities": [
+    {
+      "contentTitle": string,
+      "contentType": string,
+      "durationMinutes": number,
+      "materials": string,
+      "purpose": string,
+      "howToConduct": string,
+      "facilitatorRole": string,
+      "expectedOutcomes": string
+    }
+  ]
+}
+Return one entry per distinct activity idea appropriate for the given type/level/topic — enough
+variety to fill (weeks * 5 working days * activitiesPerDay) slots without excessive repetition.
+Do not include dates; scheduling is handled separately.`;
+
+export async function generateAIActivityPool({ type, level, topic, activitiesPerDay, durationWeeks }) {
+  const userPrompt = `Activity type: ${type}\nLevel: ${level}\nStarting topic: ${topic}\nActivities per day: ${activitiesPerDay}\nDuration weeks: ${durationWeeks}`;
+  const raw = await callGroq({ systemPrompt: SCHEDULE_SYSTEM_PROMPT, userPrompt, temperature: 0.5 });
+  const cleaned = stripCodeFences(raw);
+  const parsed = JSON.parse(cleaned);
+  if (!parsed || !Array.isArray(parsed.activities) || parsed.activities.length === 0) {
+    throw new Error("Invalid activity schedule JSON from Groq.");
+  }
+  return parsed.activities;
+}
+
+/**
+ * Builds the same schedule shape generateScheduleFromDataset produces client-side,
+ * so it can be posted straight to POST /api/mentor/lesson-plans/auto-publish unchanged.
+ */
+export function buildScheduleFromPool({ pool, type, level, topic, startDate, durationWeeks, activitiesPerDay }) {
+  const WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const days = [];
+  const cur = new Date(startDate);
+  const totalWorkingDays = durationWeeks * 5;
+  while (days.length < totalWorkingDays) {
+    const dow = cur.getDay();
+    if (dow !== 0 && dow !== 6) days.push(new Date(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  let cursor = 0;
+  const schedule = days.map((d) => {
+    const activities = [];
+    for (let i = 0; i < activitiesPerDay; i++) {
+      const a = pool[cursor % pool.length];
+      cursor++;
+      activities.push({
+        order: i + 1,
+        contentTitle: a.contentTitle,
+        moduleTitle: `${type} · ${level}`,
+        contentType: a.contentType,
+        durationMinutes: a.durationMinutes,
+        materials: a.materials,
+        purpose: a.purpose,
+        howToConduct: a.howToConduct,
+        facilitatorRole: a.facilitatorRole,
+        expectedOutcomes: a.expectedOutcomes,
+        instructions: `How to conduct:\n${a.howToConduct}\n\nFacilitator role: ${a.facilitatorRole}`,
+        objectives: a.expectedOutcomes || a.purpose,
+      });
+    }
+    return { date: d.toISOString().split("T")[0], dayOfWeek: WEEKDAY_NAMES[d.getDay()], activities };
+  });
+
+  const totalActivities = schedule.reduce((sum, day) => sum + day.activities.length, 0);
+  return { course: { title: topic }, totalActivities, totalDays: schedule.length, durationWeeks, schedule };
+}
+
+export async function generateAIActivitySchedule(input = {}) {
+  const type = String(input.type || "").trim();
+  const level = String(input.level || "").trim();
+  const topic = String(input.topic || "").trim();
+  const startDate = input.startDate;
+  const durationWeeks = Number(input.durationWeeks) || 1;
+  const activitiesPerDay = Number(input.maxActivitiesPerDay) || 1;
+
+  if (!type || !level || !topic || !startDate) {
+    const err = new Error("type, level, topic, and startDate are required.");
+    err.status = 400;
+    throw err;
+  }
+
+  const pool = await generateAIActivityPool({ type, level, topic, activitiesPerDay, durationWeeks });
+  return buildScheduleFromPool({ pool, type, level, topic, startDate, durationWeeks, activitiesPerDay });
 }

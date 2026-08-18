@@ -3,6 +3,8 @@ import { TeacherAttendanceRecord } from "../models/Attendance.js";
 import { ActivitySubmission } from "../models/ActivitySubmission.js";
 import { CourseAssignment } from "../models/CourseAssignment.js";
 import { ParentSessionAssignment } from "../models/ParentSessionAssignment.js";
+import { TeacherTask } from "../models/TeacherTask.js";
+
 
 /**
  * Reminder Prediction Service
@@ -181,7 +183,7 @@ export const calculateTeacherRisk = async (user) => {
  */
 export const getRiskReport = async () => {
   const teachers = await User.find({ role: "teacher", status: "approved" })
-    .select("name teacherProfile.completionRate")
+    .select("name teacherProfile.completionRate assignedMentor")
     .lean();
 
   const report = await Promise.all(teachers.map((t) => calculateTeacherRisk(t)));
@@ -197,6 +199,47 @@ export const getRiskReport = async () => {
     lowRiskCount: report.filter((r) => r.riskLevel === "LOW").length,
     teachers: report
   };
+};
+
+/**
+ * 3.7 Mentor Intervention Recommendations
+ * ----------------------------------------
+ * Groups HIGH/MEDIUM risk fellows by their assignedMentor, so each mentor
+ * gets ONE alert listing only THEIR OWN at-risk fellows — not every fellow
+ * in the system. Fellows with no assignedMentor are skipped (nothing to
+ * route the alert to) rather than broadcast to all mentors.
+ */
+export const getFellowsNeedingMentorAttention = async () => {
+  const teachers = await User.find({ role: "teacher", status: "approved" })
+    .select("name teacherProfile.completionRate assignedMentor")
+    .lean();
+
+  const risks = await Promise.all(teachers.map((t) => calculateTeacherRisk(t)));
+
+  const byMentor = new Map();
+  teachers.forEach((teacher, idx) => {
+    const risk = risks[idx];
+    if (risk.riskLevel === "LOW") return; // only MEDIUM/HIGH need mentor attention
+    if (!teacher.assignedMentor) return; // no mentor to route this to
+
+    const mentorId = String(teacher.assignedMentor);
+    if (!byMentor.has(mentorId)) byMentor.set(mentorId, []);
+    byMentor.get(mentorId).push({
+      fellowId: risk.teacherId,
+      fellowName: risk.teacherName,
+      riskLevel: risk.riskLevel,
+      riskScore: risk.riskScore,
+      reasons: risk.reasons
+    });
+  });
+
+  // Each mentor's own list, high risk first
+  const result = [];
+  for (const [mentorId, fellows] of byMentor.entries()) {
+    fellows.sort((a, b) => b.riskScore - a.riskScore);
+    result.push({ mentorId, fellows });
+  }
+  return result;
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -312,6 +355,39 @@ const findDueParentSessions = async () => {
 };
 
 /**
+ * 4b. Manually assigned tasks (admin/mentor "Assign Task") — TeacherTask
+ * has no separate dueDate field, its "date" IS the due date. A task is
+ * due-for-reminder if it's still not completed and its date is today
+ * or already in the past (overdue) — both cases need a nudge.
+ */
+const findDueAssignedTasks = async () => {
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  const pending = await TeacherTask.find({
+    completed: false,
+    date: { $lte: todayStr }
+  })
+    .populate("teacher", "name")
+    .lean();
+
+  return pending
+    .filter((item) => item.teacher)
+    .map((item) => {
+      const overdue = item.date < todayStr;
+      return {
+        category: "Assigned Task",
+        teacherId: String(item.teacher._id),
+        teacherName: item.teacher.name,
+        itemId: String(item._id),
+        dueDate: item.date,
+        message: overdue
+          ? `Task "${item.title}" was due on ${item.date} and is still pending.`
+          : `Task "${item.title}" is due today (${item.date}) and still pending.`
+      };
+    });
+};
+
+/**
  * 5. Registration approvals — this is an ADMIN action item, not a teacher risk.
  * There's no "dueDate" for a signup, so instead we flag accounts that have been
  * waiting too long (escalating urgency), so the admin gets nudged to act.
@@ -320,7 +396,8 @@ const REGISTRATION_URGENT_HOURS = 48; // pending > 48h -> urgent nudge to admin
 
 const findPendingRegistrationApprovals = async () => {
   const pendingUsers = await User.find({ status: "pending" })
-    .select("name role createdAt")
+    .select("name role createdAt teacherProfile.center")
+    .populate("teacherProfile.center", "name mentor")
     .lean();
 
   return pendingUsers.map((u) => {
@@ -332,6 +409,10 @@ const findPendingRegistrationApprovals = async () => {
       role: u.role,
       hoursPending,
       urgent: hoursPending >= REGISTRATION_URGENT_HOURS,
+      // The center's mentor is a real, related party for this approval —
+      // unlike admin (which has no scoping field), this is a genuine link.
+      centerMentorId: u.teacherProfile?.center?.mentor ? String(u.teacherProfile.center.mentor) : null,
+      centerName: u.teacherProfile?.center?.name || null,
       message: `${u.name} (${u.role}) has been awaiting approval for ${hoursPending}h.`
     };
   });
@@ -342,11 +423,12 @@ const findPendingRegistrationApprovals = async () => {
  * Returns everything that needs a reminder sent right now.
  */
 export const getUpcomingReminders = async () => {
-  const [activityReports, assessments, courseDeadlines, parentSessions, registrationApprovals] = await Promise.all([
+  const [activityReports, assessments, courseDeadlines, parentSessions, assignedTasks, registrationApprovals] = await Promise.all([
     findDueActivityReports(),
     findDueAssessments(),
     findDueCourseDeadlines(),
     findDueParentSessions(),
+    findDueAssignedTasks(),
     findPendingRegistrationApprovals()
   ]);
 
@@ -357,12 +439,23 @@ export const getUpcomingReminders = async () => {
       activityReports,
       assessments,
       courseDeadlines,
-      parentSessions
+      parentSessions,
+      assignedTasks
     },
     adminReminders: {
+      // Admin has no scoping field in the schema (global role) — every
+      // approved admin genuinely IS "related" here, so this stays a
+      // broadcast, gated only by the urgency threshold to avoid noise.
       registrationApprovals: registrationApprovals.filter((u) => u.urgent)
     },
-    totalTeacherReminders: activityReports.length + assessments.length + courseDeadlines.length + parentSessions.length,
+    mentorReminders: {
+      // Unlike admin, a center's mentor IS a specific, real relation
+      // (Center.mentor) — so this is targeted, not gated by the same
+      // 48h urgency threshold, since the mentor should know as soon
+      // as their own center has someone awaiting approval.
+      pendingCenterApprovals: registrationApprovals.filter((u) => u.centerMentorId)
+    },
+    totalTeacherReminders: activityReports.length + assessments.length + courseDeadlines.length + parentSessions.length + assignedTasks.length,
     totalAdminReminders: registrationApprovals.filter((u) => u.urgent).length
   };
 };
@@ -370,5 +463,6 @@ export const getUpcomingReminders = async () => {
 export default {
   calculateTeacherRisk,
   getRiskReport,
+  getFellowsNeedingMentorAttention,
   getUpcomingReminders
 };

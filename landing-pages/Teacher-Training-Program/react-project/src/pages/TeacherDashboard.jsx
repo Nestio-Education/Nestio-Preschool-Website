@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { Logo, Toast, Badge, StatusBadge, StatCard, SectionCard, Modal, S, globalCSS } from "../components/Shared";
 import { t, setLanguage, getLanguageList, getCurrentLanguage, LANG_CHANGE_EVENT } from "../services/i18n";
 // Start: Snehal change
@@ -1134,7 +1134,27 @@ function MyAttendanceSummaryCard({ attendance = 0, summary = {}, attendanceMap =
 
 /* ── OverviewTab ── */
 function OverviewTab({ user, setActiveTab, courses = [], assignments = [], lessons = [], activities = [], summary = {} }) {
-  const attendance = summary.attendanceRate !== undefined ? summary.attendanceRate : 0;
+  const attendanceMap = summary.attendanceMap || {};
+const today = new Date();
+const todayDate = today.getDate();
+const currentMonth = today.getMonth();
+const currentYear = today.getFullYear();
+
+const isWeekend = (day) => {
+  const d = new Date(currentYear, currentMonth, day).getDay();
+  return d === 0 || d === 6;
+};
+const getDayKey = (day) =>
+  `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+const totalWorkdays = Array.from({ length: todayDate }, (_, i) => i + 1).filter(d => !isWeekend(d)).length;
+const presentWorkdays = Array.from({ length: todayDate }, (_, i) => i + 1)
+  .filter(d => !isWeekend(d) && (attendanceMap[getDayKey(d)]?.checkedIn || attendanceMap[getDayKey(d)]?.status === "present"))
+  .length;
+
+const attendance = totalWorkdays > 0
+  ? Math.round((presentWorkdays / totalWorkdays) * 100)
+  : (summary.attendanceRate !== undefined ? summary.attendanceRate : 0);
   const attColor = attendance >= 85 ? "#10b981" : attendance >= 70 ? "#f59e0b" : "#ef4444";
   const photoUrl = getTeacherPhotoUrl(user);
 
@@ -1588,13 +1608,25 @@ function CertificatesTab({ assignments = [], certificates: certs = [] }) {
               {isRealCert && (
                 <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
                   <button
-                    onClick={() => viewCertificatePdf(item._id)}
+                    onClick={async () => {
+                      try {
+                        await viewCertificatePdf(item._id);
+                      } catch (err) {
+                        alert(err.message || "Failed to view certificate. Please try again.");
+                      }
+                    }}
                     style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "1px solid #d97706", background: "white", color: "#d97706", fontWeight: 700, fontSize: 12, cursor: "pointer" }}
                   >
                     👁️ View Certificate
                   </button>
                   <button
-                    onClick={() => downloadCertificatePdf(item._id, `Certificate-${item.certificateNumber}.pdf`)}
+                    onClick={async () => {
+                      try {
+                        await downloadCertificatePdf(item._id, `Certificate-${item.certificateNumber}.pdf`);
+                      } catch (err) {
+                        alert(err.message || "Failed to download certificate. Please try again.");
+                      }
+                    }}
                     style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: "linear-gradient(135deg,#f59e0b,#d97706)", color: "white", fontWeight: 700, fontSize: 12, cursor: "pointer" }}
                   >
                     ⬇️ Download
@@ -2779,7 +2811,24 @@ function ParentCapacityBuildingTab({ user, setToast }) {
                   {sess.homePractice && (
                     <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 8 }}>Home Practice: {sess.homePractice}</div>
                   )}
+                {sess.content?.length > 0 && (
+                    <div style={{ marginTop: 12 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: "#6b7280", marginBottom: 6 }}>Content</div>
+                      {sess.content.map((block, ci) => (
+                        <div key={ci} style={{ marginBottom: 8 }}>
+                          {block.heading && <div style={{ fontSize: 12, fontWeight: 700, color: "#1c1917" }}>{block.heading}</div>}
+                          <div style={{ fontSize: 12, color: "#374151", whiteSpace: "pre-wrap", lineHeight: 1.5 }}>{block.body}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
+                  {sess.reflection && (
+                    <div style={{ marginTop: 8 }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: "#1c1917", marginBottom: 6 }}>Reflection</div>
+                      <div style={{ fontSize: 12, color: "#374151", whiteSpace: "pre-wrap", lineHeight: 1.5 }}>{sess.reflection}</div>
+                    </div>
+                  )}
                   {/* Snehal change: Mark as Completed / Start Session button */}
                   <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
                     {status === "Completed" ? (
@@ -3341,7 +3390,10 @@ export default function TeacherDashboard({ user, onLogout }) {
       </div>
 
       <div style={{ flex: 1, width: "0px", minWidth: "0px", padding: "28px 32px", overflowY: "auto", maxHeight: "100vh" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 20, position: "relative" }}>
+        <a href="/landing-pages/Teacher-Training-Program/" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#d97706", textDecoration: "none", marginBottom: 12 }}>
+            <span>&larr;</span> Back to website
+          </a>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 20, position: "relative" }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: "#1c1917", margin: 0, letterSpacing: "-0.3px" }}>
               Hi, {currentUser.name?.split(" ")[0] || (currentUser.role === "fellow" ? "Fellow" : "Teacher")}! 👋

@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback } from "react";
+﻿import { useEffect, useState, useCallback } from "react";
 import { Modal, S, SectionCard, StatCard, StatusBadge } from "../components/Shared";
-import { getAdminDashboard, getAdminTeachers, getTrainers, getCourses, getAdminUsers, getPortalSettings, updatePortalSettings, testSmtpEmail, updateAdminLanguage, testWhatsAppNotification } from "../services/api";
+import { getAdminDashboard, getAdminTeachers, getCourses, getAdminUsers, getPortalSettings, updatePortalSettings, testSmtpEmail, updateAdminLanguage, testWhatsAppNotification } from "../services/api";
 import { t, setLanguage, getCurrentLanguage, getLanguageList } from "../services/i18n";
 import NotificationsTab from "./NotificationsTab";
 
@@ -131,17 +131,7 @@ export default function SettingsTab({ setToast, teachers }) {
       } catch {
         errors.push("teachers");
       }
-
-      // 4. Load trainers
-      let trainers = [];
-      try {
-        const data = await getTrainers();
-        if (!cancelled) trainers = data?.trainers || [];
-      } catch {
-        errors.push("trainers");
-      }
-
-      // 5. Load courses
+        // 4. Load courses
       let courses = [];
       try {
         const data = await getCourses();
@@ -167,8 +157,6 @@ export default function SettingsTab({ setToast, teachers }) {
         totalTeachers: teachers.length,
         approvedTeachers: teachers.filter((t) => t.status === "approved").length,
         pendingTeachers: teachers.filter((t) => t.status === "pending").length,
-        totalTrainers: trainers.length,
-        activeTrainers: trainers.filter((t) => t.status === "active").length,
         totalCourses: courses.length,
         totalAdmins: admins.length,
         ...dashboardData,
@@ -181,12 +169,6 @@ export default function SettingsTab({ setToast, teachers }) {
           label: "Super Admin",
           count: admins.length,
           users: admins.map((u) => ({ name: u.name, email: u.email, status: u.status || "active", _id: u._id })),
-        },
-        {
-          role: "trainer",
-          label: "Trainer",
-          count: trainers.length,
-          users: trainers.map((t) => ({ name: t.name, email: t.email || "", status: t.status || "active", _id: t._id })),
         },
         {
           role: "teacher",
@@ -303,36 +285,28 @@ export default function SettingsTab({ setToast, teachers }) {
     }
   }, [testWhatsAppTo, twilioConfig, setToast]);
 
-  const roleCards = [
-    {
-      role: "Super Admin",
-      access: "Full access to all modules including financial and role management",
-      count: stats?.totalAdmins || 0,
-      color: "#ef4444",
-      bg: "#fee2e2",
-    },
-    {
-      role: "Trainer",
-      access: "Content upload, assignment review, live sessions, forum",
-      count: stats?.activeTrainers || 0,
-      color: "#8b5cf6",
-      bg: "#ede9fe",
-    },
-    {
-      role: "Teacher",
-      access: "Course access, lesson plan submission, attendance, feedback",
-      count: stats?.approvedTeachers || 0,
-      color: "#10b981",
-      bg: "#d1fae5",
-    },
-    {
-      role: "Pending Teachers",
-      access: "Awaiting approval in Teacher Management tab",
-      count: stats?.pendingTeachers || 0,
-      color: "#f59e0b",
-      bg: "#fef3c7",
-    },
-  ];
+  const roleMeta = {
+      admin: { access: "Full access to all modules including financial and role management", color: "#ef4444", bg: "#fee2e2" },
+      teacher: { access: "Course access, lesson plan submission, attendance, feedback", color: "#10b981", bg: "#d1fae5" },
+    };
+    const roleCards = [
+      ...roleUsers
+        .filter((r) => r.count > 0)
+        .map((r) => ({
+          role: r.label,
+          access: roleMeta[r.role]?.access || "",
+          count: r.count,
+          color: roleMeta[r.role]?.color || "#6b7280",
+          bg: roleMeta[r.role]?.bg || "#f3f4f6",
+        })),
+      {
+        role: "Pending Teachers",
+        access: "Awaiting approval in Teacher Management tab",
+        count: stats?.pendingTeachers || 0,
+        color: "#f59e0b",
+        bg: "#fef3c7",
+      },
+    ];
 
   const sections = [
     { key: "portal", label: "⚙️ " + t("Portal") },
@@ -352,7 +326,6 @@ export default function SettingsTab({ setToast, teachers }) {
   const modalUsers = (() => {
     const roleMap = {
       "Super Admin": "admin",
-      "Trainer": "trainer",
       "Teacher": "teacher",
       "Pending Teachers": "teacher",
     };
@@ -407,7 +380,6 @@ export default function SettingsTab({ setToast, teachers }) {
               <StatCard icon="👥" label="Total Teachers" val={stats.totalTeachers} color="#f59e0b" bg="#fef3c7" />
               <StatCard icon="✅" label="Approved" val={stats.approvedTeachers} color="#10b981" bg="#d1fae5" />
               <StatCard icon="⏳" label="Pending" val={stats.pendingTeachers} color="#3b82f6" bg="#dbeafe" />
-              <StatCard icon="🎓" label="Trainers" val={stats.totalTrainers} color="#8b5cf6" bg="#ede9fe" />
               <StatCard icon="📚" label="Courses" val={stats.totalCourses} color="#06b6d4" bg="#cffafe" />
             </div>
           )}

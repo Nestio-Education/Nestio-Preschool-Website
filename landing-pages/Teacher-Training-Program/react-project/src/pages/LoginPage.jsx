@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 // Start: Dnyaneshwari Thorat
 import { isValidPhoneNumber } from "libphonenumber-js";
 // End: Dnyaneshwari Thorat
 import { Logo, Toast, Particles, S, globalCSS } from "../components/Shared";
 // Start: Dnyaneshwari Thorat
-import { loginUser, registerTeacher, registerMentor, requestPasswordReset, resetPassword, verifyPasswordResetToken, requestPasswordResetOtp, verifyPasswordOtp, sendSignupOtp, verifySignupOtp } from "../services/api";
+import { loginUser, registerTeacher, registerMentor, requestPasswordReset, resetPassword, verifyPasswordResetToken, requestPasswordResetOtp, verifyPasswordOtp, sendSignupOtp, verifySignupOtp, getPublicCenters } from "../services/api";
 // End: Dnyaneshwari Thorat
 
 /* ── Animated illustration (UNCHANGED — original animation kept as-is) ── */
@@ -261,6 +261,7 @@ function ForgotPasswordForm({ onBack }) {
   const [loading, setLoading]       = useState(false);
   const [toast, setToast]           = useState({ msg: "", type: "" });
   const [resendTimer, setResendTimer] = useState(0);
+  const [devOtp, setDevOtp]         = useState("");
 
   useEffect(() => {
     if (resendTimer <= 0) return;
@@ -268,21 +269,22 @@ function ForgotPasswordForm({ onBack }) {
     return () => clearTimeout(t);
   }, [resendTimer]);
 
+  /* OTP-based handlers commented out for now in favor of direct email token reset */
+  /*
   const handleRequestOtp = async (e) => {
     e.preventDefault();
     if (!email) { setToast({ msg: "Please enter your email address.", type: "error" }); return; }
     setLoading(true);
     try {
-      const data = await requestPasswordResetOtp(email);
-      if (data.emailSent === false) {
-        setToast({ msg: "Failed to send OTP email. Please check your email configuration or contact admin.", type: "error" });
-        setLoading(false);
-        return;
-      }
+      const data = await requestPasswordResetOtp(email.trim().toLowerCase());
+      if (data.devOtp) setDevOtp(data.devOtp);
       setOtpExpiry(data.otpExpiryMinutes || 10);
       setStep("otp");
       setResendTimer(60);
-      setToast({ msg: "OTP sent to your email! Check your inbox.", type: "success" });
+      setToast({
+        msg: data.emailSent ? "OTP sent to your email! Check your inbox." : "OTP generated successfully! Check inbox or server hint.",
+        type: "success"
+      });
     } catch (err) {
       setToast({ msg: err.message || "Failed to send OTP.", type: "error" });
     } finally {
@@ -295,12 +297,40 @@ function ForgotPasswordForm({ onBack }) {
     if (otp.length !== 6) { setToast({ msg: "Please enter the complete 6-digit OTP.", type: "error" }); return; }
     setLoading(true);
     try {
-      const data = await verifyPasswordOtp(email, otp);
+      const data = await verifyPasswordOtp(email.trim().toLowerCase(), otp);
       setResetToken(data.resetToken);
       setStep("reset");
       setToast({ msg: "OTP verified! Set your new password.", type: "success" });
     } catch (err) {
       setToast({ msg: err.message || "Invalid OTP.", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+  */
+
+  // Direct Password Reset Handler (Bypasses OTP verification for now)
+  const handleDirectPasswordReset = async (e) => {
+    e.preventDefault();
+    if (!email) { setToast({ msg: "Please enter your email address.", type: "error" }); return; }
+    setLoading(true);
+    try {
+      const data = await requestPasswordReset(email.trim().toLowerCase());
+      if (data.resetToken) {
+        setResetToken(data.resetToken);
+        setStep("reset");
+        setToast({
+          msg: "Account verified! Set your new password below.",
+          type: "success"
+        });
+      } else {
+        setToast({
+          msg: "No registered account found with this email address. Please check your email or register.",
+          type: "error"
+        });
+      }
+    } catch (err) {
+      setToast({ msg: err.message || "Failed to initiate password reset.", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -326,25 +356,23 @@ function ForgotPasswordForm({ onBack }) {
     }
   };
 
+  /*
   const handleResendOtp = async () => {
     if (resendTimer > 0) return;
     setLoading(true);
     try {
-      const data = await requestPasswordResetOtp(email);
-      if (data.emailSent === false) {
-        setToast({ msg: "Failed to send OTP email. Please contact admin.", type: "error" });
-        setLoading(false);
-        return;
-      }
+      const data = await requestPasswordResetOtp(email.trim().toLowerCase());
+      if (data.devOtp) setDevOtp(data.devOtp);
       setResendTimer(60);
       setOtp("");
-      setToast({ msg: "New OTP sent to your email!", type: "success" });
+      setToast({ msg: "New OTP generated!", type: "success" });
     } catch (err) {
       setToast({ msg: err.message || "Failed to resend OTP.", type: "error" });
     } finally {
       setLoading(false);
     }
   };
+  */
 
   // Step 1: Enter email
   if (step === "email") {
@@ -354,12 +382,12 @@ function ForgotPasswordForm({ onBack }) {
         <Logo size={100} />
         <div style={{ textAlign: "center", marginBottom: 16 }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>🔐</div>
-          <span style={ls.badge}>Forgot Password</span>
+          <span style={ls.badge}>Reset Password</span>
           <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4, fontStyle: "italic" }}>
-            Enter your email to receive a 6-digit OTP
+            Enter your registered email address to set a new password
           </p>
         </div>
-        <form onSubmit={handleRequestOtp}>
+        <form onSubmit={handleDirectPasswordReset}>
           <div style={ci.mb}>
             <label style={ci.label}>Registered Email Address</label>
             <div style={{ position: "relative" }}>
@@ -376,7 +404,7 @@ function ForgotPasswordForm({ onBack }) {
             </div>
           </div>
           <button type="submit" style={{ ...S.primaryBtn, width: "100%", padding: "9px", fontSize: 13 }} disabled={loading}>
-            {loading ? "Sending OTP..." : "Send OTP →"}
+            {loading ? "Verifying Email..." : "Continue to Reset Password →"}
           </button>
         </form>
         <p style={{ textAlign: "center", fontSize: 11, color: "#9ca3af", marginTop: 12, marginBottom: 0 }}>
@@ -387,7 +415,8 @@ function ForgotPasswordForm({ onBack }) {
     );
   }
 
-  // Step 2: Enter OTP
+  // Step 2: Enter OTP (Bypassed / Commented out for now)
+  /*
   if (step === "otp") {
     return (
       <>
@@ -407,6 +436,11 @@ function ForgotPasswordForm({ onBack }) {
         <form onSubmit={handleVerifyOtp}>
           <div style={{ marginBottom: 16 }}>
             <OtpInput length={6} value={otp} onChange={setOtp} disabled={loading} />
+            {devOtp && (
+              <p style={{ fontSize: 10, color: "#10b981", textAlign: "center", marginTop: 10, fontWeight: 700 }}>
+                💡 Server Fallback / Dev Mode: Email OTP is <b>{devOtp}</b>
+              </p>
+            )}
           </div>
           <button type="submit" style={{ ...S.primaryBtn, width: "100%", padding: "9px", fontSize: 13 }} disabled={loading || otp.length !== 6}>
             {loading ? "Verifying..." : "Verify OTP →"}
@@ -434,6 +468,7 @@ function ForgotPasswordForm({ onBack }) {
       </>
     );
   }
+  */
 
   // Step 3: Set new password
   return (
@@ -444,7 +479,7 @@ function ForgotPasswordForm({ onBack }) {
         <div style={{ fontSize: 32, marginBottom: 8 }}>🛡️</div>
         <span style={ls.badge}>Set New Password</span>
         <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4, fontStyle: "italic" }}>
-          OTP verified for <strong style={{ color: "#92400e" }}>{email}</strong>
+          Resetting password for <strong style={{ color: "#92400e" }}>{email}</strong>
         </p>
       </div>
       <form onSubmit={handleResetPassword}>
@@ -633,6 +668,18 @@ function RegisterForm({ onBack }) {
   const [emailOtp, setEmailOtp] = useState("");
   const [emailOtpDev, setEmailOtpDev] = useState("");
   const [verifying, setVerifying] = useState(false);
+   // Start: Prajwal edit — fetch centers from DB for the dropdown
+  const [centers, setCenters] = useState([]);
+  const [centersLoading, setCentersLoading] = useState(true);
+  const [centersError, setCentersError] = useState("");
+
+  useEffect(() => {
+    getPublicCenters()
+      .then((data) => setCenters(data.centers || []))
+      .catch((err) => setCentersError(err.message || "Failed to load centers."))
+      .finally(() => setCentersLoading(false));
+  }, []);
+  // End: Prajwal edit
 
   // Start: Prajwal edit
   // NOTE: Photo upload feature removed (handlePhotoUpload function and its JSX deleted).
@@ -723,7 +770,8 @@ function RegisterForm({ onBack }) {
         password,
         qualification: "B.Ed",
         experience: "2 years",
-        address,
+        address: form.address,   
+        center: centerId,
       })
         .then(() => {
           setToast({ msg: "Registration submitted! Awaiting admin approval.", type: "success" });
@@ -741,7 +789,8 @@ function RegisterForm({ onBack }) {
         password,
         qualification: "Graduate",
         experience: "2 years",
-        address,
+        address:form.address,
+        center: centerId, 
         fellowshipSemester: role === "fellow" ? 1 : undefined,
         role,
       })
@@ -945,21 +994,45 @@ function RegisterForm({ onBack }) {
         ))}
         {/* Start: Prajwal edit — Upload Profile Photo field removed here */}
         {/* End: Prajwal edit */}
-        {/* Start: Prajwal edit — School/Address changed from free-text to dropdown */}
-        <div style={ci.mb}>
-          <label style={ci.label}>School / Address</label>
-          <select
-            value={form.address}
-            onChange={e => setForm({ ...form, address: e.target.value })}
-            style={{ ...S.input, fontSize: 12, padding: "7px 10px", marginBottom: 0, cursor: "pointer" }}
-          >
-            <option value="">Select a center</option>
-            <option value="Udaan Centre, Dhayari, Pune">Udaan Centre, Dhayari, Pune</option>
-            <option value="Umang Centre, Gosavi Vasti, Karve Nagar, Pune">Umang Centre, Gosavi Vasti, Karve Nagar, Pune</option>
-            <option value="Umang Centre, Shivane, Pune">Umang Centre, Shivane, Pune</option>
-          </select>
-        </div>
-        {/* End: Prajwal edit */}
+      {/* Start: Prajwal edit — School/Address now loaded live from the database */}
+<div style={ci.mb}>
+  <label style={ci.label}>School / Address *</label>
+  <select
+    required
+    value={form.centerId}
+    onChange={e => {
+      const selected = centers.find(c => c._id === e.target.value);
+      setForm({
+        ...form,
+        centerId: e.target.value,
+        address: selected ? selected.name : "",
+      });
+    }}
+    disabled={centersLoading}
+    style={{
+      ...S.input,
+      fontSize: 12,
+      padding: "7px 10px",
+      marginBottom: 0,
+      cursor: centersLoading ? "not-allowed" : "pointer",
+    }}
+  >
+    <option value="">
+      {centersLoading ? "Loading centers..." : "Select a center"}
+    </option>
+    {centers.map((c) => (
+      <option key={c._id} value={c._id}>
+        {c.name}{c.city ? `, ${c.city}` : ""}
+      </option>
+    ))}
+  </select>
+  {centersError && (
+    <p style={{ fontSize: 10, color: "#ef4444", marginTop: 3, marginBottom: 0 }}>
+      ⚠️ {centersError}
+    </p>
+  )}
+</div>
+{/* End: Prajwal edit */}
         <div style={ci.mb}>
           <label style={ci.label}>Password</label>
           <div style={{ position: "relative" }}>
@@ -1008,6 +1081,9 @@ export default function LoginPage({ onLogin }) {
     const token  = params.get("reset_token");
     if (token) {
       setView({ type: "reset", token });
+    } else if (params.get("view") === "register") {
+        window.scrollTo(0, 0);
+        setView("register");
     }
   }, []);
 
@@ -1022,6 +1098,18 @@ export default function LoginPage({ onLogin }) {
     <div style={ls.bg}>
       <Particles />
       <style>{globalCSS}</style>
+
+      {/* Site header - shown on Login, Register, Forgot & Reset views */}
+      <header style={ls.header}>
+        <a href="/landing-pages/Teacher-Training-Program/" style={ls.headerBrand}>
+          <Logo size={40} />
+          <span style={ls.headerBrandText}>SpacECE India Foundation</span>
+        </a>
+        <a href="/landing-pages/Teacher-Training-Program/" style={ls.headerBack}>
+          Back to website
+        </a>
+      </header>
+
       <div style={ls.panel}>
         {/* Left — illustration (hidden on reset view for cleaner focus) */}
         {!isResetView && (
@@ -1054,8 +1142,16 @@ export default function LoginPage({ onLogin }) {
 const ls = {
   bg:    { minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
            background: "linear-gradient(135deg,#fef3c7 0%,#fde68a 30%,#fbbf24 65%,#f59e0b 100%)",
-           position: "relative", overflow: "hidden", padding: "16px",
+           position: "relative", overflowX: "hidden", overflowY: "auto", padding: "16px",
+           paddingTop: "76px",
            fontFamily: "'Segoe UI','Inter',-apple-system,sans-serif" },
+  header: { position: "fixed", top: 0, left: 0, right: 0, zIndex: 10,
+           display: "flex", alignItems: "center", justifyContent: "space-between",
+           padding: "10px 24px", background: "rgba(255,255,255,0.92)",
+           borderBottom: "1px solid rgba(217,119,6,0.15)", backdropFilter: "blur(6px)" },
+  headerBrand: { display: "flex", alignItems: "center", gap: 8, textDecoration: "none" },
+  headerBrandText: { fontSize: 14, fontWeight: 700, color: "#92400e" },
+  headerBack: { fontSize: 12, fontWeight: 600, color: "#d97706", textDecoration: "none" },
   panel: { display: "flex", alignItems: "stretch", background: "rgba(255,255,255,0.97)",
            borderRadius: 18, overflow: "hidden", boxShadow: "0 16px 48px rgba(180,120,0,0.18)",
            border: "1px solid rgba(245,158,11,0.2)", zIndex: 1, width: "100%", maxWidth: 680 },

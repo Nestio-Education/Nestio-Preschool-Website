@@ -618,42 +618,14 @@ export function getLessonPlans(params = {}) {
   return request(`/api/lesson-plans${qs ? `?${qs}` : ""}`);
 }
 
-export function createLessonPlan(lessonData) {
-  return request("/api/lesson-plans", {
-    method: "POST",
-    body: JSON.stringify(lessonData)
-  });
-}
+// Old admin mutation functions (createLessonPlan, updateLessonPlan, deleteLessonPlan,
+// assignLessonPlan, updateLessonPlanAssignment, autoGenerateLessonPlan, autoPublishLessonPlan)
+// have been removed — these routes no longer exist on the admin side.
+// Use the mentor equivalents below instead.
 
-export function updateLessonPlan(id, lessonData) {
-  return request(`/api/lesson-plans/${id}`, {
-    method: "PATCH",
-    body: JSON.stringify(lessonData)
-  });
-}
-
-export function deleteLessonPlan(id) {
-  return request(`/api/lesson-plans/${id}`, {
-    method: "DELETE"
-  });
-}
-
-export function assignLessonPlan(payload) {
-  return request("/api/lesson-plans/assign", {
-    method: "POST",
-    body: JSON.stringify(payload)
-  });
-}
-
+// Admin read-only (kept for ReportsTab analytics)
 export function getAdminLessonAssignments() {
   return request("/api/admin/lesson-plans/assignments");
-}
-
-export function updateLessonPlanAssignment(id, payload) {
-  return request(`/api/admin/lesson-plans/assignments/${id}`, {
-    method: "PATCH",
-    body: JSON.stringify(payload)
-  });
 }
 
 export function getTeacherLessonPlans() {
@@ -668,29 +640,59 @@ export function submitLessonCompletion(assignmentId, payload) {
   });
 }
 
-export function getAdminLessonReports() {
-  return request("/api/admin/lesson-plans/reports");
+// ── Mentor Lesson Plan APIs ──
+export function mentorImportLessonExcel(formData) {
+  return request("/api/mentor/lesson-plans/import-excel", {
+    method: "POST",
+    body: formData, // FormData — request() skips Content-Type for FormData
+  });
 }
 
-export function reviewLessonReport(reportId, payload) {
-  return request(`/api/admin/lesson-plans/reports/${reportId}`, {
+export function deleteMentorLessonPlan(id) {
+  return request(`/api/mentor/lesson-plans/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export function mentorAutoPublishLessonPlan(data) {
+  return request("/api/mentor/lesson-plans/auto-publish", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export function mentorAssignLessonPlan(payload) {
+  return request("/api/mentor/lesson-plans/assign", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function getMentorLessonAssignments() {
+  return request("/api/mentor/lesson-plans/assignments");
+}
+
+export function updateMentorLessonAssignment(id, payload) {
+  return request(`/api/mentor/lesson-plans/assignments/${id}`, {
     method: "PATCH",
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
   });
 }
 
-export function autoGenerateLessonPlan(data) {
-  return request("/api/lesson-plans/auto-generate", {
-    method: "POST",
-    body: JSON.stringify(data)
+export function getMentorLessonReports() {
+  return request("/api/mentor/lesson-plans/reports");
+}
+
+export function reviewMentorLessonReport(reportId, payload) {
+  return request(`/api/mentor/lesson-plans/reports/${reportId}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
   });
 }
 
-export function autoPublishLessonPlan(data) {
-  return request("/api/lesson-plans/auto-publish", {
-    method: "POST",
-    body: JSON.stringify(data)
-  });
+// Admin Delivery Monitoring (read-only)
+export function getAdminLessonMonitoring() {
+  return request("/api/admin/lesson-plans/monitoring");
 }
 
 // Activity APIs
@@ -952,21 +954,6 @@ export function autoAssignCourse(courseId) {
   return request("/api/automation/auto-assign-courses", {
     method: "POST",
     body: JSON.stringify({ courseId }),
-  });
-}
-
-// Reminder Automation APIs (AI risk prediction + 24h-before deadline reminders)
-export function getReminderRiskReport() {
-  return request("/api/reminder-automation/risk-report");
-}
-
-export function getUpcomingDeadlineReminders() {
-  return request("/api/reminder-automation/upcoming");
-}
-
-export function sendDueReminders() {
-  return request("/api/reminder-automation/send-reminders", {
-    method: "POST",
   });
 }
 
@@ -1291,12 +1278,14 @@ export function getActivitySubmissions(params = {}) {
   return request(`/api/daily-task-automation/activities/submissions?${searchParams.toString()}`);
 }
 
-export function submitActivityCompletion(assignmentId, taskId, payload) {
-  return request(`/api/daily-task-automation/assignments/${assignmentId}/tasks/${taskId}/complete`, {
+// --- PRAJWAL EDIT: START — removed assignmentId/taskId params, Activity Bank items have no assignment wrapper ---
+export function submitActivityCompletion(activityId, payload) {
+  return request(`/api/daily-task-automation/activities/${activityId}/complete`, {
     method: "POST",
     body: JSON.stringify(payload)
   });
 }
+// --- PRAJWAL EDIT: END ---
 
 export function deleteActivity(id) {
   return request(`/api/daily-task-automation/activities/${id}`, {
@@ -1574,6 +1563,13 @@ export function generateAILessonPlan(data) {
        body: JSON.stringify(data),
      });
    }
+
+export function generateAIActivitySchedule(data) {
+  return request("/api/ai/generate-activity-schedule", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
 
    export function getCourseAssessment(courseId) {
   return request(`/api/courses/${courseId}/assessment`);

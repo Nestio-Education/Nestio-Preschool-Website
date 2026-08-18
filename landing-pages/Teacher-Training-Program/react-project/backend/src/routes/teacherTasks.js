@@ -2,6 +2,7 @@ import express from "express";
 import { TeacherTask } from "../models/TeacherTask.js";
 import { User } from "../models/User.js";
 import { requireAuth } from "../auth.js";
+import { sendNotification } from "../services/notificationService.js";
 
 const router = express.Router();
 
