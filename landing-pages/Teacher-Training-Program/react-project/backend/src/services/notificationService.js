@@ -304,7 +304,7 @@ async function sendNotification({ recipientId, templateKey, channel = "in_app", 
         body,
         status: "delivered",
         sentAt: new Date(),
-        metadata: { ...metadata, priority, category: categoryForTemplate(templateKey) },
+        metadata: { ...metadata, priority, category: templateKey },
       });
       results.inApp = { success: true, notificationId: notif._id };
     } catch (err) {
@@ -349,7 +349,7 @@ async function sendNotification({ recipientId, templateKey, channel = "in_app", 
         status: emailResult.success ? "delivered" : "failed",
         error: emailResult.error,
         sentAt: emailResult.success ? new Date() : undefined,
-        metadata: { ...metadata, priority, category: categoryForTemplate(templateKey) },
+        metadata: { ...metadata, priority, category: templateKey },
       });
 
       results.email = emailResult;
@@ -371,7 +371,7 @@ async function sendNotification({ recipientId, templateKey, channel = "in_app", 
         status: smsResult.success ? "delivered" : "failed",
         error: smsResult.error,
         sentAt: smsResult.success ? new Date() : undefined,
-        metadata: { ...metadata, priority, category: categoryForTemplate(templateKey) },
+        metadata: { ...metadata, priority, category: templateKey },
       });
 
       results.sms = smsResult;
@@ -393,7 +393,7 @@ async function sendNotification({ recipientId, templateKey, channel = "in_app", 
         status: waResult.success ? "delivered" : "failed",
         error: waResult.error,
         sentAt: waResult.success ? new Date() : undefined,
-        metadata: { ...metadata, priority, category: categoryForTemplate(templateKey) },
+        metadata: { ...metadata, priority, category: templateKey },
       });
 
       results.whatsapp = waResult;

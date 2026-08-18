@@ -7,14 +7,19 @@ import { sendNotification } from "./notificationService.js";
  * Write a single in-app reminder notification for a teacher.
  */
 const sendTeacherReminder = async (item) => {
-  return Notification.create({
-    recipient: item.teacherId,
-    channel: "in_app",
+  const { createAndEmitNotification } = await import("../socket.js");
+
+  return createAndEmitNotification({
+    recipientId: item.teacherId,
     title: `Reminder: ${item.category}`,
     body: item.message,
-    status: "delivered",
-    sentAt: new Date(),
-    metadata: { category: "reminder", priority: "high" }
+    type: "in_app",
+    metadata: {
+      reminderCategory: item.category,
+      itemId: item.itemId,
+      dueDate: item.dueDate,
+      priority: "high"
+    }
   });
 };
 

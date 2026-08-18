@@ -232,6 +232,7 @@ export const getFellowsNeedingMentorAttention = async () => {
     });
   });
 
+  // Each mentor's own list, high risk first
   const result = [];
   for (const [mentorId, fellows] of byMentor.entries()) {
     fellows.sort((a, b) => b.riskScore - a.riskScore);

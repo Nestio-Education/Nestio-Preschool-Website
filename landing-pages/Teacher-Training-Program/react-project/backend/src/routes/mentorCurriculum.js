@@ -312,6 +312,7 @@ router.post("/assign", async (req, res) => {
         }
       });
     } catch (notifyErr) {
+      // Assignment itself should not fail if the alert fails to send.
       console.warn("Failed to send curriculum_assigned notification:", notifyErr.message);
     }
 
