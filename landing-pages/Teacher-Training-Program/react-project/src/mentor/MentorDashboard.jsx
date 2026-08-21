@@ -688,7 +688,7 @@ export default function MentorDashboard({ user, onLogout }) {
             </div>
           )}
           </div>
-          <a href="/landing-pages/Teacher-Training-Program/" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#d97706", textDecoration: "none", marginBottom: 12 }}>
+          <a href="https://nestiopreschools.com/landing-pages/Teacher-Training-Program/" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#d97706", textDecoration: "none", marginBottom: 12 }}>
             <span>&larr;</span> Back to website
           </a>
           {renderContent()}

@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+﻿const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 async function request(path, options = {}) {
   const token = localStorage.getItem("spaceece_auth_token");
@@ -143,6 +143,10 @@ export function uploadFile(file) {
 // Center Management APIs
 export function getCenters() {
   return request("/api/centers");
+}
+
+export function getPublicCenters() {
+  return request("/api/centers/public");
 }
 
 export function createCenter(centerData) {
@@ -620,7 +624,7 @@ export function getLessonPlans(params = {}) {
 
 // Old admin mutation functions (createLessonPlan, updateLessonPlan, deleteLessonPlan,
 // assignLessonPlan, updateLessonPlanAssignment, autoGenerateLessonPlan, autoPublishLessonPlan)
-// have been removed — these routes no longer exist on the admin side.
+// have been removed â€” these routes no longer exist on the admin side.
 // Use the mentor equivalents below instead.
 
 // Admin read-only (kept for ReportsTab analytics)
@@ -640,11 +644,11 @@ export function submitLessonCompletion(assignmentId, payload) {
   });
 }
 
-// ── Mentor Lesson Plan APIs ──
+// â”€â”€ Mentor Lesson Plan APIs â”€â”€
 export function mentorImportLessonExcel(formData) {
   return request("/api/mentor/lesson-plans/import-excel", {
     method: "POST",
-    body: formData, // FormData — request() skips Content-Type for FormData
+    body: formData, // FormData â€” request() skips Content-Type for FormData
   });
 }
 
@@ -984,7 +988,7 @@ export function updateReportJob(id, reportData) {
   });
 }
 
-// ── Admin SMTP/Twilio Config (persisted to Atlas) ──
+// â”€â”€ Admin SMTP/Twilio Config (persisted to Atlas) â”€â”€
 export function saveSmtpConfig(smtpData) {
   return request("/api/admin/settings/smtp", {
     method: "POST",
@@ -999,7 +1003,7 @@ export function saveTwilioConfig(twilioData) {
   });
 }
 
-// ── Admin language preference ──
+// â”€â”€ Admin language preference â”€â”€
 export function updateAdminLanguage(lang) {
   return request("/api/admin/me/language", {
     method: "PATCH",
@@ -1007,7 +1011,7 @@ export function updateAdminLanguage(lang) {
   });
 }
 
-// ── Teacher notification preference ──
+// â”€â”€ Teacher notification preference â”€â”€
 export function updateTeacherNotificationPreference(channel) {
   return request("/api/teacher/me/notification-preference", {
     method: "PATCH",
@@ -1015,9 +1019,9 @@ export function updateTeacherNotificationPreference(channel) {
   });
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // PHASE 1: User Management APIs
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 export function importUsers(users) {
   return request("/api/admin/users/import", { method: "POST", body: JSON.stringify({ users }) });
@@ -1027,9 +1031,9 @@ export function restoreUser(userId) {
   return request(`/api/admin/users/${userId}/restore`, { method: "PATCH" });
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // PHASE 1: Course Publishing APIs
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 export function publishCourse(courseId) {
   return request(`/api/courses/${courseId}/publish`, { method: "POST" });
@@ -1043,17 +1047,17 @@ export function reviewCourse(courseId) {
   return request(`/api/courses/${courseId}/review`, { method: "POST" });
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // PHASE 1: Schedule Conflict API
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 export function checkScheduleConflicts(data) {
   return request("/api/schedules/check-conflicts", { method: "POST", body: JSON.stringify(data) });
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // PHASE 1: System Health & Admin Profile APIs
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 export function getSystemHealth() {
   return request("/api/admin/system-health");
@@ -1071,9 +1075,9 @@ export function changeAdminPassword(data) {
   return request("/api/admin/profile/change-password", { method: "POST", body: JSON.stringify(data) });
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // PHASE 2: Notification Engine APIs
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 export function getNotificationHistory(params = {}) {
   const qs = new URLSearchParams(params).toString();
@@ -1088,9 +1092,9 @@ export function getDeadlineReminders() {
   return request("/api/teacher/deadline-reminders", { method: "POST" });
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // PHASE 3: AI/ML APIs
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 export function analyzeSentiment(text) {
   return request("/api/ai/sentiment", { method: "POST", body: JSON.stringify({ text }) });
@@ -1147,7 +1151,7 @@ export const updateTaskStatus = async (assignmentId, taskId, status) => {
     body: JSON.stringify({ status })
   });
 };
-// ── Course Library (parsed from the .docx source of truth) ──
+// â”€â”€ Course Library (parsed from the .docx source of truth) â”€â”€
 export function getCourseLibrary() {
   return request("/api/course-library");
 }
@@ -1169,7 +1173,7 @@ export function parseCourseDocx(file) {
   });
 }
 
-// Admin: create an actual Course document from a library template (no video —
+// Admin: create an actual Course document from a library template (no video â€”
 // modules/topics + notes are copied straight from the docx-derived library entry)
 export function createCourseFromLibrary(libraryId) {
   return request("/api/courses/from-library", {
@@ -1178,7 +1182,7 @@ export function createCourseFromLibrary(libraryId) {
   });
 }
 
-// ── Assessment bank + result persistence ──
+// â”€â”€ Assessment bank + result persistence â”€â”€
 export function getAssessmentBank(libraryId) {
   return request(`/api/assessment-bank/${libraryId}`);
 }
@@ -1237,7 +1241,7 @@ export async function viewCertificatePdf(certificateId) {
   window.open(url, "_blank");
 }
 // End: Dnyaneshwari Thorat
-// ── Activity Bank API ──
+// â”€â”€ Activity Bank API â”€â”€
 export function createActivityBank(data) {
   return request("/api/daily-task-automation/activities", {
     method: "POST",
@@ -1245,7 +1249,7 @@ export function createActivityBank(data) {
   });
 }
 
-// ── Mentor Management APIs ──
+// â”€â”€ Mentor Management APIs â”€â”€
 export function updateMentorStatus(id, status) {
   return request(`/api/admin/mentors/${id}/status`, {
     method: "PATCH",
@@ -1267,7 +1271,7 @@ export function deleteMentor(id) {
 }
 
 
-// ── Activity Bank: additional APIs ──
+// â”€â”€ Activity Bank: additional APIs â”€â”€
 export function getActivityBank(params = {}) {
   const searchParams = new URLSearchParams(params);
   return request(`/api/daily-task-automation/activities?${searchParams.toString()}`);
@@ -1278,7 +1282,7 @@ export function getActivitySubmissions(params = {}) {
   return request(`/api/daily-task-automation/activities/submissions?${searchParams.toString()}`);
 }
 
-// --- PRAJWAL EDIT: START — removed assignmentId/taskId params, Activity Bank items have no assignment wrapper ---
+// --- PRAJWAL EDIT: START â€” removed assignmentId/taskId params, Activity Bank items have no assignment wrapper ---
 export function submitActivityCompletion(activityId, payload) {
   return request(`/api/daily-task-automation/activities/${activityId}/complete`, {
     method: "POST",
@@ -1312,7 +1316,7 @@ export function sendDirectMessageToMentor(mentorId, payload) {
   });
 }
 
-// ── Mentor APIs (missing stubs) ──
+// â”€â”€ Mentor APIs (missing stubs) â”€â”€
 export function registerMentor(payload) {
   return request("/api/auth/register-mentor", {
     method: "POST",
@@ -1391,8 +1395,8 @@ export function changeMentorPassword(currentPassword, newPassword) {
   });
 }
 
-// ── Mentor Tabs APIs ──
-// ── Mentor Tracking APIs ──
+// â”€â”€ Mentor Tabs APIs â”€â”€
+// â”€â”€ Mentor Tracking APIs â”€â”€
 export function getMenteeObservations() {
   return request("/api/mentor/tracking/observations");
 }
@@ -1424,7 +1428,7 @@ export function getPDCACycles() {
 }
 
 // // UPDATED: PDCA cycles are now linked to a specific mentee.
-// // menteeId is required — pass the mentee's _id selected in the PDCA form.
+// // menteeId is required â€” pass the mentee's _id selected in the PDCA form.
 // // targetDate (optional ISO string) and category (optional string) are new fields.
 export function submitPDCACycle(cycleNumber, plan, doAction, check, act, menteeId, targetDate = null, category = "Other") {
   return request("/api/mentor/tracking/pdca", {
@@ -1450,7 +1454,7 @@ export function getCycleWeeklyReports(cycleId) {
 
 
 
-// ── AI PDCA Growth Cycle Generator (AI draft + mentor approval) ──
+// â”€â”€ AI PDCA Growth Cycle Generator (AI draft + mentor approval) â”€â”€
 // One fellow + month combination = one PDCAReport. Mentor clicks "Generate
 // Draft" -> AI drafts Plan/Do/Check/Act from deterministic grounding data.
 // See backend/src/routes/pdcaGenerate.js.
@@ -1462,7 +1466,7 @@ export function generatePDCADraft(fellowId, month = 1) {
 }
 
 // Fetch the current draft/approved report for a fellow + month, without
-// generating a new one — used to load an existing cycle for viewing/editing.
+// generating a new one â€” used to load an existing cycle for viewing/editing.
 export function getPDCAReport(fellowId, month = 1) {
   return request(`/api/pdca/${fellowId}?month=${month}`);
 }
@@ -1477,12 +1481,12 @@ export function approvePDCAReport(fellowId, { plan, doAction, check, act, delive
 }
 
 // All PDCA reports (any fellow, any month/status) belonging to the current
-// mentor — powers the unified Growth Cycle History + Fellow Progress panel.
+// mentor â€” powers the unified Growth Cycle History + Fellow Progress panel.
 export function getMentorPDCAReports() {
   return request("/api/pdca/mentor/reports");
 }
 
-// ── Curriculum upload (per-month, drives the PDCA generator) ──
+// â”€â”€ Curriculum upload (per-month, drives the PDCA generator) â”€â”€
 // Upload a .docx/.txt/.md curriculum doc for a month; the backend runs it
 // through AI and hands back a structured draft to review/edit before it's
 // saved anywhere. See backend/src/routes/curriculum.js.
@@ -1493,7 +1497,7 @@ export function parseCurriculumDocument(month, file) {
   return request("/api/pdca-curriculum/parse", { method: "POST", body: formData });
 }
 
-// One-shot "upload curriculum and design the Growth Cycle right now" — used
+// One-shot "upload curriculum and design the Growth Cycle right now" â€” used
 // by the Custom Growth Cycle form. Extracts + AI-parses the doc AND drafts
 // Plan/Do/Check/Act for the given fellow in a single request; the curriculum
 // itself is saved as a draft (so it also shows up in Manage Month Curricula)
@@ -1507,7 +1511,7 @@ export function designGrowthCycleFromCurriculum(fellowId, month, file) {
 }
 
 // Save a (possibly hand-edited) parsed draft as the live curriculum for
-// that month — this is what the PDCA generator reads from afterwards.
+// that month â€” this is what the PDCA generator reads from afterwards.
 export function publishCurriculum(month, curriculum) {
   return request(`/api/pdca-curriculum/${month}/publish`, {
     method: "POST",
@@ -1515,7 +1519,7 @@ export function publishCurriculum(month, curriculum) {
   });
 }
 
-// Summary list of every month's curriculum (published or still draft) —
+// Summary list of every month's curriculum (published or still draft) â€”
 // powers the month picker + the curriculum management screen.
 export function getCurriculumList() {
   return request("/api/pdca-curriculum");
@@ -1530,8 +1534,8 @@ export function deleteCurriculum(month) {
   return request(`/api/pdca-curriculum/${month}`, { method: "DELETE" });
 }
 
-// ── Mentor: Fellow Activity Submissions (used by the Growth Cycle AI layer) ──
-// Same data source MentorActivitiesTab uses (ActivitySubmission, live) — the
+// â”€â”€ Mentor: Fellow Activity Submissions (used by the Growth Cycle AI layer) â”€â”€
+// Same data source MentorActivitiesTab uses (ActivitySubmission, live) â€” the
 // AI insights engine reads from this rather than any new/duplicate endpoint.
 export function getMentorFellowActivities() {
   return request("/api/mentor/activities");
@@ -1542,7 +1546,7 @@ export function getMentorFellowTasks() {
 }
 
 
-// ── Mentor: Pending Fellow Approvals reminder ──
+// â”€â”€ Mentor: Pending Fellow Approvals reminder â”€â”€
 // Lightweight count used by the polling reminder component so it doesn't need
 // to pull the full fellow list just to check for pending ones.
 export function getPendingApprovalsCount() {
@@ -1550,7 +1554,7 @@ export function getPendingApprovalsCount() {
 }
 
 // Triggers a backend email to the mentor's own login address when they have
-// pending fellows. Safe to call often — the backend no-ops if none are pending.
+// pending fellows. Safe to call often â€” the backend no-ops if none are pending.
 export function notifyPendingApprovals() {
   return request("/api/mentor/tracking/notify-pending", {
     method: "POST",
