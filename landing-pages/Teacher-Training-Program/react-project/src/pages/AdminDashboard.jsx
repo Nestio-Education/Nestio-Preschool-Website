@@ -237,7 +237,7 @@ export default function AdminDashboard({ user, onLogout }) {
       <div style={{ flex:1, padding:"28px 32px", overflowY:"auto", maxHeight:"100vh" }}>
         {/* Top bar: User Guide button + Admin 3-dot menu, top-right corner */}
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:10, marginBottom:16, position:"relative" }}>
-            <a href="/landing-pages/Teacher-Training-Program/" style={{ display:"flex", alignItems:"center", gap:6, fontSize:13, fontWeight:700, color:"#d97706", textDecoration:"none" }}>
+            <a href="https://nestiopreschools.com/landing-pages/Teacher-Training-Program/" style={{ display:"flex", alignItems:"center", gap:6, fontSize:13, fontWeight:700, color:"#d97706", textDecoration:"none" }}>
               <span>&larr;</span> Back to website
             </a>
             <div style={{ display:"flex", gap:10 }}>

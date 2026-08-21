@@ -1101,11 +1101,11 @@ export default function LoginPage({ onLogin }) {
 
       {/* Site header - shown on Login, Register, Forgot & Reset views */}
       <header style={ls.header}>
-        <a href="/landing-pages/Teacher-Training-Program/" style={ls.headerBrand}>
+        <a href="https://nestiopreschools.com/landing-pages/Teacher-Training-Program/" style={ls.headerBrand}>
           <Logo size={40} />
           <span style={ls.headerBrandText}>SpacECE India Foundation</span>
         </a>
-        <a href="/landing-pages/Teacher-Training-Program/" style={ls.headerBack}>
+        <a href="https://nestiopreschools.com/landing-pages/Teacher-Training-Program/" style={ls.headerBack}>
           Back to website
         </a>
       </header>

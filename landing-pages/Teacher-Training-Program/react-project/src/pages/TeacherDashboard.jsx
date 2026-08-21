@@ -3390,7 +3390,7 @@ export default function TeacherDashboard({ user, onLogout }) {
       </div>
 
       <div style={{ flex: 1, width: "0px", minWidth: "0px", padding: "28px 32px", overflowY: "auto", maxHeight: "100vh" }}>
-        <a href="/landing-pages/Teacher-Training-Program/" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#d97706", textDecoration: "none", marginBottom: 12 }}>
+        <a href="https://nestiopreschools.com/landing-pages/Teacher-Training-Program/" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#d97706", textDecoration: "none", marginBottom: 12 }}>
             <span>&larr;</span> Back to website
           </a>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 20, position: "relative" }}>
